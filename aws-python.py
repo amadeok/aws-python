@@ -133,10 +133,105 @@ if __name__ == '__main__':
     #rest = client.reboot_instances( InstanceIds=InstanceIds)
 
 #    rest = client.start_instances( InstanceIds=InstanceIds)
-    resp = client.stop_instances( InstanceIds=InstanceIds)
+    #resp = client.stop_instances( InstanceIds=InstanceIds)
 
-    i = InstanceWrapper(ec2_resource=ec2_res)
-    i.display()
-    print(i)
+    # i = InstanceWrapper(ec2_resource=ec2_res)
+    # i.display()
+    # print(i)
 
 #print(response)
+import socket, time
+
+from subprocess import Popen, PIPE, STDOUT
+
+REM_HOST = '16.50.43.4'  # Standard loopback interface address (localhost)
+REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
+print ("started")
+import time
+print_ps_directly = True
+while 1:
+    try:
+      with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+          print("Connecting to " + REM_HOST + ":" + str(REM_PORT))
+          s.connect((REM_HOST, REM_PORT))
+          conn, addr = s.accept()
+
+          print("Socket connected")
+          while 1:
+              
+
+              
+                data_cpy = b''
+                f = open('I_printed_this.ps', 'wb')
+                while True:
+                    data = conn.recv(500)
+                    data_cpy += data
+                    if not data:
+                        break
+                    f.write(data)
+                    f.flush()
+                f.close()
+
+                # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                # s.connect((HOST, PORT))
+                size = len(data_cpy)
+                size_bytes = size.to_bytes(4, 'little')
+                conn.sendall(size_bytes)
+                print("sending all")
+                conn.sendall(data_cpy)
+                # recv_data = s.recv(size)
+
+                recv_data = b''
+                rem = size
+                buf = 500
+                while True:
+                    data = conn.recv(buf)
+                    rem -= len(data)
+                    if (rem < 500):
+                        buf = rem
+
+                    recv_data += data
+                    l = len(recv_data)
+                    if not data or l >= size:
+                        break
+
+                conn.send(b'\x01')
+
+                # recv_data=''.join(recv_data)
+                print("recv: " + str(len(recv_data)))
+                for n in range(size):
+                    if recv_data[n] != data_cpy[n]:
+                        print("ERROR tcp tranfer failed " + str(n))
+
+                conn.close()
+                time.sleep(0.1)
+                # f=open('I_recved_this.Ps','wb')
+
+                # f.write(recv_data)
+                # f.flush()
+                # f.close()
+                
+                # if print_ps_directly:
+                #   print("running :"  + str(ps_print))
+                #   p = Popen(ps_print, stdout=PIPE, stdin=PIPE, stderr=STDOUT)    
+                #   grep_stdout = p.communicate(input=recv_data)[0]
+
+                # else:
+                #   p = Popen(gs_ps_pdf, stdout=PIPE, stdin=PIPE, stderr=STDOUT)    
+                #   grep_stdout = p.communicate(input=recv_data)[0]
+
+                  # f=open('converted.pdf','wb')
+                  # f.write(grep_stdout)
+                  # f.flush()
+
+                #   p.wait()
+                #   print("to pdf")
+                #   grep_stdout = grep_stdout[37:-1]
+
+                #   p = Popen(print_cmd,  stdout=PIPE, stdin=PIPE, stderr=STDOUT)      
+                #   grep_stdout2 = p.communicate(input=grep_stdout)[0]
+                #   print(grep_stdout2)
+                #   p.wait()
+    except Exception as e:
+      print(e)
+      time.sleep(1)
