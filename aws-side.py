@@ -6,7 +6,7 @@ import select
 HOST = '188.153.195.184'
 PORT = 9596
 
-REM_HOST = "localhost"
+REM_HOST = "0.0.0.0"
 REM_PORT = 4003
 
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
