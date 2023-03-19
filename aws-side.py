@@ -27,51 +27,38 @@ if __name__ == '__main__':
                 print("Socket connected " + addr[0] + ":" + str(addr[1]))
                 b = b"\x00\x00\x00\x01"
                 # conn.sendall(b)
-                        
-                data_cpy = b''
-                f = open('I_printed_this.ps', 'wb')
-                while True:
-                    data = conn.recv(500)
-                    data_cpy += data
-                    if not data:
-                        break
-                    f.write(data)
-                    f.flush()
-                f.close()
-
-                # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                # s.connect((HOST, PORT))
-                size = len(data_cpy)
-                size_bytes = size.to_bytes(4, 'little')
-                conn.sendall(size_bytes)
-                print("sending all")
-                conn.sendall(data_cpy)
-                # recv_data = s.recv(size)
-
+                
+                size_b = conn.recv(4)
+                size = int.from_bytes(size_b, 'little')
+                print("receving " + str(size) + " bytes")
+                recv_data=[]
                 recv_data = b''
                 rem = size
                 buf = 500
                 while True:
-                    data = conn.recv(buf)
-                    rem -= len(data)
-                    if (rem < 500):
-                        buf = rem
+                  data=conn.recv(buf)
+                  rem-= len(data)
+                  if (rem < 500):
+                    buf = rem
+                  l =  0
+                # for ch in recv_data:
+                    #l += len(ch)
+                  recv_data +=data;
+                  l = len(recv_data)
+                  if not data or l >= size:
+                    break
+                  
+                recv_size = len(recv_data)
+                if recv_size != size:
+                  print("error dif size")
 
-                    recv_data += data
-                    l = len(recv_data)
-                    if not data or l >= size:
-                        break
+                conn.sendall(recv_data) 
 
-                conn.send(b'\x01')
+                re = conn.recv(1)
+                print(re)
 
-                # recv_data=''.join(recv_data)
-                print("recv: " + str(len(recv_data)))
-                for n in range(size):
-                    if recv_data[n] != data_cpy[n]:
-                        print("ERROR tcp tranfer failed " + str(n))
 
-                conn.close()
-                time.sleep(0.1)
+
 
         except Exception as e:
             print(e)
