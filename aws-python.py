@@ -1,5 +1,6 @@
 #Python Program for creating a connection
 import boto3
+import numpy
 
 access_key_id = "AKIAQTONZDFNOK7WKRXN"
 secret_access_key = "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"
@@ -149,89 +150,84 @@ REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
 print ("started")
 import time
 print_ps_directly = True
+file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
+#file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00002(5).mp3"
+
+def file_tranasfer(file, socket):
+    data_cpy = b''
+    f = open(file, 'rb')
+    data_cpy = f.read()[0:-1]
+    #print(data_cpy[0:100])
+    # while True:
+    #     #data = conn.recv(500)
+    #     data_cpy += data
+    #     if not data:
+    #         break
+    #     f.write(data)
+    #     f.flush()
+    f.close()
+
+    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    # s.connect((HOST, PORT))
+    size = len(data_cpy)
+    size_bytes = size.to_bytes(4, 'little')
+    socket.sendall(size_bytes)
+    print("sending all")
+    socket.sendall(data_cpy)
+    # recv_data = s.recv(size)
+
+    recv_data = b''
+    rem = size
+    buf = 128000
+    buffer = bytearray(size)
+    pos = 0
+    while True:
+        data = socket.recv(buf)
+        buf = len(data)+1
+        chunk_size = len(data)
+        buffer[pos:pos+chunk_size] = data
+
+        pos+=chunk_size
+
+        rem -= len(data)
+        if (rem < buf):
+            buf = rem
+
+        #recv_data += data
+       # l = len(recv_data)
+        if not data or pos >= size:
+            break
+
+
+    # recv_data=''.join(recv_data)
+    print("recv: " + str(pos))
+    np_ori = numpy.array(bytearray(data_cpy))
+    np_new = numpy.array(buffer)
+    print("transfer success: ", numpy.array_equiv(np_new, np_ori))
+    # for n in range(size):
+    #     if buffer[n] != data_cpy[n]:
+    #         print("ERROR tcp tranfer failed " + str(n))
+
+    ret = socket.recv(1)
+    i = len(ret)
+    print("ret", str(ret))
+    socket.send(b'\x01')
+
+    time.sleep(0.1)
+
 while 1:
+    s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     try:
-      with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-          print("Connecting to " + REM_HOST + ":" + str(REM_PORT))
-          s.connect((REM_HOST, REM_PORT))
-          conn, addr = s.accept()
+        print("Connecting to " + REM_HOST + ":" + str(REM_PORT))
+        s.connect((REM_HOST, REM_PORT))
 
-          print("Socket connected")
-          while 1:
-              
-
-              
-                data_cpy = b''
-                f = open('I_printed_this.ps', 'wb')
-                while True:
-                    data = conn.recv(500)
-                    data_cpy += data
-                    if not data:
-                        break
-                    f.write(data)
-                    f.flush()
-                f.close()
-
-                # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                # s.connect((HOST, PORT))
-                size = len(data_cpy)
-                size_bytes = size.to_bytes(4, 'little')
-                conn.sendall(size_bytes)
-                print("sending all")
-                conn.sendall(data_cpy)
-                # recv_data = s.recv(size)
-
-                recv_data = b''
-                rem = size
-                buf = 500
-                while True:
-                    data = conn.recv(buf)
-                    rem -= len(data)
-                    if (rem < 500):
-                        buf = rem
-
-                    recv_data += data
-                    l = len(recv_data)
-                    if not data or l >= size:
-                        break
-
-                conn.send(b'\x01')
-
-                # recv_data=''.join(recv_data)
-                print("recv: " + str(len(recv_data)))
-                for n in range(size):
-                    if recv_data[n] != data_cpy[n]:
-                        print("ERROR tcp tranfer failed " + str(n))
-
-                conn.close()
-                time.sleep(0.1)
-                # f=open('I_recved_this.Ps','wb')
-
-                # f.write(recv_data)
-                # f.flush()
-                # f.close()
-                
-                # if print_ps_directly:
-                #   print("running :"  + str(ps_print))
-                #   p = Popen(ps_print, stdout=PIPE, stdin=PIPE, stderr=STDOUT)    
-                #   grep_stdout = p.communicate(input=recv_data)[0]
-
-                # else:
-                #   p = Popen(gs_ps_pdf, stdout=PIPE, stdin=PIPE, stderr=STDOUT)    
-                #   grep_stdout = p.communicate(input=recv_data)[0]
-
-                  # f=open('converted.pdf','wb')
-                  # f.write(grep_stdout)
-                  # f.flush()
-
-                #   p.wait()
-                #   print("to pdf")
-                #   grep_stdout = grep_stdout[37:-1]
-
-                #   p = Popen(print_cmd,  stdout=PIPE, stdin=PIPE, stderr=STDOUT)      
-                #   grep_stdout2 = p.communicate(input=grep_stdout)[0]
-                #   print(grep_stdout2)
-                #   p.wait()
+        print("Socket connected")
+        break
+    
     except Exception as e:
-      print(e)
-      time.sleep(1)
+        s.close()
+
+        print(e)
+        time.sleep(1)
+
+file_tranasfer(file_, s)
