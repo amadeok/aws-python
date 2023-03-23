@@ -89,9 +89,8 @@ if __name__ == '__main__':
     port = 9001
     print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
 
-    s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     
-
     while 1:
         try:
             s.bind((REM_HOST, REM_PORT))
