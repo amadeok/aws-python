@@ -114,11 +114,13 @@ class InstanceWrapper:
                 err.response['Error']['Code'], err.response['Error']['Message'])
             raise
 
-# from autopyBot import autopy
-# p = r"F:\all\GitHub\Med2000bot\imgs"
-# a = autopy.autopy(p)
-# a.find(a.i.No, loop=1)
 
+
+from autopyBot import autopy
+p = r"F:\all\GitHub\Med2000bot\imgs"
+a = autopy.autopy(p)
+ret = a.find(a.i.No, loop=1)
+exit()
 if __name__ == '__main__':
     ec2_res = boto3.resource('ec2',
                    region,
@@ -134,7 +136,7 @@ if __name__ == '__main__':
     #rest = client.reboot_instances( InstanceIds=InstanceIds)
 
 #    rest = client.start_instances( InstanceIds=InstanceIds)
-    #resp = client.stop_instances( InstanceIds=InstanceIds)
+    resp = client.stop_instances( InstanceIds=InstanceIds)
 
     # i = InstanceWrapper(ec2_resource=ec2_res)
     # i.display()
