@@ -3,6 +3,24 @@ import time
 import socket
 import atexit
 import select
+import pyautogui as pg
+import autopy as at
+import os
+print(os.getcwd())
+
+a = at.autopy("images")
+
+prefix = "70p_"
+
+ret = a.find(a.i.dict[prefix + "select_file"], loop=3)
+if ret:
+    for x in range(2):
+        a.click(ret.found, 140, -232)  
+        time.sleep(0.5)
+    a.type("#pop")
+    time.sleep(1)
+    a.press("enter")
+
 HOST = '188.153.195.184'
 PORT = 9596
 
@@ -11,6 +29,10 @@ REM_PORT = 4003
 
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
 # PORT = 9595
+
+
+
+exit()
 
 def recveive_file(save_path, conn):
     b = b"\x00\x00\x00\x01"
