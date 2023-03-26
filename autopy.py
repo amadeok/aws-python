@@ -40,6 +40,33 @@ class imgs:
             self.dict[basename] = img
             setattr(self, basename, img)
 
+import win32gui, win32ui, win32con, numpy
+
+def background_screenshot(hwnd, width, height, save_file=False):
+    #t0 = time.time()
+    wDC = win32gui.GetWindowDC(hwnd)
+    dcObj=win32ui.CreateDCFromHandle(wDC)
+    cDC=dcObj.CreateCompatibleDC()
+    dataBitMap = win32ui.CreateBitmap()
+    dataBitMap.CreateCompatibleBitmap(dcObj, width, height) #1020 - 960
+    cDC.SelectObject(dataBitMap)
+    cDC.BitBlt((0,0),(width, height) , dcObj, (0,0), win32con.SRCCOPY)
+   # print(time.time() - t0)
+    #dataBitMap.SaveBitmapFile(cDC, 'screenshot2.bmp')
+
+    bmpinfo = dataBitMap.GetInfo()
+    bmparray = numpy.asarray(dataBitMap.GetBitmapBits(), dtype=numpy.int8)
+    pil_im = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']), bmparray, 'raw', 'BGRX', 0, 1)
+    pil_im = pil_im.crop((0, 52, width, height))
+    
+    if save_file:
+        pil_im.save("test.png")
+    dcObj.DeleteDC()
+    cDC.DeleteDC()
+    win32gui.ReleaseDC(hwnd, wDC)
+    win32gui.DeleteObject(dataBitMap.GetHandle())
+    return pil_im
+    #haystackImage =    Image.frombytes('RGB', sct_img.size, sct_img.rgb)
 
 def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=True):
     if region == None:
@@ -51,10 +78,13 @@ def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=T
 
     r = {"top": region[1], "left": region[0],  "width": region[2], "height": region[3]} 
 
-    with mss.mss() as sct:
-        sct_img = sct.grab(r) 
+    if not ctx.specific_back_win:
+        with mss.mss() as sct:
+            sct_img = sct.grab(r) 
+            haystackImage =    Image.frombytes('RGB', sct_img.size, sct_img.rgb)
+    else:
+        haystackImage = background_screenshot(ctx.specific_back_win, region[2], region[3])
 
-    haystackImage =    Image.frombytes('RGB', sct_img.size, sct_img.rgb)
     # if confidence == 0.99:
     #haystackImage.save('test.bmp')
     if grayscale: gray = grayscale
@@ -84,7 +114,7 @@ def check_timeout2(ctx, sec):
 
 
 class autopy:
-    def __init__(self, imgs_path):
+    def __init__(self, imgs_path, specific_back_win=None):
         self.imgs_path = imgs_path
         self.find_fun_timeout = 15
         self.prev_time = time.time()
@@ -92,7 +122,8 @@ class autopy:
         self.default_region = [0, 0, self.screen_res.width, self.screen_res.height]
         self.stop_t = False
         self.i = imgs(self, imgs_path)
-        
+        self.specific_back_win = specific_back_win
+
 
     def init_arduino(reset_arduino):
         while 1:

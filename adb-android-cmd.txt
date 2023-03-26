@@ -1,0 +1,57 @@
+C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting\Modules\
+
+echo %RESOLVE_SCRIPT_API%"
+
+echo %RESOLVE_SCRIPT_LIB%
+
+echo %PYTHONPATH%
+echo %PYTHONHOME%
+
+
+C:\Program Files\Blackmagic Design\DaVinci Resolve
+
+"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
+
+
+print(os.getenv("RESOLVE_SCRIPT_API"))
+print(os.getenv("RESOLVE_SCRIPT_LIB"))
+
+set PYTHONPATH="C:\Users\amade\AppData\Local\Programs\Python\Python310"
+set PYTHONPATH="C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting\Modules" 
+set PYTHONPATH="%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\"
+set PYTHONHOME="%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\"
+
+to get script working in resolve:
+delete all python env vars
+uninstall 3.10
+install 3.10, add to path, not for all users
+ 
+ adb shell monkey -p com.daaw.avee 1
+ com.daaw.avee
+ 
+ 
+ adb shell am start -a android.intent.action.VIEW -n com.daaw.avee -e param value
+ 
+adb shell am start -n com.daaw.avee/com.daaw.avee.MainActivity -e param "/mnt/shared/Pictures/00000.mp3"
+
+am start --user 0 -a android.intent.action.VIEW -d  "/mnt/shared/Pictures/00000.mp3" 
+
+am start --user 0 -n com.daaw.avee/com.daaw.avee.MainActivity -e inputFile "/mnt/shared/Pictures/00000.mp3"
+
+am start -d  "/storage/emulated/0/Pictures/00000.mp3" 
+
+act=android.intent.action.VIEW dat=content://media/external/audio/media/53 typ=audio/x-wav flg=0x13000000 cmp=com.daaw.avee/.MainActivity
+
+adb -s emulator-5554 shell
+dumpsys activity
+
+am start -a android.intent.action.VIEW -d content://media/external/audio/media/47 -n com.daaw.avee/.MainActivity
+
+am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/00024.wav -n com.daaw.avee/.MainActivity
+
+am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/AveeTemplate_normal/CX%20liquify.viz -n com.daaw.avee/.MainActivity
+
+am broadcast -a com.llamalab.automate.intent.action.START_FLOW -d content://com.llamalab.automate.provider/flows/6/statements/1 -n com.llamalab.automate/.StartServiceReceiver -e Payload "defed"
+
+
+Intent { act=android.intent.action.VIEW dat=file:///mnt/shared/Pictures/AveeTemplate_normal/Bass%20Nation.viz typ=application/octet-stream flg=0x10000000 cmp=com.daaw.avee/.MainActivity }

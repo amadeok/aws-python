@@ -116,11 +116,11 @@ class InstanceWrapper:
 
 
 
-from autopyBot import autopy
-p = r"F:\all\GitHub\Med2000bot\imgs"
-a = autopy.autopy(p)
-ret = a.find(a.i.No, loop=1)
-exit()
+# from autopyBot import autopy
+# p = r"F:\all\GitHub\Med2000bot\imgs"
+# a = autopy.autopy(p)
+# ret = a.find(a.i.No, loop=1)
+# exit()
 if __name__ == '__main__':
     ec2_res = boto3.resource('ec2',
                    region,
@@ -135,8 +135,8 @@ if __name__ == '__main__':
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
     #rest = client.reboot_instances( InstanceIds=InstanceIds)
 
-#    rest = client.start_instances( InstanceIds=InstanceIds)
-    resp = client.stop_instances( InstanceIds=InstanceIds)
+    #rest = client.start_instances( InstanceIds=InstanceIds)
+    #resp = client.stop_instances( InstanceIds=InstanceIds)
 
     # i = InstanceWrapper(ec2_resource=ec2_res)
     # i.display()
@@ -147,7 +147,7 @@ import socket, time
 
 from subprocess import Popen, PIPE, STDOUT
 
-REM_HOST = '16.50.43.4'  # Standard loopback interface address (localhost)
+REM_HOST = '192.168.1.189'  # Standard loopback interface address (localhost)
 REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
 print ("started")
 import time
