@@ -29,7 +29,7 @@ class image:
         self.found = False
 
 class imgs:
-    def __init__(self, ctx, path):
+    def __init__(self, ctx, path, prefix):
         file_list = os.listdir(path if path is not None else 'imgs/') #os.listdir('imgs/')
         self.base_path = path
         self.dict = {}
@@ -39,6 +39,12 @@ class imgs:
             img = image(ctx, file, 0.8, self.base_path)
             self.dict[basename] = img
             setattr(self, basename, img)
+            if len(prefix):
+                basename2 = basename.split(prefix)
+                if len(basename2) > 1:
+                    setattr(self, basename2[1], img)
+
+        
 
 import win32gui, win32ui, win32con, numpy
 
@@ -78,12 +84,15 @@ def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=T
 
     r = {"top": region[1], "left": region[0],  "width": region[2], "height": region[3]} 
 
-    if not ctx.specific_back_win:
+    if not ctx.ext_src:
         with mss.mss() as sct:
             sct_img = sct.grab(r) 
             haystackImage =    Image.frombytes('RGB', sct_img.size, sct_img.rgb)
-    else:
+    elif ctx.ext_src == "window":
         haystackImage = background_screenshot(ctx.specific_back_win, region[2], region[3])
+    elif ctx.ext_src == "phone":
+        haystackImage = receive_screen_shot_from_phone(ctx)
+
 
     # if confidence == 0.99:
     #haystackImage.save('test.bmp')
@@ -110,19 +119,69 @@ def check_timeout2(ctx, sec):
 
         return 0
     return 1
+import win32pipe, threading, win32api, win32file
+from io import BytesIO
 
+def start_screen_cap():
+    time.sleep(0.01)
+    print("starting phone screencap")
+    os.system("adb -s ce041714f506223101 exec-out screencap -p >" +  r"\\.\pipe\dain_a_id")
+
+
+def receive_screen_shot_from_phone(ctx=None, save_file=False):
+    output_pipe =  r'\\.\pipe\dain_a_id' 
+    arr = ctx.ext_src_buffer if ctx else  bytearray(1080*1920*3)
+
+    mode = win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE | win32pipe.PIPE_WAIT
+    fd0 = win32pipe.CreateNamedPipe( output_pipe, win32pipe.PIPE_ACCESS_DUPLEX, mode, 1, 65536, 65536, 0, None)
+    t = threading.Thread(target=start_screen_cap, args=())
+    t.start()
+    #sp.Popen(["adb", "-s", "ce041714f506223101", "exec-out", "screencap", "-p", ">",  "\\.\pipe\dain_a_id"])
+    print("connecting to pipe")
+    ret = win32pipe.ConnectNamedPipe(fd0, None)
+
+    if ret != 0:
+        print("error fd0", win32api.GetLastError())
+    print(f'Python capture ID : Output pipe opened')
+    t0 = time.time()
+
+    tot_data = b''
+    pos = 0
+    buffer_size= 20480
+    t0 = time.time()
+    while 1:
+        try:
+            data = win32file.ReadFile(fd0, buffer_size) #w*h*s
+        except:
+            break
+        lenght_read = len(data[1])
+        arr[pos:pos+lenght_read] = data[1]
+        pos+=lenght_read
+        #tot_data+=data[1]
+        if not data:
+            break
+    
+    f = BytesIO(arr[0:pos])
+    pil_im = Image.open(f)
+    #pil_im = Image.frombuffer('RGB', (1080, 2220, ctx.ext_src_buffer[0:len(pos)], 'raw', 'BGRX', 0, 1)
+    print(time.time() -t0)
+    if save_file:
+        with open("f.png", "wb") as f_o:
+            f_o.write(arr[0:pos])
+    return pil_im
 
 
 class autopy:
-    def __init__(self, imgs_path, specific_back_win=None):
+    def __init__(self, imgs_path, ext_src=None, img_prefix=""):
         self.imgs_path = imgs_path
         self.find_fun_timeout = 15
         self.prev_time = time.time()
         self.screen_res = pyautogui.size()
         self.default_region = [0, 0, self.screen_res.width, self.screen_res.height]
         self.stop_t = False
-        self.i = imgs(self, imgs_path)
-        self.specific_back_win = specific_back_win
+        self.i = imgs(self, imgs_path, img_prefix)
+        self.ext_src = ext_src
+        self.ext_src_buffer = None
 
 
     def init_arduino(reset_arduino):
