@@ -51,7 +51,36 @@ am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/00024.wav 
 
 am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/AveeTemplate_normal/CX%20liquify.viz -n com.daaw.avee/.MainActivity
 
-am broadcast -a com.llamalab.automate.intent.action.START_FLOW -d content://com.llamalab.automate.provider/flows/6/statements/1 -n com.llamalab.automate/.StartServiceReceiver -e Payload "defed"
+am broadcast -a com.llamalab.automate.intent.action.START_FLOW -d content://com.llamalab.automate.provider/flows/8/statements/1 -n com.llamalab.automate/.StartServiceReceiver -e Payload "x99x99"
 
+am broadcast -a com.llamalab.automate.intent.action.START_FLOW -d content://com.llamalab.automate.provider/flows/9/statements/1 -n com.llamalab.automate/.StartServiceReceiver 
 
 Intent { act=android.intent.action.VIEW dat=file:///mnt/shared/Pictures/AveeTemplate_normal/Bass%20Nation.viz typ=application/octet-stream flg=0x10000000 cmp=com.daaw.avee/.MainActivity }
+
+adb shell screencap -p /sdcard/screencap.png && adb pull /sdcard/screencap.png         
+adb shell screencap -p /sdcard/screencap.png && adb pull /sdcard/screencap.png         
+
+adb -s ce041714f506223101 exec-out screencap -p > \\.\pipe\dain_a_id
+
+
+adb  -s emulator-5554 shell input tap {500} {500}
+
+C:\Users\amade\AppData\Local\Android\Sdk\tools\bin\avdmanager.bat list avd
+
+avdmanager.bat list avd
+
+C:\Users\amade\AppData\Local\Android\Sdk\tools\emulator -list-avds
+
+C:\Users\amade\AppData\Local\Android\Sdk\tools\emulator.exe -avd Pixel_2_API_28
+
+
+C:\Users\amade\AppData\Local\Android\Sdk\emulator\qemu\windows-x86_64\qemu-system-x86_64.exe -netdelay none -netspeed full -avd Pixel_2_API_28	x64	qemu-system-x86_64.exe
+works:
+open folder C:\Users\amade\AppData\Local\Android\Sdk\emulator
+right click open with power shell
+emulator.exe -avd Pixel_2_API_28
+if freezes do cold boot
+emulator.exe -avd Pixel_2_API_28 -gpu swiftshader_indirect
+
+mv /mnt/shared/Pictures/00023_new_.wav /mnt/shared/Pictures/00023_new__.wav 
+mv /mnt/shared/Pictures/00023_new__.wav /mnt/shared/Pictures/00023_new_.wav 

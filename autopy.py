@@ -88,8 +88,8 @@ def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=T
         with mss.mss() as sct:
             sct_img = sct.grab(r) 
             haystackImage =    Image.frombytes('RGB', sct_img.size, sct_img.rgb)
-    elif ctx.ext_src == "window":
-        haystackImage = background_screenshot(ctx.specific_back_win, region[2], region[3])
+    elif type(ctx.ext_src) == int:
+        haystackImage = background_screenshot(ctx.ext_src, region[2], region[3])
     elif ctx.ext_src == "phone":
         haystackImage = receive_screen_shot_from_phone(ctx)
 
