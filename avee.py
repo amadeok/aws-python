@@ -135,9 +135,9 @@ audio_list = [nt(quote(elem), elem) for elem in os.listdir(audio_fld) if ".wav" 
 
 a = at.autopy("images_avee", ext_src=hwnd, img_prefix=prefix) #w._hWnd
 a.ext_src_buffer =  bytearray(wid*hei*3)
-target_file = nt("", "")
-while not "(" in target_file.win_name:
-    target_file =  random.choice(audio_list)
+# target_file = nt("", "")
+# while not "(" in target_file.win_name:
+target_file =  random.choice(audio_list)
 
 
 
@@ -181,6 +181,8 @@ hwnd, ld_win= restart_ld_player(hwnd)
 wait_for_device()
 a.ext_src = hwnd
 r = (ld_win.topleft.x, ld_win.topleft.y, wid, hei)
+p = None
+f = open(p, "wb")
 
 #found = a.find(a.i.play_store, loop=3, timeout=30, region=r, grayscale=True)
 

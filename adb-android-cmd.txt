@@ -16,10 +16,29 @@ C:\Program Files\Blackmagic Design\DaVinci Resolve
 print(os.getenv("RESOLVE_SCRIPT_API"))
 print(os.getenv("RESOLVE_SCRIPT_LIB"))
 
-set PYTHONPATH="C:\Users\amade\AppData\Local\Programs\Python\Python310"
-set PYTHONPATH="C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting\Modules" 
-set PYTHONPATH="%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\"
-set PYTHONHOME="%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\"
+set PYTHONPATH=C:\Users\amade\AppData\Local\Programs\Python\Python310
+set PYTHONPATH=C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting\
+set PYTHONPATH=%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\
+set PYTHONHOME=%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\
+
+____________________________
+works in studio:
+
+C:\Users\amade>echo %RESOLVE_SCRIPT_LIB%
+C:\Program Files\Blackmagic Design\DaVinci Resolve\fusionscript.dll
+
+C:\Users\amade>echo %RESOLVE_SCRIPT_API%
+C:\ProgramData\Blackmagic Design\DaVinci Resolve\Support\Developer\Scripting
+
+C:\Users\amade>set PYTHONPATH=C:\Users\amade\AppData\Local\Programs\Python\Python310
+
+C:\Users\amade>set PYTHONPATH=%PYTHONPATH%;%RESOLVE_SCRIPT_API%\Modules\
+
+python
+
+import DaVinciResolveScript
+____________________________
+
 
 to get script working in resolve:
 delete all python env vars
@@ -82,5 +101,22 @@ emulator.exe -avd Pixel_2_API_28
 if freezes do cold boot
 emulator.exe -avd Pixel_2_API_28 -gpu swiftshader_indirect
 
-mv /mnt/shared/Pictures/00023_new_.wav /mnt/shared/Pictures/00023_new__.wav 
-mv /mnt/shared/Pictures/00023_new__.wav /mnt/shared/Pictures/00023_new_.wav 
+mv /mnt/shared/Pictures/00023_new_.wav /mnt/shared/Pictures/00023new.wav 
+mv /mnt/shared/Pictures/00023new.wav /mnt/shared/Pictures/00023_new_.wav 
+
+adb -s emulator-5554 push tmp\\00023_new_.wav /mnt/shared/Pictures/00023_new_.wav
+
+adb  -s emulator-5554 shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///mnt/shared/Pictures/
+
+adb shell "cd /mnt/sdcard/Download && rm -rf *.mp4"
+
+mv /mnt/sdcard/Download/00007_0.mp4 /mnt/shared/Pictures/output/00007_0.mp4
+
+
+taskkill /IM LDPlayer.exe
+
+194 563
+
+adb shell input text 00043(3)
+
+rife torch torch-1.13.1+cu116

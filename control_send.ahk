@@ -1,8 +1,7 @@
 
 
 
-
-
+ControlSend, Qt5152QWindowIcon, {f1}, ahk_pid 2752
 
 
 
