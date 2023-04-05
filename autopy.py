@@ -1,7 +1,27 @@
-import os, sys, time, argparse, mss, pyautogui, serial
+import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging
 from PIL import Image
 
+#from avee_utils import is_avee_running
+def adb_output(cmd):
+    device = "emulator-5554"
+
+    base = f"adb  -s {device} shell "
+
+    process = sp.Popen(base + cmd,
+                        shell=True,
+                           stdout=sp.PIPE, 
+                           stderr=sp.PIPE)
+
+    out, err = process.communicate()
+    errcode = process.returncode
+    return out if len(out) else err
+
+def is_avee_running():
+    ret =  adb_output(f"pidof com.daaw.avee")
+    if ret != b'':
+        return True
+    return False
 
 pil_logger = logging.getLogger('PIL')
 pil_logger.setLevel(logging.INFO)
@@ -225,7 +245,7 @@ class autopy:
         if (self.stop_t):  return -1
         pyautogui.write(text, interval=interval_)
 
-    def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, grayscale=True,  center=True, click=False, store_first=True):
+    def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True):
         
         if timeout == None: 
             timeout = self.find_fun_timeout
@@ -295,6 +315,9 @@ class autopy:
 
         if loop >= 0:
             while 1:
+                if check_avee_running:
+                    if not is_avee_running():
+                        raise Exception("Trying to find an image in ldplayer while avee  is not running, image:" + str([elem.name for elem in obj_l]))
                 found  = find_partial_(confidence, region, grayscale, center)
                 if found: 
                     return found 

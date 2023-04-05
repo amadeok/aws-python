@@ -1,0 +1,173 @@
+Composition {
+   CurrentTime = 29918,
+   RenderRange = { 0, 29999 },
+   GlobalRange = { 0, 29999 },
+   CurrentID = 4,
+   HiQ = true,
+   PlaybackUpdateMode = 0,
+   Version = "DaVinci Resolve Studio 15.3.1.003",
+   SavedOutputs = 0,
+   HeldTools = 0,
+   DisabledTools = 0,
+   LockedTools = 0,
+   AudioOffset = 0,
+   Resumable = true,
+   OutputClips = {
+   },
+   Tools = {
+      MediaIn1 = Loader {
+         ExtentSet = true,
+         CustomData = {
+            MediaProps = {
+               MEDIA_FORMAT_TYPE = "JPEG",
+               MEDIA_HEIGHT = 720,
+               MEDIA_LAYER_DESC = {
+               },
+               MEDIA_MARK_IN = 0,
+               MEDIA_MARK_OUT = 29999,
+               MEDIA_NAME = "40126144_10156052718674191_8282698242[534146048-534146048]_n.jpg",
+               MEDIA_NUM_FRAMES = 30000,
+               MEDIA_NUM_LAYERS = 0,
+               MEDIA_PAR = 1,
+               MEDIA_PATH = "/Users/iddosmac/Davinci/MEDIA/Maya_1_Mazeget/Pics/40126144_10156052718674191_8282698242[534146048-534146048]_n.jpg",
+               MEDIA_SRC_FRAME_RATE = 25,
+               MEDIA_START_FRAME = 0,
+               MEDIA_WIDTH = 960
+            },
+         },
+         Inputs = {
+            GlobalOut = Input { Value = 29999, },
+            ["Gamut.SLogVersion"] = Input { Value = FuID { "SLog2" }, },
+            Layer = Input { Value = "0", },
+            ClipTimeEnd = Input { Value = 29999, },
+         },
+         ViewInfo = OperatorInfo { Pos = { 55, 49.5 } },
+         Clips = {
+            Clip {
+               ID = "Clip1",
+               Filename = "/Users/iddosmac/Davinci/MEDIA/Maya_1_Mazeget/Pics/40126144_10156052718674191_8282698242534146048_n.jpg",
+               Length = 30000,
+               LengthSetManually = true,
+               GlobalEnd = 29999,
+               TrimOut = 29999,
+            }
+         }
+      },
+      Transform1 = Transform {
+         CtrlWZoom = false,
+         Inputs = {
+            Size = Input {
+               Value = 2.04986499549985,
+               Expression = ":if time < 1 then n = 1.0; else n = 1.0 + (0.9 / comp.RenderEnd * time); end; return n\n",
+            },
+            Input = Input {
+               SourceOp = "MediaIn1",
+               Source = "Output",
+            },
+         },
+         ViewInfo = OperatorInfo { Pos = { 165, 49.5 } },
+      },
+      MediaOut1 = Saver {
+         Inputs = {
+            Index = Input { Value = "0", },
+            Input = Input {
+               SourceOp = "Transform1",
+               Source = "Output",
+            },
+         },
+         ViewInfo = OperatorInfo { Pos = { 605, 49.5 } },
+      }
+   },
+   Prefs = {
+      Comp = {
+         FrameFormat = {
+            GuideRatio = 1.77777777777778,
+            DepthPreview = 3,
+            Rate = 25,
+            Width = 960,
+            DepthFull = 3,
+            Height = 720,
+            DepthInteractive = 3,
+         },
+         Interactive = {
+            Proxy = {
+               Scale = 1,
+            },
+         },
+         Paths = {
+         },
+         LastFile = "/Users/iddosmac/Davinci/MEDIA/Maya_1_Mazeget/pngs/bg-flower_1.22.1.png",
+         Unsorted = {
+            GlobalEnd = 29999
+         },
+         FlowView = {
+            ConnectedSnap = true,
+         },
+         Import = {
+            EDL = {
+               UseShotNames = 1
+            }
+         },
+         Views = {
+            Right = {
+               SideB = {
+                  PrevCtrlInactiveColor = 4278255360,
+                  PickW = 1,
+                  PickH = 1,
+                  PrevCtrlActiveColor = 4278190335,
+                  Viewer = {
+                     EnableLUTs = false,
+                     LUTPlugin = "�ݺ d�",
+                     FitMarginY = 0,
+                     FitMarginX = 0,
+                     FitMarginType = 0,
+                     FarZ = -1000,
+                     NearZ = 0
+                  }
+               },
+            },
+            View1 = {
+               PrevCtrlInactiveColor = 0,
+               PickW = 0,
+               PickH = 0,
+               SideB = {
+                  PrevCtrlInactiveColor = 4278255360,
+                  PickW = 1,
+                  PickH = 1,
+                  PrevCtrlActiveColor = 4278190335,
+                  Viewer = {
+                     EnableLUTs = false,
+                     LUTPlugin = "�ݺ�c�",
+                     FitMarginY = 0,
+                     FitMarginX = 0,
+                     FitMarginType = 0,
+                     FarZ = -1000,
+                     NearZ = 0
+                  }
+               },
+               PrevCtrlActiveColor = 0,
+            },
+            Left = {
+               SideB = {
+                  PrevCtrlInactiveColor = 4278255360,
+                  PickW = 1,
+                  PickH = 1,
+                  PrevCtrlActiveColor = 4278190335,
+                  Viewer = {
+                     EnableLUTs = false,
+                     LUTPlugin = "�ݺ�(B�`",
+                     FitMarginY = 0,
+                     FitMarginX = 0,
+                     FitMarginType = 0,
+                     FarZ = -1000,
+                     NearZ = 0
+                  }
+               },
+               Viewer = {
+               },
+            },
+         },
+      }
+   }
+}
+
