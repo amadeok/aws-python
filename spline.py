@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np, math as Math
 from math import pi as PI
 from collections import namedtuple
+line__ = namedtuple("line", "line opposite name")
 
 class ease_funs():
     def __init__(self) -> None:
@@ -25,7 +26,6 @@ class ease_funs():
         self.function_l = ["easeInSine",  "easeInCubic",  "easeInQuint",  "easeInCirc",  "easeInElastic",  "easeInQuad",  "easeInQuart",  "easeInExpo",  "easeInBack",  "easeInBounce",  
 "easeOutSine",  "easeOutCubic",  "easeOutQuint",  "easeOutCirc",  "easeOutElastic",  "easeOutQuad",  "easeOutQuart",  "easeOutExpo",  "easeOutBack",  "easeOutBounce",  "easeInOutSine",  "easeInOutCubic",  "easeInOutQuint",  "easeInOutCirc",  "easeInOutElastic",  "easeInOutQuad",  "easeInOutQuart",  "easeInOutExpo",  "easeInOutBack",  "easeInOutBounce"]
         #self.pre_made_funs = {}
-        line = namedtuple("line", "line opposite")
         for i, f in enumerate(self.function_l):
             ll_op =None
             ll = self.get_line(getattr(self, f))
@@ -37,7 +37,14 @@ class ease_funs():
                 ll_op = ll
             #print(ll)
             #print(ll_op)
-            setattr(self, f+"_yline", line(ll, ll_op))
+            name = ""
+            if "InOut" in f:
+                name = f.split("InOut")[1]                
+            elif "In" in f:
+                name = f.split("In")[1]                
+            elif "Out" in f:
+                name = f.split("Out")[1]                
+            setattr(self, f+"_yline", line__(ll, ll_op, name))
                     
             #self.pre_made_funs[f] = self.get_line(getattr(self, f))
         #xx, yy = self.get_range_spline(self.easeOutBack_yline, 0.4, 1.7, 0.3, 1.3)
@@ -57,7 +64,8 @@ class ease_funs():
         xx = np.linspace(xrange_start,xrange_end,100)
         yy = np.linspace(yrange_start,yrange_end,100)
         for i, elem in enumerate(yy):
-            yy[i] = self.scale(fun_points[i] ,[0,1], [yrange_start, yrange_end])
+            val =   self.scale(fun_points[i] ,[0,1], [yrange_start, yrange_end])
+            yy[i] =val
         return xx, yy
 
 
