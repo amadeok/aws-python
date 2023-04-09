@@ -8,6 +8,10 @@ import autopy as at
 import os
 print(os.getcwd())
 
+from datetime import datetime
+
+with open("/home/ubuntu/f.txt",  "w") as ww:
+    ww.write(str(datetime.now().strftime("%H:%M:%S")) )
 a = at.autopy("images")
 
 prefix = "70p_"
@@ -32,7 +36,7 @@ REM_PORT = 4003
 
 
 
-exit()
+#exit()
 
 def recveive_file(save_path, conn):
     b = b"\x00\x00\x00\x01"
