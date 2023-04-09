@@ -127,6 +127,16 @@ class InstanceWrapper:
 # a = autopy.autopy(p)
 # ret = a.find(a.i.No, loop=1)
 # exit()
+import logging
+
+def get_instance_state(client, id):
+    response = client.describe_instance_status(InstanceIds=[id])
+    try:
+        return response['InstanceStatuses'][0]['InstanceState']["Name"]
+    except Exception as e:
+        logging.info(e)
+        return "None"
+    
 if __name__ == '__main__':
     ec2_res = boto3.resource('ec2',
                    region,
@@ -139,9 +149,28 @@ if __name__ == '__main__':
                    aws_secret_access_key=secret_access_key)
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
-    #rest = client.reboot_instances( InstanceIds=InstanceIds)
+   # rest = client.reboot_instances( InstanceIds=InstanceIds) 
 
-    #rest = client.start_instances( InstanceIds=InstanceIds)
+
+        
+    print(get_instance_state(client, InstanceIds[0]))
+    try:
+        resp = client.stop_instances( InstanceIds=InstanceIds)
+    except Exception as e:
+        logging.info(f"failed to stop instance {e}")
+
+    print(get_instance_state(client, InstanceIds[0]))
+    try:
+        rest = client.start_instances( InstanceIds=InstanceIds)
+    except Exception as e:
+        logging.info(f"failed to start instance {e}")
+
+    state = get_instance_state(client, InstanceIds[0])
+
+    # "running"
+    
+   # if state != "running":
+  #      rest = client.start_instances( InstanceIds=InstanceIds)
     #resp = client.stop_instances( InstanceIds=InstanceIds)
 
     # i = InstanceWrapper(ec2_resource=ec2_res)

@@ -127,9 +127,9 @@ def lis(): # Collect events until released
 t= threading.Thread(target=lis)
 t.start()
 
-adb("am force-stop com.daaw.avee")
-time.sleep(0.5)
-reset_settings()
+# adb("am force-stop com.daaw.avee")
+# time.sleep(0.5)
+# reset_settings()
 # settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
 # for f in os.listdir(settings_f):
 #     bb = "adb  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
