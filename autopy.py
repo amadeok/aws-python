@@ -1,5 +1,6 @@
 import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging
+import app_logging
 from PIL import Image
 
 #from avee_utils import is_avee_running
@@ -23,14 +24,6 @@ def is_avee_running():
         return True
     return False
 
-pil_logger = logging.getLogger('PIL')
-pil_logger.setLevel(logging.INFO)
-log_to_file = False
-
-if log_to_file:
-    logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(message)s', level=level)
-else: 
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
     
 class image:
     def __init__(self, c, name, conf, base_path):

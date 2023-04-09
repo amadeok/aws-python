@@ -1,14 +1,16 @@
 #Python Program for creating a connection
 import boto3
 import numpy
+import logging, network
+import app_logging
 
 access_key_id = "AKIAQTONZDFNOK7WKRXN"
 secret_access_key = "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"
+
 with open("rtf", "r")as i:
     d = i.read().splitlines()
     access_key_id = d[0]
     secret_access_key = d[1]
-
 
 region = "ap-southeast-4" #'ap-south-1'
 ec2 = boto3.client('ec2',
@@ -21,16 +23,7 @@ ec2 = boto3.client('ec2',
 #response = ec2.describe_instances()
 
 def hello_ec2(ec2_resource):
-    """
-    Use the AWS SDK for Python (Boto3) to create an Amazon Elastic Compute Cloud
-    (Amazon EC2) resource and list the security groups in your account.
-    This example uses the default settings specified in your shared credentials
-    and config files.
 
-    :param ec2_resource: A Boto3 EC2 ServiceResource object. This object is a high-level
-                         resource that wraps the low-level EC2 service API.
-    """
-    print("Hello, Amazon EC2! Let's list up to 10 of your security groups:")
     for sg in ec2_resource.security_groups.limit(10):
         print(f"\t{sg.id}: {sg.group_name}")
 
@@ -39,13 +32,6 @@ def hello_ec2(ec2_resource):
 class InstanceWrapper2:
     """Encapsulates Amazon Elastic Compute Cloud (Amazon EC2) instance actions."""
     def __init__(self, ec2_resource, instance=None):
-        """
-        :param ec2_resource: A Boto3 Amazon EC2 resource. This high-level resource
-                             is used to create additional high-level objects
-                             that wrap low-level Amazon EC2 service actions.
-        :param instance: A Boto3 Instance object. This is a high-level object that
-                           wraps instance actions.
-        """
         self.ec2_resource = ec2_resource
         self.instance = instance
 
@@ -55,11 +41,6 @@ class InstanceWrapper2:
         return cls(ec2_resource)
 
     def start(self):
-        """
-        Starts an instance and waits for it to be in a running state.
-
-        :return: The response to the start request.
-        """
         if self.instance is None:
             print("No instance to start.")
             return
@@ -79,13 +60,7 @@ class InstanceWrapper2:
 class InstanceWrapper:
     """Encapsulates Amazon Elastic Compute Cloud (Amazon EC2) instance actions."""
     def __init__(self, ec2_resource, instance=None):
-        """
-        :param ec2_resource: A Boto3 Amazon EC2 resource. This high-level resource
-                             is used to create additional high-level objects
-                             that wrap low-level Amazon EC2 service actions.
-        :param instance: A Boto3 Instance object. This is a high-level object that
-                           wraps instance actions.
-        """
+
         self.ec2_resource = ec2_resource
         self.instance = instance
 
@@ -95,11 +70,7 @@ class InstanceWrapper:
         return cls(ec2_resource)
 
     def display(self, indent=1):
-        """
-        Displays information about an instance.
 
-        :param indent: The visual indent to apply to the output.
-        """
         if self.instance is None:
             print("No instance to display.")
             return
@@ -127,7 +98,6 @@ class InstanceWrapper:
 # a = autopy.autopy(p)
 # ret = a.find(a.i.No, loop=1)
 # exit()
-import logging
 
 def get_instance_state(client, id):
     response = client.describe_instance_status(InstanceIds=[id])
@@ -136,6 +106,30 @@ def get_instance_state(client, id):
     except Exception as e:
         logging.info(e)
         return "None"
+    
+        
+def gather_public_ip():
+    global region
+    regions = [region]
+    combined_list = []   ##This needs to be returned
+    for region in regions:
+        instance_information = [] # I assume this is a list, not dict
+        ip_dict = {}
+        client = boto3.client('ec2', aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key,
+                              region_name=region, )
+        descr = client.describe_instances()
+        instance_dict = descr.get('Reservations')
+        for reservation in instance_dict:
+            for instance in reservation['Instances']: # This is rather not obvious
+               if instance['State']['Name'] == 'running' and instance['PublicIpAddress'] != None:
+                    ipaddress = instance['PublicIpAddress']
+                    tagValue = instance['Tags'][0]['Value'] # 'Tags' is a list, took the first element, you might wanna switch this
+                    zone = instance['Placement']['AvailabilityZone']
+                    info = ipaddress, tagValue, zone, instance["InstanceId"]
+                    instance_information.append(info)
+        combined_list.append(instance_information)
+    return combined_list
+        
     
 if __name__ == '__main__':
     ec2_res = boto3.resource('ec2',
@@ -149,23 +143,33 @@ if __name__ == '__main__':
                    aws_secret_access_key=secret_access_key)
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
-   # rest = client.reboot_instances( InstanceIds=InstanceIds) 
+
+    #ret = gather_public_ip()
 
 
-        
-    print(get_instance_state(client, InstanceIds[0]))
-    try:
-        resp = client.stop_instances( InstanceIds=InstanceIds)
-    except Exception as e:
-        logging.info(f"failed to stop instance {e}")
+    # rest = client.reboot_instances( InstanceIds=InstanceIds) 
 
-    print(get_instance_state(client, InstanceIds[0]))
-    try:
-        rest = client.start_instances( InstanceIds=InstanceIds)
-    except Exception as e:
-        logging.info(f"failed to start instance {e}")
 
-    state = get_instance_state(client, InstanceIds[0])
+
+    # print(get_instance_state(client, InstanceIds[0]))
+    # try:
+    #resp = client.stop_instances( InstanceIds=InstanceIds)
+    # except Exception as e:
+    #     logging.info(f"failed to stop instance {e}")
+
+    # print(get_instance_state(client, InstanceIds[0]))
+    # try:
+    #rest = client.start_instances( InstanceIds=InstanceIds)
+    # ret = [[]]
+    # while len(ret[0]) == 0:
+    #     ret = gather_public_ip()
+
+    # except Exception as e:
+    #     logging.info(f"failed to start instance {e}")
+
+    # state = get_instance_state(client, InstanceIds[0])
+
+
 
     # "running"
     
@@ -179,10 +183,11 @@ if __name__ == '__main__':
 
 #print(response)
 import socket, time
-
+local = True
 from subprocess import Popen, PIPE, STDOUT
-
-REM_HOST = '192.168.1.189'  # Standard loopback interface address (localhost)
+instance_ip = ret[0][0][0] if not local else "192.168.1.160"
+logging.info(f"Instance ip: {instance_ip} ")
+REM_HOST = instance_ip #'192.168.1.189'  # Standard loopback interface address (localhost)
 REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
 print ("started")
 import time
@@ -190,67 +195,6 @@ print_ps_directly = True
 file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
 #file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00002(5).mp3"
 
-def file_tranasfer(file, socket):
-    data_cpy = b''
-    f = open(file, 'rb')
-    data_cpy = f.read()[0:-1]
-    #print(data_cpy[0:100])
-    # while True:
-    #     #data = conn.recv(500)
-    #     data_cpy += data
-    #     if not data:
-    #         break
-    #     f.write(data)
-    #     f.flush()
-    f.close()
-
-    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    # s.connect((HOST, PORT))
-    size = len(data_cpy)
-    size_bytes = size.to_bytes(4, 'little')
-    socket.sendall(size_bytes)
-    print("sending all")
-    socket.sendall(data_cpy)
-    # recv_data = s.recv(size)
-
-    recv_data = b''
-    rem = size
-    buf = 128000
-    buffer = bytearray(size)
-    pos = 0
-    while True:
-        data = socket.recv(buf)
-        buf = len(data)+1
-        chunk_size = len(data)
-        buffer[pos:pos+chunk_size] = data
-
-        pos+=chunk_size
-
-        rem -= len(data)
-        if (rem < buf):
-            buf = rem
-
-        #recv_data += data
-       # l = len(recv_data)
-        if not data or pos >= size:
-            break
-
-
-    # recv_data=''.join(recv_data)
-    print("recv: " + str(pos))
-    np_ori = numpy.array(bytearray(data_cpy))
-    np_new = numpy.array(buffer)
-    print("transfer success: ", numpy.array_equiv(np_new, np_ori))
-    # for n in range(size):
-    #     if buffer[n] != data_cpy[n]:
-    #         print("ERROR tcp tranfer failed " + str(n))
-
-    ret = socket.recv(1)
-    i = len(ret)
-    print("ret", str(ret))
-    socket.send(b'\x01')
-
-    time.sleep(0.1)
 
 while 1:
     s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
@@ -267,4 +211,6 @@ while 1:
         print(e)
         time.sleep(1)
 
-file_tranasfer(file_, s)
+network.file_transfer(file_, s)
+while 1:
+    message_size = s.recv(4)
