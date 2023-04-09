@@ -9,10 +9,33 @@ import seaborn as sns, webcolors
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from PIL import Image
 
 
-import random
+import random,mss
 import colorsys
+
+import dxcam
+camera = dxcam.create()  # returns a DXCamera instance on primary monitor
+camera.start(target_fps=120)  # Should not be made greater than 160.
+
+A =dxcam.device_info()
+while True :
+
+    # The screen part to capture
+    monitor = {"top": 160, "left": 160, "width": 1920, "height": 1080}
+    output = "sct-{top}x{left}_{width}x{height}.png".format(**monitor)
+
+    # Grab the data
+    left, top = (1920 - 640) // 2, (1080 - 640) // 2
+    right, bottom = left + 640, top + 640
+    region = (left, top, right, bottom)
+    t = time.time()
+    frame = camera.grab(region=region)
+    print(time.time() - t)
+    time.sleep(0.1)
+    #Image.fromarray(frame).show()
+
 
 
 

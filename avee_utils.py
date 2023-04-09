@@ -1,3 +1,4 @@
+import traceback
 import win32gui,pywintypes
 import win32con,win32file,win32pipe,win32api, numpy, threading
 import pygetwindow as gw
@@ -31,16 +32,18 @@ class name_storage():
         self.out_fld = f"{out}\\{self.basename}\\".replace("\\\\", "\\")
         self.avee_final_file = f"{self.out_fld}\\{self.basename}_joined.mp4".replace("\\\\", "\\")
 
-device = "ce041714f506223101" # emulator-5554
+#device = "ce041714f506223101" # emulator-5554
 device = "emulator-5554"
 
 base = f"adb  -s {device} shell "
 
 ctx = None
 
+nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
+template_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\AveeTemplate_normal\\"
 
-
+template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld)]
 
 def restart_ld_player(hwnd=None):
     # if hwnd:
@@ -66,7 +69,7 @@ def restart_ld_player(hwnd=None):
 
 #hwnd, ld_win= restart_ld_player(hwnd = None )
 
-class context():
+class avee_context():
     def __init__(s, wid, hei, prefix, autopy=None) -> None:
         s.wid = wid
         s.hei = hei
@@ -86,13 +89,7 @@ class context():
 # wid = 540 
 # hei = 960 +50
 # r = (ld_win.topleft.x, ld_win.topleft.y, wid, hei)
-
-
-
-
-
 #a.ext_src_buffer =  bytearray(wid*hei*3)
-
 
 def adb_output(cmd):
     process = sp.Popen(base + cmd,
@@ -120,6 +117,11 @@ def check_avee_running():
     else:
         logging.debug("Avee running")
 
+def reset_settings():
+    settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
+    for f in os.listdir(settings_f):
+        bb = "adb  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
+        os.system(bb)
 
 def adb(cmd):
     os.system(base + cmd)
@@ -186,7 +188,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
     adb("mkdir /mnt/shared/Pictures/input/audio ")
     adb("mkdir /mnt/shared/Pictures/input/templates")
 
-    ctx = context(hei= 960+50, wid=540, prefix="540p_", autopy=None)
+    ctx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopy=None)
     a = ctx.a
 
     sleep_t = 2
@@ -219,6 +221,8 @@ def avee_task(target_file, template_file, start, dur, suffix):
     r = (ctx.ld_win.topleft.x, ctx.ld_win.topleft.y, ctx.wid, ctx.hei)
 
     adb("am force-stop com.daaw.avee")
+    time.sleep(0.5)
+    reset_settings()
     time.sleep(1)
     check_avee_running()
 
@@ -262,6 +266,8 @@ def avee_task(target_file, template_file, start, dur, suffix):
     adb(f"mkdir /mnt/shared/Pictures/output/{target_file.android_basename }/ ")
     adb(f"mkdir /mnt/shared/Pictures/output/{target_file.android_basename }/tmp ")
     cmd = "mv " + f'"/mnt/sdcard/Download/{target_file.android_basename }_{suffix:02d}_0.mp4"' +  f" /mnt/shared/Pictures/output/{target_file.android_basename }/tmp/"+ target_file.android_basename  + f"_{suffix:02d}.mp4" 
+    #cmd = "mv " + f'"/mnt/sdcard/Pictures/output/{target_file.android_basename }_{suffix:02d}_0.mp4"' +  f" /mnt/shared/Pictures/output/{target_file.android_basename }/tmp/"+ target_file.android_basename  + f"_{suffix:02d}.mp4" 
+
     adb(cmd)
 
     if found: #and  
@@ -271,3 +277,48 @@ def avee_task(target_file, template_file, start, dur, suffix):
             adb(f'input tap  {ctx.xcoor(found.found[0]) +240 } {ctx.ycoor(found.found[1] + 158)}')
 
         adb(f'input tap  {440} {610}')
+
+
+
+def perform_avee_task(input_file, bpm, start, bars, bars_per_template, beats_per_bar=4):
+
+    first_start = start[0]*60+ start[1] + start[2]/1000
+
+    logging.info(f"- task: {input_file.input_path} |  {bpm}bpm | start {first_start} 00:{start[0]}:{start[1]}.{start[2]} | bars per template: {bars_per_template}, beats per bar: {beats_per_bar} " )
+    time_per_beat = (60/bpm)
+    dur = time_per_beat*beats_per_bar*bars_per_template
+
+    nb_tasks = bars//bars_per_template
+
+    for x in range(nb_tasks):
+        for attempt_n in range(10):
+
+            template = random.choice(template_list).win_name 
+
+            logging.info(f"-- chunk {x} | start: {first_start + x*dur} | template: {template} | dur: {dur} | attempt: {attempt_n}" )
+            try:
+                out_file = f"{input_file.out_fld}\\tmp\\{input_file.basename}_{x:02d}.mp4"
+                if os.path.isfile(out_file):
+                    logging.info(f"Skipping chunk: {x}, already exists")
+                    break
+                avee_task(input_file, template, first_start + x*dur, f"{dur}", x)
+                break
+            except Exception as e:
+                logging.info(f"Error during chunk {x}: {e} , traceback:\n {traceback.format_exc()}")
+                time.sleep(1)
+
+
+    if not os.path.isfile(input_file.avee_final_file):
+        logging.info("Joining parts and adding audio")
+        paths = [os.path.join(input_file.out_fld + "\\tmp", elem).replace("\\\\", "\\")  for elem in os.listdir(input_file.out_fld + "\\tmp")]
+        paths = [elem.replace("\\\\", "\\")  for elem in paths]
+        with open(input_file.out_fld + "\\file_list.txt" , "w") as ff:
+            for p in paths:
+                if ".mp4" in p:
+                    pp = p.replace("\\", "\\\\")
+                    ff.write("file " +  pp + "\n")
+        #os.system(f"ffmpeg -i {target_file.input_path } -ss {start} -t {dur*bars} tmp\\{target_file.win_name} -y")
+        os.system(f"ffmpeg  -f concat -safe 0 -i {input_file.out_fld}\\file_list.txt  -ss {first_start} -t {dur*bars} -i {input_file.input_path}   -c:v copy -map 0:v -map 1:a -c:a aac -b:a 128k {input_file.avee_final_file} -y")
+        print()
+    else:
+        logging.info("Joined file already exists, skipping")

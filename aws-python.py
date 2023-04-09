@@ -4,6 +4,12 @@ import numpy
 
 access_key_id = "AKIAQTONZDFNOK7WKRXN"
 secret_access_key = "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"
+with open("rtf", "r")as i:
+    d = i.read().splitlines()
+    access_key_id = d[0]
+    secret_access_key = d[1]
+
+
 region = "ap-southeast-4" #'ap-south-1'
 ec2 = boto3.client('ec2',
                    region,
