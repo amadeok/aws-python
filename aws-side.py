@@ -5,18 +5,22 @@ import atexit
 import select
 import pyautogui as pg
 import autopy as at
-import os
-print(os.getcwd())
-
+import os, platform
 from datetime import datetime
+import distro
 
-with open("/home/ubuntu/f.txt",  "w") as ww:
+print(os.getcwd())
+print(distro.info())
+ubuntu_ver = distro.info()["version"]
+
+home = "amadeok" if ubuntu_ver =="20.04" else "ubuntu"
+with open(f"/home/{home}/f.txt",  "w") as ww:
     ww.write(str(datetime.now().strftime("%H:%M:%S")) )
 a = at.autopy("images")
 
 prefix = "70p_"
 
-ret = a.find(a.i.dict[prefix + "select_file"], loop=3)
+ret = False#a.find(a.i.dict[prefix + "select_file"], loop=3)
 if ret:
     for x in range(2):
         a.click(ret.found, 140, -232)  
