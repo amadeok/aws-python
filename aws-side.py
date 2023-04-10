@@ -81,6 +81,6 @@ if __name__ == '__main__':
     for x in range(10):
         t = time.time()
         rlog(message + str(x), conn)
-        rlog(str(time.time() - t))
+        #rlog(str(time.time() - t))
         #network.send_string(message + str(x), conn)
     conn.close()
