@@ -61,3 +61,73 @@ def file_transfer(file, socket):
     socket.send(b'\x01')
 
     time.sleep(0.1)
+
+
+    
+def recveive_file(save_path, conn):
+    b = b"\x00\x00\x00\x01"
+    # conn.sendall(b)
+    
+    size_b = conn.recv(4)
+    size = int.from_bytes(size_b, 'little')
+    print("receving " + str(size) + " bytes")
+    recv_data=[]
+    recv_data = b''
+    rem = size
+    buf = 128000
+    f_out = open(save_path, "wb")
+    i= 0
+    pos =  0
+    buffer = bytearray(size)
+    while True:
+        data=conn.recv(buf)
+        buf = len(data)+1
+        chunk_size = len(data)
+        #c = buffer[pos:chunk_size]
+        #print( " c ", len(c), " data ", len(data))
+        buffer[pos:pos+chunk_size] = data
+        #print(buffer[0:100])
+        pos += chunk_size
+
+        i+=1
+        if i %200 == 0:
+            print(chunk_size)
+        rem-= chunk_size
+        if (rem < buf):
+            buf = rem
+        
+        #recv_data +=data;
+        f_out.write(data)
+        #l = len(recv_data)
+        if not data or pos >= size:
+            break
+    
+    f_out.close()
+        
+    #recv_size = len(recv_data)
+    if pos != size:
+        print("error dif size")
+
+    conn.sendall(buffer) 
+
+    conn.send(b'\x01')
+    re = conn.recv(1)
+    print(re)
+
+
+def send_string(string, conn):
+    mb = bytes(string, 'utf-8')
+    size = len(mb)
+    size_bytes = size.to_bytes(4, 'little')
+    conn.sendall(size_bytes)
+    conn.sendall(mb)
+
+def recv_string(conn):
+    size_b = conn.recv(4)
+    size = int.from_bytes(size_b, 'little')
+    #print("receving " + str(size) + " bytes")
+    data=conn.recv(size)
+    return data
+    print(str(data))
+
+

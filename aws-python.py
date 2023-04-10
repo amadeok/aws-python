@@ -185,7 +185,7 @@ if __name__ == '__main__':
 import socket, time
 local = True
 from subprocess import Popen, PIPE, STDOUT
-instance_ip = ret[0][0][0] if not local else "192.168.1.160"
+instance_ip = ret[0][0][0] if not local else "127.0.0.1" #"192.168.1.160"
 logging.info(f"Instance ip: {instance_ip} ")
 REM_HOST = instance_ip #'192.168.1.189'  # Standard loopback interface address (localhost)
 REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
@@ -213,4 +213,6 @@ while 1:
 
 network.file_transfer(file_, s)
 while 1:
-    message_size = s.recv(4)
+    str = network.recv_string(s)
+    print(str)
+
