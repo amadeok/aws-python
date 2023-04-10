@@ -23,6 +23,7 @@ a = at.autopy("images")
 
 prefix = "70p_"
 
+
 # ret = a.find(a.i.dict[prefix + "select_file"], loop=3)
 # if ret:
 #     for x in range(2):
@@ -70,7 +71,7 @@ if __name__ == '__main__':
 
     network.recveive_file(os.getcwd() + "/"+  "file.mp4", conn)
 
-    message = "this is a message"
+    message = "this is a message ç°*Pé*çùà"
     for x in range(10):
         network.send_string(message + str(x), conn)
     conn.close()

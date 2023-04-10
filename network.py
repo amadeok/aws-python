@@ -89,9 +89,9 @@ def recveive_file(save_path, conn):
         #print(buffer[0:100])
         pos += chunk_size
 
-        i+=1
-        if i %200 == 0:
-            print(chunk_size)
+       # i+=1
+        #if i %200 == 0:
+        #    print(chunk_size)
         rem-= chunk_size
         if (rem < buf):
             buf = rem
