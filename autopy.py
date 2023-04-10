@@ -58,8 +58,10 @@ class imgs:
                     setattr(self, basename2[1], img)
 
         
-
-import win32gui, win32ui, win32con, numpy
+try:
+    import win32gui, win32ui, win32con, numpy
+    import win32pipe, threading, win32api, win32file
+except: print("NO WINDOWS?")
 
 def background_screenshot(hwnd, width, height, save_file=False):
     #t0 = time.time()
@@ -132,7 +134,7 @@ def check_timeout2(ctx, sec):
 
         return 0
     return 1
-import win32pipe, threading, win32api, win32file
+
 from io import BytesIO
 
 def start_screen_cap():

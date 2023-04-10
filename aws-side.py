@@ -8,7 +8,17 @@ import autopy as at
 import os
 import network
 print(os.getcwd())
+import os, platform
+from datetime import datetime
+import distro
 
+print(os.getcwd())
+print(distro.info())
+ubuntu_ver = distro.info()["version"]
+
+home = "amadeok" if ubuntu_ver =="20.04" else "ubuntu"
+with open(f"/home/{home}/f.txt",  "w") as ww:
+    ww.write(str(datetime.now().strftime("%H:%M:%S")) )
 a = at.autopy("images")
 
 prefix = "70p_"
