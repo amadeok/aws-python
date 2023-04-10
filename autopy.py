@@ -1,7 +1,14 @@
 import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
-import logging
+import logging, network
 import app_logging
 from PIL import Image
+
+
+
+def rlog(str, conn=None,  level=logging.DEBUG):
+    logging.level(str)
+    if conn:
+        network.send_string(str, conn)
 
 #from avee_utils import is_avee_running
 def adb_output(cmd):

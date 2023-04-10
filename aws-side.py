@@ -44,10 +44,6 @@ REM_PORT = 4003
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
 # PORT = 9595
 
-def rlog(str, conn=None,  level=logging.DEBUG):
-    logging.level(str)
-    if conn:
-        network.send_string(str, conn)
 
 #exit()
 

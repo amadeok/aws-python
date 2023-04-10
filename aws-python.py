@@ -159,10 +159,11 @@ if __name__ == '__main__':
 
     # print(get_instance_state(client, InstanceIds[0]))
     # try:
-    #rest = client.start_instances( InstanceIds=InstanceIds)
-    # ret = [[]]
-    # while len(ret[0]) == 0:
-    #     ret = gather_public_ip()
+    if 0:
+        rest = client.start_instances( InstanceIds=InstanceIds)
+    ret = [[]]
+    while len(ret[0]) == 0:
+        ret = gather_public_ip()
 
     # except Exception as e:
     #     logging.info(f"failed to start instance {e}")
@@ -183,16 +184,17 @@ if __name__ == '__main__':
 
 #print(response)
 import socket, time
-local = True
+local = False
 from subprocess import Popen, PIPE, STDOUT
 instance_ip = ret[0][0][0] if not local else  "192.168.1.160" #"127.0.0.1"
 logging.info(f"Instance ip: {instance_ip} ")
 REM_HOST = instance_ip #'192.168.1.189'  # Standard loopback interface address (localhost)
 REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
 print ("started")
-import time
+import time, random, os
 print_ps_directly = True
-file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
+fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\00002(5)\tmp\\"
+file_ = fld + random.choice(os.listdir(fld))
 #file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00002(5).mp3"
 
 
