@@ -124,10 +124,12 @@ def send_string(string, conn):
 
 def recv_string(conn):
     size_b = conn.recv(4)
+    if not size_b:
+        return -1
     size = int.from_bytes(size_b, 'little')
     #print("receving " + str(size) + " bytes")
     data=conn.recv(size)
-    return data
+    return data.decode("utf-8")
     print(str(data))
 
 

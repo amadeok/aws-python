@@ -11,6 +11,8 @@ print(os.getcwd())
 import os, platform
 from datetime import datetime
 import distro
+import logging
+import app_logging
 
 print(os.getcwd())
 print(distro.info())
@@ -42,7 +44,10 @@ REM_PORT = 4003
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
 # PORT = 9595
 
-
+def rlog(str, conn=None,  level=logging.DEBUG):
+    logging.level(str)
+    if conn:
+        network.send_string(str, conn)
 
 #exit()
 
@@ -73,5 +78,6 @@ if __name__ == '__main__':
 
     message = "this is a message ç°*Pé*çùà"
     for x in range(10):
+        rlog(message + str(x), conn)
         network.send_string(message + str(x), conn)
     conn.close()
