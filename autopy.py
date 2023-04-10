@@ -1,3 +1,4 @@
+import datetime
 import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging, network
 import app_logging
@@ -99,7 +100,7 @@ def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=T
         region = ctx.default_region #[0, 0, res[0], res[1]]
     if confidence== None: 
         confidence = obj.conf
-    self.rlog(f"mss_locate {obj.name}, {region}")
+    ctx.rlog(f"mss_locate {obj.name}, {region}")
 
     r = {"top": region[1], "left": region[0],  "width": region[2], "height": region[3]} 
 
@@ -206,10 +207,13 @@ class autopy:
 
     def rlog(self, str_, conn=None,  level=logging.DEBUG):
         str_ = str(str_)
-        logging.log(str_)
+        logging.log(level, str_)
         con = conn if conn else self.conn
+        now  = datetime.datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
         if con:
-            network.send_string(str_, conn)
+            network.send_string("[REMOTE]: " +  dt_string + ": " +  str_, con)
 
     def init_arduino(reset_arduino):
         while 1:

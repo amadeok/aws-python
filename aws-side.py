@@ -26,14 +26,7 @@ a = at.autopy("images")
 prefix = "70p_"
 
 
-# ret = a.find(a.i.dict[prefix + "select_file"], loop=3)
-# if ret:
-#     for x in range(2):
-#         a.click(ret.found, 140, -232)  
-#         time.sleep(0.5)
-#     a.type("#pop")
-#     time.sleep(1)
-#     a.press("enter")
+
 
 HOST = '188.153.195.184'
 PORT = 9596
@@ -43,11 +36,6 @@ REM_PORT = 4003
 
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
 # PORT = 9595
-
-def rlog(str, conn=None,  level=logging.DEBUG):
-    logging.log(level, str)
-    if conn:
-        network.send_string("[REMOTE]: "+ str, conn)
 
 #exit()
 
@@ -77,10 +65,16 @@ if __name__ == '__main__':
 
     network.recveive_file(os.getcwd() + "/"+  "file.mp4", conn)
 
-    message = "this is a message ç°*Pé*çùà"
-    for x in range(10):
-        t = time.time()
-        rlog(message + str(x), conn)
-        rlog(str(time.time() - t))
+a.conn = conn
+ret = a.find(a.i.dict[prefix + "select_file"], loop=3)
+if ret:
+    for x in range(2):
+        a.click(ret.found, 140, -232)  
+        time.sleep(0.5)
+    a.type("#pop")
+    time.sleep(1)
+    a.press("enter")
+
         #network.send_string(message + str(x), conn)
-    conn.close()
+a.rlog("closing connection.. ", conn=conn)
+conn.close()
