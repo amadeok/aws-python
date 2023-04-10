@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     # print(get_instance_state(client, InstanceIds[0]))
     # try:
-    #resp = client.stop_instances( InstanceIds=InstanceIds)
+    resp = client.stop_instances( InstanceIds=InstanceIds)
     # except Exception as e:
     #     logging.info(f"failed to stop instance {e}")
 
@@ -161,9 +161,9 @@ if __name__ == '__main__':
     # try:
     if 0:
         rest = client.start_instances( InstanceIds=InstanceIds)
-    ret = [[]]
-    while len(ret[0]) == 0:
-        ret = gather_public_ip()
+        ret = [[]]
+        while len(ret[0]) == 0:
+            ret = gather_public_ip()
 
     # except Exception as e:
     #     logging.info(f"failed to start instance {e}")
@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
 #print(response)
 import socket, time
-local = False
+local = True
 from subprocess import Popen, PIPE, STDOUT
 instance_ip = ret[0][0][0] if not local else  "192.168.1.160" #"127.0.0.1"
 logging.info(f"Instance ip: {instance_ip} ")

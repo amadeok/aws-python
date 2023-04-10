@@ -5,10 +5,7 @@ from PIL import Image
 
 
 
-def rlog(str, conn=None,  level=logging.DEBUG):
-    logging.level(str)
-    if conn:
-        network.send_string(str, conn)
+
 
 #from avee_utils import is_avee_running
 def adb_output(cmd):
@@ -102,7 +99,7 @@ def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=T
         region = ctx.default_region #[0, 0, res[0], res[1]]
     if confidence== None: 
         confidence = obj.conf
-    logging.debug(f"mss_locate {obj.name}, {region}")
+    self.rlog(f"mss_locate {obj.name}, {region}")
 
     r = {"top": region[1], "left": region[0],  "width": region[2], "height": region[3]} 
 
@@ -134,10 +131,10 @@ def mss_locate(obj, ctx, confidence=None, region=None, grayscale=True,  center=T
 def check_timeout2(ctx, sec):
     curr_time = time.time()
     d = curr_time - ctx.prev_time
-    logging.debug(f"checking timeout, delta: {d}")
+    ctx.rlog(f"checking timeout, delta: {d}")
 
     if d > sec:
-        logging.debug(f"timeout reached, delta: {d}")
+        ctx.rlog(f"timeout reached, delta: {d}")
 
         return 0
     return 1
@@ -204,7 +201,15 @@ class autopy:
         self.i = imgs(self, imgs_path, img_prefix)
         self.ext_src = ext_src
         self.ext_src_buffer = None
+        self.conn = None
 
+
+    def rlog(self, str_, conn=None,  level=logging.DEBUG):
+        str_ = str(str_)
+        logging.log(str_)
+        con = conn if conn else self.conn
+        if con:
+            network.send_string(str_, conn)
 
     def init_arduino(reset_arduino):
         while 1:
@@ -212,23 +217,23 @@ class autopy:
 
                 port = f'COM{n}'
                 self.ard = serial.Serial(port=port, baudrate=115200, timeout=1000)
-                logging.info(f"Found port {port}")
+                ctx.rlog(f"Found port {port}")
                 break
             except: 
                 n+=1
                 if n == 100:
-                    logging.info("arduino port not found")
+                    ctx.rlog("arduino port not found")
                     print("arduino port not found")
                     sys.exit()
 
 
     def mouse_move(self, point, x_of, y_of):
-        logging.debug(f"moving mouse  {point[0] + x_of},  {point[1] + y_of}")
+        self.rlog(f"moving mouse  {point[0] + x_of},  {point[1] + y_of}")
         if (self.stop_t):  return -1
         pyautogui.moveTo(point[0] + x_of, point[1] + y_of) 
 
     def click(self, point, x_of, y_of,  right=False) :
-        logging.debug(f"clicking  {point[0] + x_of},  {point[1] + y_of}")
+        self.rlog(f"clicking  {point[0] + x_of},  {point[1] + y_of}")
         if (self.stop_t):  return -1
 
         pyautogui.moveTo(point[0] + x_of, point[1] + y_of) 
@@ -238,12 +243,12 @@ class autopy:
             pyautogui.click() 
 
     def press(self, key):
-        logging.debug(f"pressing {key}")
+        self.rlog(f"pressing {key}")
         if (self.stop_t):  return -1
         pyautogui.press(key)
 
     def type(self, text, interval_=0):
-        logging.debug(f"typing  {text}")
+        self.rlog(f"typing  {text}")
         if (self.stop_t):  return -1
         pyautogui.write(text, interval=interval_)
 
@@ -310,7 +315,7 @@ class autopy:
                         if self.mouse_move((obj_l[x].found[0], obj_l[x].found[1]), 0, 0):return -1
                         pyautogui.click() 
 
-                    logging.debug(f"found  {obj_l[x].name}, {obj_l[x].found}")
+                    self.rlog(f"found  {obj_l[x].name}, {obj_l[x].found}")
 
                     return obj_l[x]#, obj_l[x].found 
             return None
