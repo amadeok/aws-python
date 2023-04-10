@@ -79,6 +79,8 @@ if __name__ == '__main__':
 
     message = "this is a message ç°*Pé*çùà"
     for x in range(10):
+        t = time.time()
         rlog(message + str(x), conn)
+        #rlog(str(time.time() - t))
         #network.send_string(message + str(x), conn)
     conn.close()
