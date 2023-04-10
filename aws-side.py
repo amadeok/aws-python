@@ -44,6 +44,10 @@ REM_PORT = 4003
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
 # PORT = 9595
 
+def rlog(str, conn=None,  level=logging.DEBUG):
+    logging.log(level, str)
+    if conn:
+        network.send_string("[REMOTE]: "+ str, conn)
 
 #exit()
 
@@ -54,6 +58,7 @@ if __name__ == '__main__':
     print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
 
     s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
     while 1:
         try:
@@ -75,5 +80,5 @@ if __name__ == '__main__':
     message = "this is a message ç°*Pé*çùà"
     for x in range(10):
         rlog(message + str(x), conn)
-        network.send_string(message + str(x), conn)
+        #network.send_string(message + str(x), conn)
     conn.close()
