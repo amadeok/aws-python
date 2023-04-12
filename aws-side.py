@@ -54,7 +54,7 @@ REM_PORT = 4003
 # PORT = 9595
 
 #exit()
-suffix = "_o"
+suffix = "_o" if app_logging.ubuntu_ver == "20.04" else ""
 del_ = at.fun_delegate
 
 def type_hashtags(select_file, hashtags):
