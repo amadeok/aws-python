@@ -62,11 +62,11 @@ def type_hashtags(select_file, hashtags):
     a.type(hashtags)
     time.sleep(0.5)
 
-def start_firefox():
+def start_firefox(url):
     os.system("pkill firefox")
     sleep(0.5)
 
-    cmd = ["firefox", "https://www.tiktok.com/upload?lang=en", "--display=:1"]
+    cmd = ["firefox", url, "--display=:1"]
     p = sp.Popen(cmd)
 
     sleep(2)
@@ -88,26 +88,50 @@ def start_firefox():
         os.system(f"xdotool   windowmove {w} 0 0 ")
         os.system(f"xdotool   windowsize {w} 1280 1024 ")
 
-def browse_task():
+def browse_task(yt_id):
     
     #os.system(f"wmctrl -r Firedox -e 0,1300,45,1630,940")
-    start_firefox()
+    tiktok_url = "https://www.tiktok.com/upload?lang=en"
+    start_firefox(tiktok_url)
   #  xdotool Firefox getwindowgeometry --shell
     ret = a.find(a.i.tiktok_logo, loop=2,timeout=80, timeout_exception="tiktok page didn't open",
-                  do_until=del_(start_firefox, [], 30 ))
+                  do_until=del_(start_firefox, [tiktok_url], 30 ))
 
-    if a.find(a.i.login_to_tiktok, loop=1,timeout=5):  raise Exception("tiktok is requesting login")
+    if a.find(a.i.login_to_tiktok, loop=1,timeout=5, timeout_exception=None):  raise Exception("tiktok is requesting login")
             
     select_file = a.find(a.i.select_file, loop=2, timeout_exception=True)
 
     type_hashtags(select_file, "#pop")
     #a.click(select_file.found)  
-    a.find(a.i.dict["open_file" + suffix], loop=2, timeout_exception=True, do_until=del_(a.click, [select_file.found[0:2]], 2 ))
+    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [select_file.found[0:2]], 2 ))
     #a.press("enter")
-    a.find(a.i.post, loop=2, timeout_exception=True, click=1,  do_until=del_(a.press, ["enter"], 2 ))
+    a.find(a.i.post, loop=2,  click=1,  do_until=del_(a.press, ["enter"], 2 ))
 
-    a.find(a.i.view_profile, loop=2, timeout_exception=True, click=1,  timeout=120)
+    a.find(a.i.view_profile, loop=2,  click=1,  timeout=120)
     
+    yt_url = f"https://studio.youtube.com/channel/"+yt_id+"/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D" 
+    start_firefox(yt_url)
+    
+    upload_arrow = a.find(a.i.upload_arrow, loop=2,timeout=80, timeout_exception="yt page didn't open",
+                    do_until=del_(start_firefox, [yt_url], 30 ))
+
+    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ))
+
+    two_empty = a.find(a.i.two_empty, loop=2,  do_until=del_(a.press, ["center"], 2 ))
+
+    a.type("#pop #shorts")
+
+    a.find(a.i.one_empty, loop=2,   do_until=del_(a.click, [two_empty.found, 0, 13 ], 2 ))
+
+    three_empty = a.find(a.i.three_empty, loop=2,   do_until=del_(a.click, [two_empty.found, 603, 105], 2 ))
+
+    a.find(a.i.one_empty_public, loop=2,   do_until=del_(a.click, [three_empty.found, 0, 45], 2 ))
+
+    a.find(a.i.upload_complete, timeout=120, loop=2)
+    
+    a.click(two_empty.found,  603,105 )
+
+    a.find(a.i.clipboard, loop=2)
 
             #network.send_string(message + str(x), conn)
     a.rlog("closing connection.. ", conn=conn)
@@ -146,11 +170,13 @@ if __name__ == '__main__':
     a.conn = conn
 
     network.recveive_file(upload_fld +  "/file.mp4", conn)
-    
+    yt_id = network.recv_string(conn)
+    a.rlog("Yt id: " + yt_id)
     try:
-        browse_task()
+        browse_task(yt_id)
     except Exception as e:
         a.rlog("Exception: " + traceback.format_exc())
         a.rlog("Exception: " + str(e))
+
 
     conn.close()
