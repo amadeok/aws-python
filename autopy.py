@@ -278,7 +278,7 @@ class autopy:
             pyautogui.write(text, interval=interval_)
 
     def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, do_until: fun_delegate =None,
-              grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True, timeout_exception=None):
+              grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True, timeout_exception=True):
         
         if timeout == None: 
             timeout = self.find_fun_timeout
