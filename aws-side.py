@@ -1,17 +1,17 @@
-import logging
+import logging, time
 while 1:
     try:
         import pyautogui as pg
         break
     except Exception as e:
-        print("Failed to get ")
+        print(f"Failed to import pyautogui: {e}")
+        time.sleep(1)
 import app_logging
 import os, subprocess as sp
-import time
 from time import sleep
 import socket
-import atexit
-import select
+#import atexit
+#import select
 import autopy as at
 import os
 import network
