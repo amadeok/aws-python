@@ -4,7 +4,7 @@ while 1:
         import pyautogui as pg
         break
     except Exception as e:
-        logging.info("Failed to get ")
+        print("Failed to get ")
 import app_logging
 import os, subprocess as sp
 import time
