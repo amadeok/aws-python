@@ -36,46 +36,32 @@ if __name__ == '__main__':
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
 
+local = True
 
+#rest = client.reboot_instances( InstanceIds=InstanceIds) 
+# ret = b3.gather_public_ip()
+# print(get_instance_state(client, InstanceIds[0]))
+# try:
+#resp = client.stop_instances( InstanceIds=InstanceIds)
+# except Exception as e:
+#     logging.info(f"failed to stop instance {e}")
+# print(get_instance_state(client, InstanceIds[0]))
+# try:
+if 0:
+    #rest = client.start_instances( InstanceIds=InstanceIds)
+    ret = [[]]
+    while len(ret[0]) == 0:
+        ret = b3.gather_public_ip()
+# except Exception as e:
+#     logging.info(f"failed to start instance {e}")
 
-    rest = client.reboot_instances( InstanceIds=InstanceIds) 
+# state = get_instance_state(client, InstanceIds[0])
 
-    ret = b3.gather_public_ip()
-
-
-    # print(get_instance_state(client, InstanceIds[0]))
-    # try:
-    #resp = client.stop_instances( InstanceIds=InstanceIds)
-    # except Exception as e:
-    #     logging.info(f"failed to stop instance {e}")
-
-    # print(get_instance_state(client, InstanceIds[0]))
-    # try:
-    if 1:
-        #rest = client.start_instances( InstanceIds=InstanceIds)
-        ret = [[]]
-        while len(ret[0]) == 0:
-            ret = b3.gather_public_ip()
-
-    # except Exception as e:
-    #     logging.info(f"failed to start instance {e}")
-
-    # state = get_instance_state(client, InstanceIds[0])
-
-
-
-    # "running"
-    
-   # if state != "running":
-  #      rest = client.start_instances( InstanceIds=InstanceIds)
-    #resp = client.stop_instances( InstanceIds=InstanceIds)
-
-    # i = InstanceWrapper(ec2_resource=ec2_res)
-    # i.display()
-    # print(i)
+# if state != "running":
+#      rest = client.start_instances( InstanceIds=InstanceIds)
+#resp = client.stop_instances( InstanceIds=InstanceIds)
 
 #print(response)
-local = False
 
 instance_ip = ret[0][0][0] if not local else  "192.168.1.160"#79.42.227.212" # "192.168.1.160" #"127.0.0.1"
 logging.info(f"Instance ip: {instance_ip} ")
