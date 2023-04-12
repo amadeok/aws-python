@@ -1,16 +1,18 @@
 #Python Program for creating a connection
 import boto3
 import numpy
-import logging, network
+import logging, network, os
 import app_logging
 
 access_key_id = "AKIAQTONZDFNOK7WKRXN"
 secret_access_key = "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"
 
-with open("rtf", "r")as i:
-    d = i.read().splitlines()
-    access_key_id = d[0]
-    secret_access_key = d[1]
+
+if os.path.isfile("rtf"):
+    with open("rtf", "r")as i:
+        d = i.read().splitlines()
+        access_key_id = d[0]
+        secret_access_key = d[1]
 
 region = "ap-southeast-4" #'ap-south-1'
 ec2 = boto3.client('ec2',
@@ -153,7 +155,7 @@ if __name__ == '__main__':
 
     # print(get_instance_state(client, InstanceIds[0]))
     # try:
-    resp = client.stop_instances( InstanceIds=InstanceIds)
+    #resp = client.stop_instances( InstanceIds=InstanceIds)
     # except Exception as e:
     #     logging.info(f"failed to stop instance {e}")
 
@@ -186,17 +188,17 @@ if __name__ == '__main__':
 import socket, time
 local = True
 from subprocess import Popen, PIPE, STDOUT
-instance_ip = ret[0][0][0] if not local else  "192.168.1.160" #"127.0.0.1"
+instance_ip = ret[0][0][0] if not local else "79.42.227.212" # "192.168.1.160" #"127.0.0.1"
 logging.info(f"Instance ip: {instance_ip} ")
 REM_HOST = instance_ip #'192.168.1.189'  # Standard loopback interface address (localhost)
-REM_PORT = 4003     # Port to listen on (non-privileged ports are > 1023)
+REM_PORT = 4003    # Port to listen on (non-privileged ports are > 1023)
 print ("started")
 import time, random, os
 print_ps_directly = True
 fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\00002(5)\tmp\\"
-file_ = fld + random.choice(os.listdir(fld))
+#file_ = fld + random.choice(os.listdir(fld))
 #file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00002(5).mp3"
-
+file_ = "/home/amadeok/aws-python/file.mp4"
 
 while 1:
     s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 

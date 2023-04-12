@@ -3,6 +3,8 @@ import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging, network
 import app_logging
 from PIL import Image
+from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
+
 
 
 
@@ -254,9 +256,13 @@ class autopy:
     def type(self, text, interval_=0):
         self.rlog(f"typing  {text}")
         if (self.stop_t):  return -1
-        pyautogui.write(text, interval=interval_)
+        if app_logging.ubuntu_ver == "20.04":
+            sendSequence(text)
+        else:
+            pyautogui.write(text, interval=interval_)
 
-    def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True):
+    def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None,
+              grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True, timeout_exception=None):
         
         if timeout == None: 
             timeout = self.find_fun_timeout
@@ -335,6 +341,9 @@ class autopy:
                 if self.stop_t: timeout = 1
                 if timeout:
                     if not check_timeout2(self, timeout):
+                        if timeout_exception: 
+                            raise Exception(timeout_exception if type(timeout_exception) == str else "Critical image not found: " 
+                                            + " || images: " + str(obj_l))
                         return None
                 time.sleep(loop)
         else:
@@ -344,7 +353,7 @@ class autopy:
         return None
 
 
-    def wait_to_go(self, obj, region=None, confidence=None, timeout=None, sleep=0.01):
+    def wait_to_go(self, obj, region=None, confidence=None, timeout=None, sleep=0.01, timeout_exception=None):
         if timeout:
             self.prev_time = time.time()
         found = 1
@@ -356,6 +365,9 @@ class autopy:
             time.sleep(sleep)
             if timeout:
                 if not check_timeout2(self, timeout):
+                    if timeout_exception: 
+                        raise Exception(timeout_exception if type(timeout_exception) == str else "Critical image not found: " 
+                                        + " || image: " + str(obj))
                     return None
         return 1
      
