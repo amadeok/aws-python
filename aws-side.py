@@ -1,10 +1,17 @@
+import logging
+while 1:
+    try:
+        import pyautogui as pg
+        break
+    except Exception as e:
+        logging.info("Failed to get ")
+import app_logging
 import os, subprocess as sp
 import time
 from time import sleep
 import socket
 import atexit
 import select
-import pyautogui as pg
 import autopy as at
 import os
 import network
@@ -13,7 +20,6 @@ import os, platform
 from datetime import datetime
 import distro
 import logging
-import app_logging
 import traceback
 import shutil, keyboard
 from pathlib import Path
@@ -102,6 +108,7 @@ def browse_task():
     a.find(a.i.post, loop=2, timeout_exception=True, click=1,  do_until=del_(a.press, ["enter"], 2 ))
 
     a.find(a.i.view_profile, loop=2, timeout_exception=True, click=1,  timeout=120)
+    
 
             #network.send_string(message + str(x), conn)
     a.rlog("closing connection.. ", conn=conn)
