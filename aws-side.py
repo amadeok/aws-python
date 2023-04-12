@@ -1,17 +1,17 @@
-import logging
+import logging, time, traceback
 while 1:
     try:
         import pyautogui as pg
         break
     except Exception as e:
-        logging.info("Failed to get ")
+        print(f"Failed to import pyautogui: {traceback.format_exc()} \n Exception: {e}")
+        time.sleep(1)
 import app_logging
 import os, subprocess as sp
-import time
 from time import sleep
 import socket
-import atexit
-import select
+#import atexit
+#import select
 import autopy as at
 import os
 import network
@@ -20,7 +20,6 @@ import os, platform
 from datetime import datetime
 import distro
 import logging
-import traceback
 import shutil, keyboard
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
@@ -54,7 +53,7 @@ REM_PORT = 4003
 # PORT = 9595
 
 #exit()
-suffix = "_o"
+suffix = "_o" if app_logging.ubuntu_ver == "20.04" else ""
 del_ = at.fun_delegate
 
 def type_hashtags(select_file, hashtags):
