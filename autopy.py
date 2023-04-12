@@ -1,14 +1,29 @@
 import datetime
 import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging, network
+from collections import namedtuple
 import app_logging
 from PIL import Image
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 
-
-
-
-
+class fun_delegate():
+    def __init__(self, fun, args : list, interval) -> None:
+        self.fun = fun
+        self.args = args
+        self.interval = interval
+        self.prev_time = time.time()
+    
+    def exec(self):
+        cur_time = time.time()
+        d = cur_time - self.prev_time 
+        if  d > self.interval:        
+            if len(self.args) == 0: self.fun()
+            elif len(self.args) == 1: self.fun(self.args[0])
+            elif len(self.args) == 2: self.fun(self.args[0], self.args[1])
+            elif len(self.args) == 3: self.fun(self.args[0], self.args[1], self.args[2])
+            elif len(self.args) == 4:  self.fun(self.args[0], self.args[1], self.args[2], self.args[3])                                                                      
+            elif len(self.args) == 5:  self.fun(self.args[0], self.args[1], self.args[2], self.args[3],  self.args[4])       
+                                                                           
 
 #from avee_utils import is_avee_running
 def adb_output(cmd):
@@ -71,7 +86,7 @@ try:
 except: print("NO WINDOWS?")
 
 def background_screenshot(hwnd, width, height, save_file=False):
-    #t0 = time.time()
+    #t0 = time.time#pop()
     wDC = win32gui.GetWindowDC(hwnd)
     dcObj=win32ui.CreateDCFromHandle(wDC)
     cDC=dcObj.CreateCompatibleDC()
@@ -238,7 +253,7 @@ class autopy:
         if (self.stop_t):  return -1
         pyautogui.moveTo(point[0] + x_of, point[1] + y_of) 
 
-    def click(self, point, x_of, y_of,  right=False) :
+    def click(self, point, x_of=0, y_of=0,  right=False) :
         self.rlog(f"clicking  {point[0] + x_of},  {point[1] + y_of}")
         if (self.stop_t):  return -1
 
@@ -261,7 +276,7 @@ class autopy:
         else:
             pyautogui.write(text, interval=interval_)
 
-    def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None,
+    def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, do_until: fun_delegate =None,
               grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True, timeout_exception=None):
         
         if timeout == None: 
@@ -269,9 +284,10 @@ class autopy:
         if timeout:  
             self.prev_time = time.time()
         
+        
         if not isinstance(obj_l, list):
             obj_l = [obj_l]
-        #found_l = [None for x in range(len(obj_l))]
+
         for i in obj_l:
             i.found = None
 
@@ -285,15 +301,11 @@ class autopy:
                 r = [int(r[0]- r[2]/2), int(r[1]- r[3]/2), r[2], r[3]]
                 r =  [int(r[0]-10), int(r[1]- 10), r[2]+20, r[3]+20]
                 return r
-
                 
 
         def find_partial_(confidence, region, grayscale, center):
             for x in range (len(obj_l)):
 
-                if obj_l[x].name == 'email_senza_pass.png':
-                    c = 0
-                    
                 if not region:
                     if store_first == 1:
                         if obj_l[x].rs == None:
@@ -301,11 +313,6 @@ class autopy:
                         else: 
                             region = obj_l[x].rs
                             #region = correct_region(obj_l[x].basename, obj_l[x].rs)
-
-
-                #if check_names(obj_l[x].basename): region = ctx.ui.pop_ups_max
-                #if check_names2(obj_l[x].basename): region = ctx.ui.region
-
 
                 if not confidence: confidence = obj_l[x].conf
 
@@ -343,8 +350,10 @@ class autopy:
                     if not check_timeout2(self, timeout):
                         if timeout_exception: 
                             raise Exception(timeout_exception if type(timeout_exception) == str else "Critical image not found: " 
-                                            + " || images: " + str(obj_l))
+                                            + " || images: " + str([e.name + " " for e in  obj_l]))
                         return None
+                if do_until:
+                    do_until.exec()
                 time.sleep(loop)
         else:
             found  = find_partial_(confidence, region, grayscale, center)
@@ -367,7 +376,7 @@ class autopy:
                 if not check_timeout2(self, timeout):
                     if timeout_exception: 
                         raise Exception(timeout_exception if type(timeout_exception) == str else "Critical image not found: " 
-                                        + " || image: " + str(obj))
+                                        + " || image: " + str(obj.name))
                     return None
         return 1
      

@@ -1,5 +1,6 @@
 import os, subprocess as sp
 import time
+from time import sleep
 import socket
 import atexit
 import select
@@ -48,12 +49,22 @@ REM_PORT = 4003
 
 #exit()
 suffix = "_o"
+del_ = at.fun_delegate
 
-def browse_task():
+def type_hashtags(select_file, hashtags):
+    a.click(select_file.found, 140, -232)  
+    time.sleep(0.5)
+    a.type(hashtags)
+    time.sleep(0.5)
+
+def start_firefox():
+    os.system("pkill firefox")
+    sleep(0.5)
+
     cmd = ["firefox", "https://www.tiktok.com/upload?lang=en", "--display=:1"]
     p = sp.Popen(cmd)
 
-    time.sleep(2)
+    sleep(2)
     handles = []
     while 1:
         cmd2 = [f"xdotool", "search", "--name", str("Firefox")]
@@ -72,34 +83,25 @@ def browse_task():
         os.system(f"xdotool   windowmove {w} 0 0 ")
         os.system(f"xdotool   windowsize {w} 1280 1024 ")
 
+def browse_task():
+    
     #os.system(f"wmctrl -r Firedox -e 0,1300,45,1630,940")
-
+    start_firefox()
   #  xdotool Firefox getwindowgeometry --shell
-    ret = a.find(a.i.tiktok_logo, loop=2,timeout=80, timeout_exception="tiktok page didn't open")
+    ret = a.find(a.i.tiktok_logo, loop=2,timeout=80, timeout_exception="tiktok page didn't open",
+                  do_until=del_(start_firefox, [], 30 ))
 
-    if a.find(a.i.login_to_tiktok, loop=1,timeout=5):
-        raise Exception("tiktok is requesting login")
+    if a.find(a.i.login_to_tiktok, loop=1,timeout=5):  raise Exception("tiktok is requesting login")
             
-    ret = a.find(a.i.select_file, loop=2, timeout_exception=True)
-    a.click(ret.found, 140, -232)  
-    time.sleep(0.5)
-    a.type("#pop")
-    a.click(ret.found, 0, 0)  
+    select_file = a.find(a.i.select_file, loop=2, timeout_exception=True)
 
-    a.find(a.i.dict["open_file" + suffix], loop=2, timeout_exception=True)
-    a.press("enter")
-    a.find(a.i.post, loop=2, timeout_exception=True, click=1)
+    type_hashtags(select_file, "#pop")
+    #a.click(select_file.found)  
+    a.find(a.i.dict["open_file" + suffix], loop=2, timeout_exception=True, do_until=del_(a.click, [select_file.found[0:2]], 2 ))
+    #a.press("enter")
+    a.find(a.i.post, loop=2, timeout_exception=True, click=1,  do_until=del_(a.press, ["enter"], 2 ))
 
-
-
-    if ret:
-        for x in range(2):
-            a.click(ret.found, 0, 0)  
-            #a.click(ret.found, 140, -232)  
-            time.sleep(100.5)
-        a.type("#pop")
-        time.sleep(1)
-        a.press("enter")
+    a.find(a.i.view_profile, loop=2, timeout_exception=True, click=1,  timeout=120)
 
             #network.send_string(message + str(x), conn)
     a.rlog("closing connection.. ", conn=conn)
