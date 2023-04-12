@@ -35,6 +35,8 @@ if __name__ == '__main__':
                    aws_secret_access_key=secret_access_key)
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
+    YtIds=[        'UCg_-P7-Kkmgg7ehNzV2jQZQ',    ]
+
 
 local = True
 
@@ -89,6 +91,7 @@ while 1:
         time.sleep(1)
 
 network.file_transfer(file_, s)
+network.send_string(YtIds[0], s)
 while 1:
     str = network.recv_string(s)
     if str == -1:
