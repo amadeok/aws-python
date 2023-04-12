@@ -18,20 +18,15 @@ print(os.getcwd())
 print(distro.info())
 ubuntu_ver = distro.info()["version"]
 
-home = "amadeok" if ubuntu_ver =="20.04" else "ubuntu"
-with open(f"/home/{home}/f.txt",  "w") as ww:
-    ww.write(str(datetime.now().strftime("%H:%M:%S")) )
+if len(ubuntu_ver):
+    home = "amadeok" if ubuntu_ver =="20.04" else "ubuntu"
+    with open(f"/home/{home}/f.txt",  "w") as ww:
+        ww.write(str(datetime.now().strftime("%H:%M:%S")) )
 a = at.autopy("images")
 
 prefix = "70p_"
 
-
-
-
-HOST = '188.153.195.184'
-PORT = 9596
-
-REM_HOST = "0.0.0.0"
+REM_HOST =  "0.0.0.0"
 REM_PORT = 4003
 
 # HOST = '192.168.1.230'  # Standard loopback interface address (localhost)
