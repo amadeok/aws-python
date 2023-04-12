@@ -1,10 +1,10 @@
-import logging, time
+import logging, time, traceback
 while 1:
     try:
         import pyautogui as pg
         break
     except Exception as e:
-        print(f"Failed to import pyautogui: {e}")
+        print(f"Failed to import pyautogui: {traceback.format_exc()} \n Exception: {e}")
         time.sleep(1)
 import app_logging
 import os, subprocess as sp
@@ -20,7 +20,6 @@ import os, platform
 from datetime import datetime
 import distro
 import logging
-import traceback
 import shutil, keyboard
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
