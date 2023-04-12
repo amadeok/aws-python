@@ -11,6 +11,38 @@ import time
 import matplotlib.pyplot as plt
 from PIL import Image
 
+import dns.update
+import dns.query
+import dns.reversename
+import dns.rdatatype
+ 
+def create_dns_record():
+    ### Create A Record
+    dns_domain = "%s." % (domain) # Set the domain name with a trailing dot (to stop auto substitution of zone)
+    update = dns.update.Update(dns_domain) # Prepare the payload for DNS record update in the given zone/domain (dns_domain)
+    update.replace(new_hostname, TTL, 'A', new_ipaddress) # Inject the record details into the dns.update.Update class
+    response = dns.query.tcp(update, dns.rdatatype.PRIMARY_DNS_SERVER_IP, timeout=5) # Submit the new record to the DNS server to apply the update
+    ### Create reverse entry (PTR)
+    reventry = dns.reversename.from_address(new_ipaddress) # Neat function to generate a reverse entry
+    revzone = ''
+    revzone = '.'.join(dns.name.from_text(str(reventry)).labels[3:]) # Specify the reverse lookup zone based on the reverse IP address.
+    # The labels[X:] property allows you to specify which octet to use.
+    # e.g. 3: will apply the record to the 10.in-addr.arpa zone, whereas 1: will apply it to the 72.23.10.in-addr.arpa zone
+    raction = dns.update.Update(revzone) # Prepare the payload for the DNS record update
+    new_host_fqdn = "%s.%s." % (new_hostname, dns_domain) # Although we are updating the reverse lookup zone, the record needs to point back to the ‘test.example.com’ domain, not the 10.in-addr.arpa domain
+    raction.replace(reventry, TTL, dns.rdatatype.PTR, new_host_fqdn) # Inject the updated record details into the the class, preparing for submission to the DNS server
+    response = dns.query.tcp(raction, dns.rdatatype.PRIMARY_DNS_SERVER_IP, timeout=5) # submit the new record to the DNS server to apply the update
+ 
+domain = "ayurveda.sytes.net"
+new_ipaddress = "176.201.144.175"
+new_hostname = "server01"
+PRIMARY_DNS_SERVER = "8.8.8.8"
+TTL = "1200"
+create_dns_record()
+
+
+
+
 
 import random,mss
 import colorsys

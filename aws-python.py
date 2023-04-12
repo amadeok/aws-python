@@ -146,11 +146,11 @@ if __name__ == '__main__':
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
 
-    #ret = gather_public_ip()
 
 
-    # rest = client.reboot_instances( InstanceIds=InstanceIds) 
+   # rest = client.reboot_instances( InstanceIds=InstanceIds) 
 
+    ret = gather_public_ip()
 
 
     # print(get_instance_state(client, InstanceIds[0]))
@@ -161,11 +161,11 @@ if __name__ == '__main__':
 
     # print(get_instance_state(client, InstanceIds[0]))
     # try:
-    if 0:
-        rest = client.start_instances( InstanceIds=InstanceIds)
-        ret = [[]]
-        while len(ret[0]) == 0:
-            ret = gather_public_ip()
+    # if 0:
+    #     rest = client.start_instances( InstanceIds=InstanceIds)
+    #     ret = [[]]
+    #     while len(ret[0]) == 0:
+    #         ret = gather_public_ip()
 
     # except Exception as e:
     #     logging.info(f"failed to start instance {e}")
@@ -186,7 +186,7 @@ if __name__ == '__main__':
 
 #print(response)
 import socket, time
-local = True
+local = False
 from subprocess import Popen, PIPE, STDOUT
 instance_ip = ret[0][0][0] if not local else "79.42.227.212" # "192.168.1.160" #"127.0.0.1"
 logging.info(f"Instance ip: {instance_ip} ")
@@ -196,9 +196,9 @@ print ("started")
 import time, random, os
 print_ps_directly = True
 fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\00002(5)\tmp\\"
-#file_ = fld + random.choice(os.listdir(fld))
-#file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00002(5).mp3"
-file_ = "/home/amadeok/aws-python/file.mp4"
+file_ = fld + random.choice(os.listdir(fld))
+file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\vlc-record-2023-01-02-21h22m55s-2022-12-31 17-08-45.mkv-.mp4"
+
 
 while 1:
     s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 

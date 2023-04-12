@@ -48,9 +48,12 @@ def file_transfer(file, socket):
 
     # recv_data=''.join(recv_data)
     print("recv: " + str(pos))
+    #buffer[pos-100] = 233
     np_ori = numpy.array(bytearray(data_cpy))
     np_new = numpy.array(buffer)
-    print("transfer success: ", numpy.array_equiv(np_new, np_ori))
+    eq = numpy.array_equiv(np_new, np_ori)
+    assert(eq)
+    print("transfer success: ", eq)
     # for n in range(size):
     #     if buffer[n] != data_cpy[n]:
     #         print("ERROR tcp tranfer failed " + str(n))
