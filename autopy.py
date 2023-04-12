@@ -3,7 +3,8 @@ import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging, network
 import app_logging
 from PIL import Image
-from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
+if app_logging.ubuntu_ver == "20.04":
+    from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 
 
 

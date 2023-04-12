@@ -1,4 +1,4 @@
-import numpy, time
+import numpy, time, logging, app_logging
 
 def file_transfer(file, socket):
     data_cpy = b''
@@ -19,7 +19,7 @@ def file_transfer(file, socket):
     size = len(data_cpy)
     size_bytes = size.to_bytes(4, 'little')
     socket.sendall(size_bytes)
-    print("sending all")
+    #print("sending all")
     socket.sendall(data_cpy)
     # recv_data = s.recv(size)
 
@@ -47,20 +47,20 @@ def file_transfer(file, socket):
 
 
     # recv_data=''.join(recv_data)
-    print("recv: " + str(pos))
+    #print("recv: " + str(pos))
     #buffer[pos-100] = 233
     np_ori = numpy.array(bytearray(data_cpy))
     np_new = numpy.array(buffer)
     eq = numpy.array_equiv(np_new, np_ori)
     assert(eq)
-    print("transfer success: ", eq)
+    logging.info(f"transfer success: {eq}")
     # for n in range(size):
     #     if buffer[n] != data_cpy[n]:
     #         print("ERROR tcp tranfer failed " + str(n))
 
     ret = socket.recv(1)
     i = len(ret)
-    print("ret", str(ret))
+    logging.info(f"ret {ret}")
     socket.send(b'\x01')
 
     time.sleep(0.1)
@@ -73,7 +73,7 @@ def recveive_file(save_path, conn):
     
     size_b = conn.recv(4)
     size = int.from_bytes(size_b, 'little')
-    print("receving " + str(size) + " bytes")
+    logging.info("receving " + str(size) + " bytes")
     recv_data=[]
     recv_data = b''
     rem = size
@@ -109,13 +109,13 @@ def recveive_file(save_path, conn):
         
     #recv_size = len(recv_data)
     if pos != size:
-        print("error dif size")
+        logging.info("error dif size")
 
     conn.sendall(buffer) 
 
     conn.send(b'\x01')
     re = conn.recv(1)
-    print(re)
+    logging.info(re)
 
 
 def send_string(string, conn):
