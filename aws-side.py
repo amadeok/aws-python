@@ -20,7 +20,7 @@ import os, platform
 from datetime import datetime
 import distro
 import logging
-import shutil, keyboard
+import shutil, keyboard, random
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 
@@ -88,8 +88,8 @@ def start_firefox(url):
         os.system(f"xdotool   windowmove {w} 0 0 ")
         os.system(f"xdotool   windowsize {w} 1280 1024 ")
 
-def browse_task(yt_id):
-    
+def tt_task(title_hashs,  channel_id):
+
     #os.system(f"wmctrl -r Firedox -e 0,1300,45,1630,940")
     tiktok_url = "https://www.tiktok.com/upload?lang=en"
     start_firefox(tiktok_url)
@@ -105,21 +105,32 @@ def browse_task(yt_id):
     #a.click(select_file.found)  
     a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [select_file.found[0:2]], 2 ))
     #a.press("enter")
-    a.find(a.i.post, loop=2,  click=1,  do_until=del_(a.press, ["enter"], 2 ))
+    post = a.find(a.i.post, loop=2,  click=1, timeout=120,  do_until=del_(a.press, ["enter"], 2 ))
 
-    a.find(a.i.view_profile, loop=2,  click=1,  timeout=120)
+    a.find(a.i.view_profile, loop=2,  click=1,  timeout=120,  do_until=del_(a.click, [post.found[0:2]], 2 ))
     
-    yt_url = f"https://studio.youtube.com/channel/"+yt_id+"/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D" 
+    network.send_string("TT_SUCCESS", conn)
+
+def yt_task(title_hashs,  channel_id):
+    title_hashs_ = title_hashs.split(" ")
+    title_hashs_.append("#shorts")
+    random.shuffle(title_hashs_)
+    title_hashs = " ".join(title_hashs_)
+
+    yt_url = f"https://studio.youtube.com/channel/"+channel_id+"/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D" 
     start_firefox(yt_url)
     
     upload_arrow = a.find(a.i.upload_arrow, loop=2,timeout=80, timeout_exception="yt page didn't open",
                     do_until=del_(start_firefox, [yt_url], 30 ))
 
-    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ))
+    open_file =  a.find(a.i.dict["open_file" + suffix], loop=2,click=1,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ), confidence=0.9) #    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ))
 
-    two_empty = a.find(a.i.two_empty, loop=2,  do_until=del_(a.press, ["center"], 2 ))
+    two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 )])
 
-    a.type("#pop #shorts")
+    pg.keyDown('ctrl')  
+    pg.press('a')     
+    pg.keyUp('ctrl')    
+    a.type(title_hashs)
 
     a.find(a.i.one_empty, loop=2,   do_until=del_(a.click, [two_empty.found, 0, 13 ], 2 ))
 
@@ -127,28 +138,46 @@ def browse_task(yt_id):
 
     a.find(a.i.one_empty_public, loop=2,   do_until=del_(a.click, [three_empty.found, 0, 45], 2 ))
 
-    a.find(a.i.upload_complete, timeout=120, loop=2)
-    
     a.click(two_empty.found,  603,105 )
 
-    a.find(a.i.clipboard, loop=2)
+    a.find(a.i.video_processing, timeout=120, loop=2)
+
+    #a.find(a.i.clipboard, loop=2)
+    network.send_string("YT_SUCCESS", conn)
 
             #network.send_string(message + str(x), conn)
     a.rlog("closing connection.. ", conn=conn)
 
+SUCCESS = "SUCCESS"
+EXCEPTION = "EXCEPTION"
+
+def try_task(task, title_hashs, channel_id="", tries=3):
+    e_l = []
+    for x in range(tries):
+        a.rlog("Try number "+ str(x))
+        try:
+            task(title_hashs, channel_id)
+            return None
+        except Exception as e:
+            a.rlog("Exception: " + traceback.format_exc())
+            a.rlog("Exception: " + str(e))
+            if "requesting login" in str(e):
+                return e
+            e_l.append(e)
+    return e_l
+
 if __name__ == '__main__':
-    import sys
-    port = 9001
+
     print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
 
-    s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
     while 1:
         try:
-            s.bind((REM_HOST, REM_PORT))
-            s.listen()
-            conn, addr = s.accept()
+            conn.bind((REM_HOST, REM_PORT))
+            conn.listen()
+            conn, addr = conn.accept()
             print("Socket connected " + addr[0] + ":" + str(addr[1]))
             break
               
@@ -168,15 +197,17 @@ if __name__ == '__main__':
     prefix = "70p_"
     a = at.autopy("images", img_prefix=prefix)
     a.conn = conn
+    a.default_region = [0, 0, 1280 , 1024]
 
     network.recveive_file(upload_fld +  "/file.mp4", conn)
-    yt_id = network.recv_string(conn)
-    a.rlog("Yt id: " + yt_id)
-    try:
-        browse_task(yt_id)
-    except Exception as e:
-        a.rlog("Exception: " + traceback.format_exc())
-        a.rlog("Exception: " + str(e))
+    channel_id = network.recv_string(conn)
+    title_hashs = network.recv_string(conn)
 
+    a.rlog("Yt id: " + channel_id + " title and hashtags: " + title_hashs)
+
+    a.rlog("Starting tt task..")
+    try_task(tt_task, title_hashs)
+    a.rlog("Starting yt task..")
+    try_task(yt_task, title_hashs, channel_id)
 
     conn.close()

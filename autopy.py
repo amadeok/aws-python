@@ -6,6 +6,11 @@ import app_logging
 from PIL import Image
 if app_logging.ubuntu_ver == "20.04":
     from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
+if os.name != "posix":
+    import win32gui, win32ui, win32con, numpy
+    import win32pipe, threading, win32api, win32file
+
+
 
 class fun_delegate():
     def __init__(self, fun, args : list, interval) -> None:
@@ -81,10 +86,7 @@ class imgs:
                     setattr(self, basename2[1], img)
 
         
-try:
-    import win32gui, win32ui, win32con, numpy
-    import win32pipe, threading, win32api, win32file
-except: print("NO WINDOWS?")
+
 
 def background_screenshot(hwnd, width, height, save_file=False):
     #t0 = time.time#pop()
@@ -288,6 +290,8 @@ class autopy:
         
         if not isinstance(obj_l, list):
             obj_l = [obj_l]
+        if do_until and not isinstance(do_until, list):
+            do_until = [do_until]
 
         for i in obj_l:
             i.found = None
@@ -354,7 +358,8 @@ class autopy:
                                             + " || images: " + str([e.name + " " for e in  obj_l]))
                         return None
                 if do_until:
-                    do_until.exec()
+                    for del_ in do_until:
+                        del_.exec()
                 time.sleep(loop)
         else:
             found  = find_partial_(confidence, region, grayscale, center)
