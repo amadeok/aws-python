@@ -39,13 +39,11 @@ def file_transfer(file, socket):
         rem -= len(data)
         if (rem < buf):
             buf = rem
-
         #recv_data += data
        # l = len(recv_data)
         if not data or pos >= size:
             break
-
-
+        
     # recv_data=''.join(recv_data)
     #print("recv: " + str(pos))
     #buffer[pos-100] = 233

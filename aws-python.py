@@ -35,7 +35,7 @@ if __name__ == '__main__':
                    aws_secret_access_key=secret_access_key)
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
-    YtIds=[        'UCg_-P7-Kkmgg7ehNzV2jQZQ',    ]
+    YtChannelIds=[        'UCLnYo095mUIHYQikbsueFdw',    ]
 
 
 local = True
@@ -72,7 +72,7 @@ REM_PORT = 4003    # Port to listen on (non-privileged ports are > 1023)
 print_ps_directly = True
 fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\00002(5)\tmp\\"
 file_ = fld + random.choice(os.listdir(fld))
-#file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\vlc-record-2023-01-02-21h22m55s-2022-12-31 17-08-45.mkv-.mp4"
+file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
 
 
 while 1:
@@ -91,7 +91,9 @@ while 1:
         time.sleep(1)
 
 network.file_transfer(file_, s)
-network.send_string(YtIds[0], s)
+network.send_string(YtChannelIds[0], s)
+network.send_string("#pop", s)
+
 while 1:
     str = network.recv_string(s)
     if str == -1:
