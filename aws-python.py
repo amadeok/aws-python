@@ -35,7 +35,7 @@ if __name__ == '__main__':
                    aws_secret_access_key=secret_access_key)
 
     InstanceIds=[        'i-0f7cb6f8639cff05c',    ]
-    YtChannelIds=["UCLnYo095mUIHYQikbsueFdw" ] ##musicosmus   ## "UCg_-P7-Kkmgg7ehNzV2jQZQ"      ]#amadeokusch2    ##'UCLnYo095mUIHYQikbsueFdw',theristhere    ]
+    YtChannelIds=["UC09k3A2-21bxqFaYb6gdK0w" ] ##musicosmus   ## "UCg_-P7-Kkmgg7ehNzV2jQZQ"      ]#amadeokusch2    ##'UCLnYo095mUIHYQikbsueFdw',theristhere    ]
 
 
 local = 0
