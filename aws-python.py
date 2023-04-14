@@ -38,9 +38,9 @@ if __name__ == '__main__':
     YtChannelIds=["UCRFWvTVdgkejtxqh0jSlXBg"] ##amadeokusch ############ ###UC09k3A2-21bxqFaYb6gdK0w === musicosmus   ## "UCg_-P7-Kkmgg7ehNzV2jQZQ"  = amadeokusch2    ##'UCLnYo095mUIHYQikbsueFdw' === theristhere    ]
 
 
-local = 1
+local = 0
 start_vnc = 1
-#rest = client.reboot_instances( InstanceIds=InstanceIds) 
+rest = client.reboot_instances( InstanceIds=InstanceIds) 
 # ret = b3.gather_public_ip()
 # print(get_instance_state(client, InstanceIds[0]))
 # try:
