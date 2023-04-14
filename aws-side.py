@@ -159,9 +159,9 @@ def yt_task(title_hashs,  channel_id):
 
     a.find(a.i.one_empty_public, loop=2,   do_until=del_(a.click, [three_empty.found, 0, 45], 2 ))
 
-    a.click(next_btn)
+    #a.click(next_btn)
 
-    a.find([a.i.video_processing,a.i.v_published ], timeout=120, loop=2)
+    a.find([a.i.SD, a.i.video_published_socials ], timeout=120, loop=2, do_until=del_(a.click, [next_btn], 2 ), region=(404, 365, 501, 384))
 
     #a.find(a.i.clipboard, loop=2)
     network.send_string("YT_SUCCESS", conn)
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     a.rlog("Yt id: " + channel_id + " title and hashtags: " + title_hashs)
 
     a.rlog("Starting tt task..")
-    try_task(tt_task, title_hashs)
+    #try_task(tt_task, title_hashs)
     a.rlog("Starting yt task..")
     try_task(yt_task, title_hashs, channel_id)
 
