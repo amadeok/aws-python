@@ -38,7 +38,7 @@ if __name__ == '__main__':
     YtChannelIds=["UC09k3A2-21bxqFaYb6gdK0w" ] ##musicosmus   ## "UCg_-P7-Kkmgg7ehNzV2jQZQ"      ]#amadeokusch2    ##'UCLnYo095mUIHYQikbsueFdw',theristhere    ]
 
 
-local = 0
+local = 1
 start_vnc = 1
 #rest = client.reboot_instances( InstanceIds=InstanceIds) 
 # ret = b3.gather_public_ip()
@@ -75,7 +75,7 @@ REM_PORT = 4003    # Port to listen on (non-privileged ports are > 1023)
 print_ps_directly = True
 fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\00002(5)\tmp\\"
 file_ = fld + random.choice(os.listdir(fld))
-file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
+#file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
 
 
 while 1:

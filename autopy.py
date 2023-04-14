@@ -3,8 +3,8 @@ import os, sys, time, argparse, mss, pyautogui, serial, subprocess as sp
 import logging, network
 from collections import namedtuple
 import app_logging
-from PIL import Image
 if app_logging.ubuntu_ver == "20.04":
+from PIL import Image
     from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 if os.name != "posix":
     import win32gui, win32ui, win32con, numpy
