@@ -218,6 +218,7 @@ if __name__ == '__main__':
     a = at.autopy("images", img_prefix=prefix)
     a.conn = conn
     a.default_region = [0, 0, 1280 , 1024]
+    a.find_fun_timeout = 30
 
     network.recveive_file(upload_fld +  "/file.mp4", conn)
     channel_id = network.recv_string(conn)
