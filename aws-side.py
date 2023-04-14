@@ -71,7 +71,7 @@ def start_firefox(url):
         procs = str(out.decode("utf-8"))
         if len(procs) == 0:
             break
-        a.click((1263, 21))
+        a.click((1263, 21 if x %2 == 0 else 41))
         time.sleep(0.5)
         if x == 9:
             a.rlog("Firefox had to be terminated with pkill")

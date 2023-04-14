@@ -38,7 +38,7 @@ if __name__ == '__main__':
     YtChannelIds=[  "UCg_-P7-Kkmgg7ehNzV2jQZQ"      ]#amadeokusch2    ##'UCLnYo095mUIHYQikbsueFdw',theristhere    ]
 
 
-local = 1
+local = 0
 start_vnc = 1
 #rest = client.reboot_instances( InstanceIds=InstanceIds) 
 # ret = b3.gather_public_ip()
@@ -50,7 +50,7 @@ start_vnc = 1
 # print(get_instance_state(client, InstanceIds[0]))
 # try:
 if not local:
-    #rest = client.start_instances( InstanceIds=InstanceIds)
+    rest = client.start_instances( InstanceIds=InstanceIds)
     ret = [[]]
     while len(ret[0]) == 0:
         ret = b3.gather_public_ip()
