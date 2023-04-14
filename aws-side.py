@@ -135,6 +135,7 @@ def yt_task(title_hashs,  channel_id):
     title_hashs = " ".join(title_hashs_)
 
     yt_url = f"https://studio.youtube.com/channel/"+channel_id+"/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D" 
+    a.rlog("YT URL: " + yt_url)
     start_firefox(yt_url)
     
     upload_arrow = a.find(a.i.upload_arrow, loop=2,timeout=80, timeout_exception="yt page didn't open",
