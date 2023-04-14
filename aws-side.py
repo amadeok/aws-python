@@ -65,7 +65,7 @@ def type_hashtags(select_file, hashtags):
 
 def start_firefox(url):
     os.system("pkill firefox")
-    sleep(0.5)
+    sleep(1)
 
     cmd = ["firefox", url, "--display=:1"]
     p = sp.Popen(cmd)
