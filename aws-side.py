@@ -63,20 +63,23 @@ def type_hashtags(select_file, hashtags):
     a.type(hashtags)
     time.sleep(0.5)
 
-def start_firefox(url):
-    
-    for x in range(10):
+def close_firefox():
+    tries = 5
+    for x in range(tries):
         pk = sp.Popen(["ps", "--no-headers",  "-C",  "firefox",  "-o",  "args,state"], stdout=sp.PIPE)
         out, err = pk.communicate()
         procs = str(out.decode("utf-8"))
         if len(procs) == 0:
             break
-        a.click((1263, 21))
+        a.click((1263, 21 if app_logging.ubuntu_ver == "20.04" else 41))
         time.sleep(0.5)
-        if x == 9:
+        if x == tries -1:
             a.rlog("Firefox had to be terminated with pkill")
             os.system("pkill firefox")
 
+def start_firefox(url):
+    
+    close_firefox()
     sleep(0.5)
 
     cmd = ["firefox", url, "--display=:1"]
@@ -227,4 +230,6 @@ if __name__ == '__main__':
     a.rlog("Starting yt task..")
     try_task(yt_task, title_hashs, channel_id)
 
+    close_firefox()
+    
     conn.close()
