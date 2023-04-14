@@ -71,6 +71,10 @@ def start_firefox(url):
     p = sp.Popen(cmd)
 
     sleep(2)
+    troubleshoot = a.find(a.i.troubleshoot, loop=2, timeout=4, timeout_exception=None)
+    if troubleshoot:
+        a.click(troubleshoot, 188, 115)
+        
     handles = []
     while 1:
         cmd2 = [f"xdotool", "search", "--name", str("Firefox")]
