@@ -160,7 +160,7 @@ def yt_task(title_hashs,  channel_id):
 
     a.click(two_empty.found,  603,105 )
 
-    a.find([a.i.video_processing,a.i.video_published ], timeout=120, loop=2)
+    a.find([a.i.processing_empty,a.i.video_published_socials ], timeout=120, loop=2, do_until=del_(a.click, [, 0, 13 ], 2 ))
 
     #a.find(a.i.clipboard, loop=2)
     network.send_string("YT_SUCCESS", conn)
