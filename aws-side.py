@@ -71,7 +71,7 @@ def close_firefox():
         procs = str(out.decode("utf-8"))
         if len(procs) == 0:
             break
-        a.click((1263, 21 if app_logging.ubuntu_ver == "20.04" else 41))
+        a.click((1263, 21 if app_logging.ubuntu_ver == "20.04" else 43))
         time.sleep(0.5)
         if x == tries -1:
             a.rlog("Firefox had to be terminated with pkill")
@@ -231,5 +231,5 @@ if __name__ == '__main__':
     try_task(yt_task, title_hashs, channel_id)
 
     close_firefox()
-    
+
     conn.close()
