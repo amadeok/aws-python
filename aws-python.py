@@ -68,7 +68,7 @@ if not local:
 instance_ip = ret[0][0][0] if not local else  "192.168.1.160"#79.42.227.212" # "192.168.1.160" #"127.0.0.1"
 if not local and start_vnc:
     p = Popen([r"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe", f'{instance_ip}:1'])
-    #os.system(f'"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe" {instance_ip}:1' )
+
 logging.info(f"Instance ip: {instance_ip} ")
 REM_HOST = instance_ip #'192.168.1.189'  # Standard loopback interface address (localhost)
 REM_PORT = 4003    # Port to listen on (non-privileged ports are > 1023)
