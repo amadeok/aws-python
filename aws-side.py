@@ -64,8 +64,20 @@ def type_hashtags(select_file, hashtags):
     time.sleep(0.5)
 
 def start_firefox(url):
-    os.system("pkill firefox")
-    sleep(1)
+    
+    for x in range(10):
+        pk = sp.Popen(["ps", "--no-headers",  "-C",  "firefox",  "-o",  "args,state"], stdout=sp.PIPE)
+        out, err = pk.communicate()
+        procs = str(out.decode("utf-8"))
+        if len(procs) == 0:
+            break
+        a.click((1263, 21))
+        time.sleep(0.5)
+        if x == 9:
+            a.rlog("Firefox had to be terminated with pkill")
+            os.system("pkill firefox")
+
+    sleep(0.5)
 
     cmd = ["firefox", url, "--display=:1"]
     p = sp.Popen(cmd)
@@ -145,7 +157,7 @@ def yt_task(title_hashs,  channel_id):
 
     a.click(two_empty.found,  603,105 )
 
-    a.find(a.i.video_processing, timeout=120, loop=2)
+    a.find([a.i.video_processing,a.i.video_published ], timeout=120, loop=2)
 
     #a.find(a.i.clipboard, loop=2)
     network.send_string("YT_SUCCESS", conn)
