@@ -24,6 +24,7 @@ import shutil, keyboard, random
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 
+pg.FAILSAFE =  False
 prefix = "70p_"
 print(pg._pyautogui_x11.keyboardMapping)
 
