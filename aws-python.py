@@ -40,11 +40,11 @@ if __name__ == '__main__':
 
 local = 0
 start_vnc = 1
-rest = client.reboot_instances( InstanceIds=InstanceIds) 
+#rest = client.reboot_instances( InstanceIds=InstanceIds) 
 # ret = b3.gather_public_ip()
 # print(get_instance_state(client, InstanceIds[0]))
 # try:
-#resp = client.stop_instances( InstanceIds=InstanceIds)
+resp = client.stop_instances( InstanceIds=InstanceIds)
 # except Exception as e:
 #     logging.info(f"failed to stop instance {e}")
 # print(get_instance_state(client, InstanceIds[0]))
