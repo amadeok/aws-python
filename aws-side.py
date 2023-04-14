@@ -154,11 +154,12 @@ def yt_task(title_hashs,  channel_id):
 
     a.find(a.i.one_empty, loop=2,   do_until=del_(a.click, [two_empty.found, 0, 13 ], 2 ))
 
-    three_empty = a.find(a.i.three_empty, loop=2,   do_until=del_(a.click, [two_empty.found, 603, 105 if app_logging.ubuntu_ver == "20.04" else 51], 2 ))
+    next_btn = (two_empty.found[0] + 603, two_empty.found[1] + 105 if app_logging.ubuntu_ver == "20.04" else 51)
+    three_empty = a.find(a.i.three_empty, loop=2,   do_until=del_(a.click, [next_btn], 2 ))
 
     a.find(a.i.one_empty_public, loop=2,   do_until=del_(a.click, [three_empty.found, 0, 45], 2 ))
 
-    a.click(two_empty.found,  603,105 )
+    a.click(next_btn)
 
     a.find([a.i.processing_empty,a.i.video_published_socials ], timeout=120, loop=2, do_until=del_(a.click, [, 0, 13 ], 2 ))
 
