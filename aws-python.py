@@ -76,7 +76,7 @@ print_ps_directly = True
 fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\00002(5)\tmp\\"
 file_ = fld + random.choice(os.listdir(fld))
 file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
-
+file_ =  r"D:\videos\VID_20200529_192704.mp4"
 
 while 1:
     s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
@@ -95,11 +95,17 @@ while 1:
 
 mt = True
 network.send_string("1" if mt else "0", s)
+parts = 1
+
+t_ = time.time()
 
 if mt:
-    network.file_transfer_mt(file_, REM_PORT, 3, REM_HOST)
+    network.send_string(f"{parts}", s)
+    network.file_transfer_mt(file_, REM_PORT, parts, REM_HOST)
 else:
     network.file_transfer(file_, s)
+
+logging.info(f"transfer size {os.stat(file_).st_size} took {(time.time()  - t_)/60:<3} mins")
 network.send_string(YtChannelIds[0], s)
 network.send_string("#pop", s)
 

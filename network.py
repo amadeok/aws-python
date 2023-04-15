@@ -41,8 +41,8 @@ def transfer_task(port, ip, data):
     s = client_connect(port, ip)
     size = len(data)
     size_bytes = size.to_bytes(4, 'little')
-    socket.sendall(size_bytes)
-    socket.sendall(data)
+    s.sendall(size_bytes)
+    s.sendall(data)
 
 def receive_task(port, ip, part_n, data_arr):
     conn = server_connect(port, ip)
