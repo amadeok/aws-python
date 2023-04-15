@@ -18,7 +18,7 @@ def client_connect(port, ip):
             time.sleep(1)
 
 def server_connect(port, ip):
-    print("listening at " + port + ":" + str(port))
+    print("listening at " + ip + ":" + str(port))
 
     conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

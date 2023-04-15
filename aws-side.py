@@ -223,7 +223,8 @@ if __name__ == '__main__':
 
     f_path = upload_fld +  "/file.mp4"
     if mt:
-        network.recveive_file_mt(f_path,REM_PORT, REM_HOST, 3 )
+        parts = int(network.recv_string(conn) )
+        network.recveive_file_mt(f_path,REM_PORT, REM_HOST, parts )
     else:
         network.recveive_file(f_path, conn)
     channel_id = network.recv_string(conn)
