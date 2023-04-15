@@ -228,7 +228,10 @@ if __name__ == '__main__':
         network.recveive_file_mt(f_path,REM_PORT, REM_HOST, parts )
     else:
         network.recveive_file(f_path, conn)
-    a.rlog(f"transfer size {os.stat(f_path).st_size} with {parts} parts took {(time.time()  - t_)/60:<3} mins")
+    
+    d = time.time()  - t_
+    size = os.stat(f_path).st_size
+    a.rlog(f"transfer size {size} with {parts} parts took {d/60:<3} mins, speed: {(size/1000000)/d}mb/s ")
 
     
     channel_id = network.recv_string(conn)
