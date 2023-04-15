@@ -1,13 +1,14 @@
 import numpy, time, logging, app_logging, socket,threading, math
 
-def client_connect(port, ip):
+def client_connect(port, ip, a =None):
+    log = a.rlog if a else logging.info
     while 1:
         s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         try:
-            logging.info("Connecting to " + ip + ":" + str(port))
+            log("Connecting to " + ip + ":" + str(port))
             s.connect((ip, port))
 
-            logging.info("Socket connected")
+            log("Socket connected " + ip + ":" + str(port))
             return s
             break
         
@@ -17,8 +18,10 @@ def client_connect(port, ip):
             print(e)
             time.sleep(1)
 
-def server_connect(port, ip):
-    print("listening at " + ip + ":" + str(port))
+def server_connect(port, ip, a=None):
+    log = a.rlog if a else logging.info
+
+    log("listening at " + ip + ":" + str(port))
 
     conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -28,11 +31,11 @@ def server_connect(port, ip):
             conn.bind((ip, port))
             conn.listen()
             conn, addr = conn.accept()
-            print("Socket connected " + addr[0] + ":" + str(addr[1]))
+            log("Socket connected " + addr[0] + ":" + str(addr[1]))
             break
 
         except Exception as e:
-            print(e)
+            log(e)
             time.sleep(1)
             #conn.close()
     return conn
@@ -44,11 +47,12 @@ def transfer_task(port, ip, data):
     s.sendall(size_bytes)
     s.sendall(data)
 
-def receive_task(port, ip, part_n, data_arr):
+def receive_task(port, ip, part_n, data_arr, a=None):
+    log = a.rlog if a else logging.info
     conn = server_connect(port, ip)
     size_b = conn.recv(4)
     size = int.from_bytes(size_b, 'little')
-    logging.info("receving " + str(size) + " bytes")
+    log(f"worker {part_n} receiving " + str(size) + " bytes")
 
     rem = size
     buf = 128000
@@ -70,7 +74,7 @@ def receive_task(port, ip, part_n, data_arr):
         if not data or pos >= size:
             break
     if pos != size:
-        logging.info("error dif size")
+        log("error dif size")
     # conn.sendall(buffer) 
 
     # conn.send(b'\x01')
