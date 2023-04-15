@@ -222,11 +222,14 @@ if __name__ == '__main__':
     mt = network.recv_string(conn) == "1"
 
     f_path = upload_fld +  "/file.mp4"
+    t_ = time.time()
     if mt:
         parts = int(network.recv_string(conn) )
         network.recveive_file_mt(f_path,REM_PORT, REM_HOST, parts )
     else:
         network.recveive_file(f_path, conn)
+    a.rlog(f"transfer took {(time.time()  - t_)/60:<3} mins")
+    
     channel_id = network.recv_string(conn)
     title_hashs = network.recv_string(conn)
 
