@@ -219,8 +219,13 @@ if __name__ == '__main__':
     a.conn = conn
     a.default_region = [0, 0, 1280 , 1024]
     a.find_fun_timeout = 30
+    mt = network.recv_string(conn) == "1"
 
-    network.recveive_file(upload_fld +  "/file.mp4", conn)
+    f_path = upload_fld +  "/file.mp4"
+    if mt:
+        network.recveive_file_mt(f_path,REM_PORT, REM_HOST, 3 )
+    else:
+        network.recveive_file(f_path, conn)
     channel_id = network.recv_string(conn)
     title_hashs = network.recv_string(conn)
 
