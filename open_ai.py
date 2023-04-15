@@ -1,13 +1,19 @@
 import os
 import openai
+k = ""
+if os.path.isfile("ooo"):
+    with open("ooo", "r")as i:
+        d = i.read().splitlines()
+        k = d[0]
 
-openai.api_key = os.getenv("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")
-openai.api_key = "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"
+#openai.api_key = os.getenv("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")
+openai.api_key = k
 
+        
 response = openai.ChatCompletion.create(
   model = 'gpt-3.5-turbo',
   messages = [
-    {'role': 'user', 'content': 'where can i buy a table to do panchakarma treatment'}
+    {'role': 'user', 'content': "what's the easiest way to work with sql in python"}
   ],
   temperature = 0  
 )
@@ -22,6 +28,7 @@ response = openai.ChatCompletion.create(
 #   presence_penalty=0
 # )
 print(response)
+print(response["choices"][0]["message"]["content"])
 exit()
 
 import openai
