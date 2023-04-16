@@ -19,7 +19,7 @@ import pywinauto, ctypes, os,win32process
 from urllib.parse import quote
 from collections import namedtuple
 import seaborn as sns
-
+import aws_python
 from avee_utils import *
 import dav
 
@@ -58,6 +58,8 @@ ctx = context()
 
 perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, beats_per_bar=ctx.beats_per_bar)
 
-davinci = dav.dav_handler(ctx)
+if not os.path.isfile(ctx.input_f.dav_final_file):
+    davinci = dav.dav_handler(ctx)
 
-
+aws = aws_python.aws_handler()
+aws.aws_task("melb0", ctx )

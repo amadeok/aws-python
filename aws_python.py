@@ -62,32 +62,32 @@ class aws_handler():
         #file_ =  r"D:\videos\VID_20200529_192704.mp4"
         file_ = ctx.input_f.dav_final_file
 
-        s = network.client_connect(REM_PORT, REM_HOST)
+        conn = network.client_connect(REM_PORT, REM_HOST)
 
         mt = True
-        network.send_string("1" if mt else "0", s)
+        network.send_string("1" if mt else "0", conn)
         parts = 1
 
         if mt:
-            network.send_string(f"{parts}", s)
+            network.send_string(f"{parts}", conn)
             network.file_transfer_mt(file_, REM_PORT, parts, REM_HOST)
         else:
-            network.file_transfer(file_, s)
+            network.file_transfer(file_, conn)
 
         #logging.info(f"transfer size {os.stat(file_).st_size} took {(time.time()  - t_)/60:<3} mins")
-        network.send_string(YtChannelIds[0], s)
-        network.send_string("#pop", s)
+        network.send_string(YtChannelIds[0], conn)
+        network.send_string("#pop", conn)
 
         while 1:
-            str = network.recv_string(s)
+            str = network.recv_string(conn)
             if str == -1:
                 print("connection closed")
                 break
             elif str == "TT_SUCCESS":
-                s.sql.set_record(InstanceIds[0], ctx.input_f.win_name, 1, "TT_Uploads")
+                s.sql.set_record(name, ctx.input_f.win_name, 1, "TT_Uploads")
                 logging.info(str)
             elif str == "YT_SUCCESS":
-                s.sql.set_record(InstanceIds[0], ctx.input_f.win_name, 1, "YT_Uploads")
+                s.sql.set_record(name, ctx.input_f.win_name, 1, "YT_Uploads")
                 logging.info(str)
             else:
                 print(str)

@@ -46,17 +46,17 @@ class sql_():
                 logging.info(f"database already contains {track}")
 
     def add_update_table_col(s, name):
-        try:
-            for table_name in ("TT_Uploads", "YT_Uploads"):
+        for table_name in ("TT_Uploads", "YT_Uploads"):
+            try:
                 s.cur.execute(f"ALTER TABLE {table_name} ADD COLUMN '{name}' text")
-            s.con.commit()
-        except Exception as e:
-            logging.info(e)
+                s.con.commit()
+            except Exception as e:
+                logging.info(e)
 
 
 
     def set_record(s, col, row, val, table):
-        s.cur.execute(f"UPDATE {table} SET {col} = ? WHERE __ = ?;", (val, row ))
+        s.cur.execute(f"""UPDATE {table} SET "{col}" = ? WHERE __ = ?;""", (val, row ))
         #s.cur.execute(f"UPDATE Uploads SET new_aws_id = 1 WHERE rowid = 0;")
         s.con.commit()
 

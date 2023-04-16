@@ -55,8 +55,6 @@ def point_displacement(point, vec, disp):
 class dav_handler():
     def __init__(s, ctx) -> None:
 
-
-
         s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
         s.ctx = ctx
         s.init()
@@ -70,7 +68,7 @@ class dav_handler():
 
         s.get_clip_info()
 
-        s.plot = 1
+        s.plot = 0
         if s.plot:
             s.init_plt()
 
@@ -337,12 +335,12 @@ class dav_handler():
                 for i, elem in enumerate(yy0):
                     if xx0[i] >= 0:
                         operator[round(xx0[i])] = {1: yy0[i], 2: yy1[i], 3: 0.0}
-                        print(f"{xx0[i]:>3}   {yy0[i]:>3}  | {yy1[i]:>3}")
+                        #print(f"{xx0[i]:>3}   {yy0[i]:>3}  | {yy1[i]:>3}")
             elif s.add_intro_outro:
                 for i, elem in enumerate(yy0):
                     new_x = round(xx0[i]  + s.clip_end)
                     if math.ceil(new_x) < s.clip_end-d:
-                        print(f"{new_x:>3}   {yy0[i]:>3}  | {yy1[i]:>3}")
+                        #print(f"{new_x:>3}   {yy0[i]:>3}  | {yy1[i]:>3}")
                         #print(new_x)
                         operator[new_x] =  {1: yy0[i], 2: yy1[i], 3: 0.0}
                 #time.sleep(0.005)
@@ -451,6 +449,10 @@ class dav_handler():
 
     def render(s):
         s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4"})
+        # aa = s.project.GetRenderCodecs()
+        # aa2 = s.project.GetRenderFormats()
+        # aa3 = s.project.GetCurrentRenderFormatAndCodec()
+        ret = s.project.SetCurrentRenderFormatAndCodec("mp4",  "H264_NVIDIA")
         ret= s.project.AddRenderJob()
         logging.info(f"Starting render..")
 
