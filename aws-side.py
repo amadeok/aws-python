@@ -189,23 +189,24 @@ def try_task(task, title_hashs, channel_id="", tries=3):
 if __name__ == '__main__':
 
     print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
-
-    conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
-    while 1:
-        try:
-            conn.bind((REM_HOST, REM_PORT))
-            conn.listen()
-            conn, addr = conn.accept()
-            print("Socket connected " + addr[0] + ":" + str(addr[1]))
-            break
+    conn = network.server_connect()
+    # conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    # conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
+    # while 1:
+    #     try:
+    #         conn.bind((REM_HOST, REM_PORT))
+    #         conn.listen()
+    #         conn, addr = conn.accept()
+    #         print("Socket connected " + addr[0] + ":" + str(addr[1]))
+    #         break
               
 
-        except Exception as e:
-            print(e)
-            time.sleep(1)
-            #conn.close()
+    #     except Exception as e:
+    #         print(e)
+    #         time.sleep(1)
+    #         #conn.close()
 
     upload_fld = os.path.expanduser('~') + "/Desktop"
 
