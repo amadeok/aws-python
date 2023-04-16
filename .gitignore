@@ -34,3 +34,5 @@ __pycache__/app_logging.cpython-310.pyc
 __pycache__/network.cpython-310.pyc
 __pycache__/app_logging.cpython-38.pyc
 __pycache__/network.cpython-38.pyc
+__pycache__/aws_python.cpython-310.pyc
+__pycache__/sql_utils.cpython-310.pyc
