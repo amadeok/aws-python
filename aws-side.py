@@ -246,5 +246,6 @@ if __name__ == '__main__':
     try_task(yt_task, title_hashs, channel_id)
 
     close_firefox()
+    
 
     conn.close()
