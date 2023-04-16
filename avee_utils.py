@@ -31,6 +31,7 @@ class name_storage():
         self.dirpath = os.path.dirname(input_path)
         self.out_fld = f"{out}\\{self.basename}\\".replace("\\\\", "\\")
         self.avee_final_file = f"{self.out_fld}\\{self.basename}_joined.mp4".replace("\\\\", "\\")
+        self.dav_final_file = self.out_fld + "\\" +  f"{self.basename}_dav.mp4"
 
 #device = "ce041714f506223101" # emulator-5554
 device = "emulator-5554"
