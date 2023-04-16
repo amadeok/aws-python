@@ -58,6 +58,6 @@ ctx = context()
 
 perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, beats_per_bar=ctx.beats_per_bar)
 
-for x in range(2):
-    davinci = dav.dav_handler(ctx)
-    print(" !!! ",x)
+davinci = dav.dav_handler(ctx)
+
+

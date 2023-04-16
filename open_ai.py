@@ -13,7 +13,7 @@ openai.api_key = k
 response = openai.ChatCompletion.create(
   model = 'gpt-3.5-turbo',
   messages = [
-    {'role': 'user', 'content': "what's the easiest way to work with sql in python"}
+    {'role': 'user', 'content': "how can i add a column to a table using python in sqlite"}
   ],
   temperature = 0  
 )

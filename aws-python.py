@@ -7,6 +7,9 @@ import boto3_utils as b3
 import socket
 from subprocess import Popen, PIPE, STDOUT
 import time, random
+import sqlite3 as sl
+
+
 
 access_key_id = "AKIAQTONZDFNOK7WKRXN"
 secret_access_key = "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"
@@ -78,20 +81,7 @@ file_ = fld + random.choice(os.listdir(fld))
 file_ = r"C:\Users\amade\Documents\dawd\Exported\00030 like you promised\00030.mov"
 file_ =  r"D:\videos\VID_20200529_192704.mp4"
 
-while 1:
-    s=  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    try:
-        logging.info("Connecting to " + REM_HOST + ":" + str(REM_PORT))
-        s.connect((REM_HOST, REM_PORT))
-
-        logging.info("Socket connected")
-        break
-    
-    except Exception as e:
-        s.close()
-
-        print(e)
-        time.sleep(1)
+s = network.client_connect(REM_PORT, REM_HOST)
 
 mt = True
 network.send_string("1" if mt else "0", s)
