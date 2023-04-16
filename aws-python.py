@@ -91,6 +91,7 @@ class aws_handler():
                 logging.info(str)
             else:
                 print(str)
+        
 
 #rest = client.reboot_instances( InstanceIds=InstanceIds) 
 # ret = b3.gather_public_ip()
