@@ -35,7 +35,7 @@ fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', '
 
 nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
-template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld)]
+template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld) if ".viz" in elem]
 audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(audio_fld) if ".wav" in elem or ".mp3" in elem]
 
 andr_input_fld = "/mnt/shared/Pictures/"
@@ -127,13 +127,13 @@ def lis(): # Collect events until released
 t= threading.Thread(target=lis)
 t.start()
 
-# adb("am force-stop com.daaw.avee")
-# time.sleep(0.5)
-# reset_settings()
-# settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
-# for f in os.listdir(settings_f):
-#     bb = "adb  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
-#     os.system(bb)
+adb("am force-stop com.daaw.avee")
+time.sleep(0.5)
+reset_settings()
+settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
+for f in os.listdir(settings_f):
+    bb = "adb  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
+    os.system(bb)
 
 while 1:
     time.sleep(1)

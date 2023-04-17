@@ -44,7 +44,7 @@ nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
 template_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\AveeTemplate_normal\\"
 
-template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld)]
+template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld) if ".viz" in elem]
 
 def restart_ld_player(hwnd=None):
     # if hwnd:
@@ -125,7 +125,8 @@ def reset_settings():
         os.system(bb)
 
 def adb(cmd):
-    os.system(base + cmd)
+    cmd_ = base + cmd
+    os.system(cmd_)
 
 def is_device_awake():
     ret = adb_output('dumpsys power | find "mWakefulness="')
