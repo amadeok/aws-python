@@ -14,11 +14,11 @@ if os.path.isfile("rtf"):
         access_key_id = d[0]
         secret_access_key = d[1]
 
-region = "ap-southeast-4" #'ap-south-1'
-ec2 = boto3.client('ec2',
-                   region,
-                   aws_access_key_id=access_key_id,
-                   aws_secret_access_key=secret_access_key)
+#region = "ap-southeast-4" #'ap-south-1'
+# ec2 = boto3.client('ec2',
+#                    region,
+#                    aws_access_key_id=access_key_id,
+#                    aws_secret_access_key=secret_access_key)
  
 #This function will describe all the instances
 #with their current state
@@ -103,15 +103,14 @@ def get_instance_state(client, id):
         return "None"
     
         
-def gather_public_ip():
-    global region
-    regions = [region]
+def gather_public_ip(region, client):
+    regions = [region] #us-east-1a	should be us-east-1
     combined_list = []   ##This needs to be returned
     for region in regions:
         instance_information = [] # I assume this is a list, not dict
         ip_dict = {}
-        client = boto3.client('ec2', aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key,
-                              region_name=region, )
+        #client = boto3.client('ec2', aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key,
+        #                      region_name=region, )
         descr = client.describe_instances()
         instance_dict = descr.get('Reservations')
         for reservation in instance_dict:

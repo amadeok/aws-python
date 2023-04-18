@@ -17,6 +17,9 @@ ssh -i "melbourne_01.pem" ubuntu@ec2-16-50-44-220.ap-southeast-4.compute.amazona
 
 ###############
 ubuntu 18, 2gb ram instance, firefox, block video and audio, use Disable HTML5 Autoplay plugin 
+right click bottom bar and delete toolbar
+set firefox zoom to 70%
+instance inbound rule: click instance, click security, click security group ("sg-00 [...]"), edit inbound rules, add rule, type all traffic, source custom, 0.0.0.0/0
 
 sudo apt-get update
 
@@ -24,7 +27,8 @@ sudo apt-get update
 sudo apt install tasksel
 sudo tasksel install ubuntu-mate-desktop
 
-sudo apt-get install tightvncserver
+#sudo apt-get install tightvncserver
+sudo apt install tigervnc-standalone-server
 
 vncserver :1
 vncserver -kill :1
@@ -46,7 +50,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable tigervnc@1
 vncserver -kill :1
 sudo systemctl start tigervnc@1.service
-sudo systemctl tigervnc@1.service
+sudo systemctl  status tigervnc@1.service
 
 
 
@@ -63,6 +67,9 @@ python3.8 aws-side.py
 https://github.com/cli/cli/blob/trunk/docs/install_linux.md
 
 git clone https://github.com/amadeok/aws-python
+cd aws-python
+sudo chmod +x ./install_utils.sh
+./install_utils.sh
 
 #############
 ec2-16-50-156-38.ap-southeast-4.compute.amazonaws.com

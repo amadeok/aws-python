@@ -62,4 +62,4 @@ if not os.path.isfile(ctx.input_f.dav_final_file):
     davinci = dav.dav_handler(ctx)
 
 aws = aws_python.aws_handler()
-aws.aws_task("melb0", ctx )
+aws.aws_task("virg0", ctx, stop_instance=False, hashtags="#pop")

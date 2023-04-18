@@ -24,12 +24,12 @@ class aws_handler():
         s.debug_mode = 0
         s.client = None
         s.sql = sql_utils.sql_()
-        s.local = 1
+        s.local = 0
         s.start_vnc = 1
 
-    def aws_task(s, inst_name, ctx, inst_id = None, yt_ch_id=None):
-        
-        
+    def aws_task(s, inst_name, ctx, stop_instance, hashtags,  inst_id = None, yt_ch_id=None):
+        logging.info(f"Starting aws task instance {inst_name}")
+
         aws_id, yt_id, region, mail, name  = s.sql.get_row(inst_name)
         s.sql.add_update_table_col(name)
         s.sql.add_track(ctx.input_f.win_name)
@@ -42,11 +42,15 @@ class aws_handler():
         YtChannelIds= [yt_id ]  ##"UCRFWvTVdgkejtxqh0jSlXBg" amadeokusch ############ ###UC09k3A2-21bxqFaYb6gdK0w === musicosmus   ## "UCg_-P7-Kkmgg7ehNzV2jQZQ"  = amadeokusch2    ##'UCLnYo095mUIHYQikbsueFdw' === theristhere    ]
 
         if not s.local:
-            rest = s.client.start_instances( InstanceIds=InstanceIds)
+            try:
+                rest = s.client.start_instances( InstanceIds=InstanceIds)
+            except Exception as e:
+                logging.info(e)
             ret = [[]]
             while len(ret[0]) == 0:
-                ret = b3.gather_public_ip()
+                ret = b3.gather_public_ip(region, s.client)
 
+        tt = time.time()
 
         instance_ip = ret[0][0][0] if not s.local else  "192.168.1.160"#79.42.227.212" # "192.168.1.160" #"127.0.0.1"
         if not s.local and s.start_vnc:
@@ -66,7 +70,7 @@ class aws_handler():
 
         mt = True
         network.send_string("1" if mt else "0", conn)
-        parts = 1
+        parts = 3
 
         if mt:
             network.send_string(f"{parts}", conn)
@@ -75,8 +79,8 @@ class aws_handler():
             network.file_transfer(file_, conn)
 
         #logging.info(f"transfer size {os.stat(file_).st_size} took {(time.time()  - t_)/60:<3} mins")
-        network.send_string(YtChannelIds[0], conn)
-        network.send_string("#pop", conn)
+        network.send_string(YtChannelIds[0] if YtChannelIds[0] else "" , conn)
+        network.send_string(hashtags, conn)
 
         while 1:
             str = network.recv_string(conn)
@@ -91,6 +95,12 @@ class aws_handler():
                 logging.info(str)
             else:
                 print(str)
+
+        logging.info(f"aws task took aprox : {tt - time.time()}")
+        if stop_instance:
+            logging.info(f"stopping instance..")
+            rest = s.client.stop_instances( InstanceIds=InstanceIds)
+
         
 
 #rest = client.reboot_instances( InstanceIds=InstanceIds) 
