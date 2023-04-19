@@ -81,7 +81,7 @@ class aws_handler():
         #logging.info(f"transfer size {os.stat(file_).st_size} took {(time.time()  - t_)/60:<3} mins")
         network.send_string(YtChannelIds[0] if YtChannelIds[0] else "" , conn)
         network.send_string(hashtags, conn)
-
+        tt_parsed = ""
         while 1:
             str = network.recv_string(conn)
             if str == -1:
@@ -93,9 +93,13 @@ class aws_handler():
             elif str == "YT_SUCCESS":
                 s.sql.set_record(name, ctx.input_f.win_name, 1, "YT_Uploads")
                 logging.info(str)
+            elif str == "TT_PARSE":
+                tt_parsed = network.recv_string(conn)            
             else:
                 print(str)
-
+        with open(f"vis/{ctx.input_f.win_name}.txt", "a") as fff:
+            fff.write(tt_parsed)
+            
         logging.info(f"aws task took aprox : {tt - time.time()}")
         if stop_instance:
             logging.info(f"stopping instance..")

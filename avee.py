@@ -34,6 +34,7 @@ f = "00002(5).wav"
 input_file = audio_fld + "//" + f
 
 if not os.path.isdir("tmp"): os.mkdir("tmp")
+if not os.path.isdir("vis"): os.mkdir("vis")
 
 class context():
     def __init__(s) -> None:
