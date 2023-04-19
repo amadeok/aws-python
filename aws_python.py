@@ -68,6 +68,8 @@ class aws_handler():
         file_ = ctx.input_f.dav_final_file
 
         conn = network.client_connect(REM_PORT, REM_HOST)
+        remote_sha = network.recv_string(conn)
+        assert(remote_sha == app_logging.sha)
 
         mt = True
         network.send_string("1" if mt else "0", conn)
