@@ -80,7 +80,7 @@ class aws_handler():
 
         mt = True
         network.send_string("1" if mt else "0", conn)
-        parts = 3
+        parts = 1
 
         if mt:
             network.send_string(f"{parts}", conn)
