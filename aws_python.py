@@ -73,9 +73,9 @@ class aws_handler():
         conn = network.client_connect(REM_PORT, REM_HOST)
         remote_sha = network.recv_string(conn)
         if (remote_sha == app_logging.sha):
-            logging.info("repos match")
+            logging.info(f"repos match: {remote_sha}")
         else:
-            raise Exception("Repos don't match ")
+            raise Exception(f"Repos don't match local: {app_logging.sha} remote: {remote_sha}")
 
         mt = True
         network.send_string("1" if mt else "0", conn)
