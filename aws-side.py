@@ -242,14 +242,14 @@ if __name__ == '__main__':
     a.rlog("Yt id: " + channel_id + " title and hashtags: " + title_hashs)
 
     a.rlog("Starting tt task..")
-    try_task(tt_task, title_hashs)
+    #try_task(tt_task, title_hashs)
     data = ""
     while 1:
         data = getClipboardData()
-        if "For You" in data:
+        if "For You" in data and "TikTok" in data: 
             a.rlog("TT parsed")
-            network.send_string("TT_PARSE")
-            network.send_string(data)
+            network.send_string("TT_PARSE", conn)
+            network.send_string(data, conn)
             break
         a.rlog("Waiting for TT parse..")
         pg.keyDown('ctrl') 

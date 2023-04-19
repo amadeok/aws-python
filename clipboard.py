@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, time
 
 def getClipboardData():
     p = subprocess.Popen(['xclip','-selection', 'clipboard', '-o'], stdout=subprocess.PIPE)
@@ -7,4 +7,6 @@ def getClipboardData():
     return data.decode("utf-8")
 
 if __name__ == "__main__":
-    print(getClipboardData())
+    time.sleep(2)
+    data =getClipboardData() 
+    print(data)
