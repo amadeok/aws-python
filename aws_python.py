@@ -111,7 +111,7 @@ class aws_handler():
         except Exception as e:
             logging.info("Failed to process parsed text")
             with open(f"vis/{nn}.txt", "a") as fff:
-                fff.write("\###nNew entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) # current date and time tt_parsed)
+                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) # current date and time tt_parsed)
 
 
         logging.info(f"aws task took aprox : {time.time() -tt } sec")

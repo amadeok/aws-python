@@ -134,7 +134,7 @@ def tt_task(title_hashs,  channel_id):
             
     select_file = a.find(a.i.select_file, loop=2, timeout_exception=True)
 
-    type_hashtags(select_file, "#pop")
+    type_hashtags(select_file, title_hashs)
     #a.click(select_file.found)  
     a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [select_file.found[0:2]], 2 ))
     #a.press("enter")
