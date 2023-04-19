@@ -30,6 +30,7 @@ nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(audio_fld) if ".wav" in elem or ".mp3" in elem]
 
 f = "00002(5).wav"
+f = "00003(4).wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file = audio_fld + "//" + f
 
@@ -39,10 +40,10 @@ if not os.path.isdir("vis"): os.mkdir("vis")
 class context():
     def __init__(s) -> None:
 
-        s.bpm = 80
+        s.bpm = 85
         s.s_m = 0
-        s.s_sec = 50
-        s.s_ms = 743
+        s.s_sec = 22
+        s.s_ms = 727
         s.bars=8
         s.bars_per_template=1
         s.beats_per_bar = 4
@@ -63,5 +64,5 @@ if not os.path.isfile(ctx.input_f.dav_final_file):
     davinci = dav.dav_handler(ctx)
 
 aws = aws_python.aws_handler()
-aws.local=1
-aws.aws_task("virg0", ctx, stop_instance=False, hashtags="#pop")
+#aws.local=1
+aws.aws_task("virg0", ctx, stop_instance=False, hashtags="#pop #lofi #originalsong #music")
