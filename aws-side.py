@@ -256,7 +256,7 @@ if __name__ == '__main__':
     a.rlog("Starting tt task..")
     try_task(tt_task, title_hashs)
     data = ""
-    while 1:
+    for xx in range(10):
         data = getClipboardData()
         if "For You" in data and "TikTok" in data: 
             a.rlog("TT parsed")
@@ -269,6 +269,7 @@ if __name__ == '__main__':
         pg.press('c')        
         pg.keyUp('ctrl')  
         time.sleep(1)
+        if xx == 9: a.rlog("failed to parse TT after 10 tries")
             #pg.hotkey('ctrl', 'a', 'esc')
 
     if len(channel_id):
