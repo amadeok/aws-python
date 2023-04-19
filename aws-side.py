@@ -20,7 +20,7 @@ import os, platform
 from datetime import datetime
 import distro
 import logging
-import shutil, keyboard, random
+import shutil, keyboard, random, mss
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 from clipboard import getClipboardData
@@ -41,6 +41,18 @@ print(pg._pyautogui_x11.keyboardMapping)
 
 a = at.autopy("images", img_prefix=prefix)
 
+while 1:
+    try:
+        with mss.mss() as sct:
+            monitor = {"top": 1, "left": 1, "width":  1280-2, "height": 1024-2}
+            output = "sct-{top}x{left}_{width}x{height}.png".format(**monitor)
+            sct_img = sct.grab(monitor)
+            a.rlog("mss succeded..")
+            break
+    except Exception as e:
+        a.rlog("mss failed..")
+        time.sleep(1)
+    
 print(os.getcwd())
 print(distro.info())
 
@@ -219,7 +231,7 @@ if __name__ == '__main__':
     prefix = "70p_"
     a = at.autopy("images", img_prefix=prefix)
     a.conn = conn
-    a.default_region = [0, 0, 1280 , 1024]
+    a.default_region = [1, 1, 1280-2 , 1024-2]
     a.find_fun_timeout = 30
     mt = network.recv_string(conn) == "1"
 
