@@ -242,7 +242,7 @@ if __name__ == '__main__':
     a.rlog("Yt id: " + channel_id + " title and hashtags: " + title_hashs)
 
     a.rlog("Starting tt task..")
-    #try_task(tt_task, title_hashs)
+    try_task(tt_task, title_hashs)
     data = ""
     while 1:
         data = getClipboardData()
