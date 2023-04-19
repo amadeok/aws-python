@@ -243,8 +243,8 @@ if __name__ == '__main__':
 
     a.rlog("Starting tt task..")
     try_task(tt_task, title_hashs)
-
-
+    
+    getClipboardData()
     if len(channel_id):
         a.rlog("Starting yt task..")
         try_task(yt_task, title_hashs, channel_id)

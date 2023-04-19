@@ -5,3 +5,6 @@ def getClipboardData():
     retcode = p.wait()
     data = p.stdout.read()
     return data.decode("utf-8")
+
+if __name__ == "__main__":
+    print(getClipboardData())
