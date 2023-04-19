@@ -114,7 +114,7 @@ class aws_handler():
                 fff.write("\###nNew entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) # current date and time tt_parsed)
 
 
-        logging.info(f"aws task took aprox : {tt - time.time()}")
+        logging.info(f"aws task took aprox : {time.time() -tt } sec")
         if stop_instance:
             logging.info(f"stopping instance..")
             rest = s.client.stop_instances( InstanceIds=InstanceIds)
