@@ -41,6 +41,7 @@ print(pg._pyautogui_x11.keyboardMapping)
 
 a = at.autopy("images", img_prefix=prefix)
 
+mss_failed_on_start =False
 while 1:
     try:
         with mss.mss() as sct:
@@ -51,6 +52,7 @@ while 1:
             break
     except Exception as e:
         a.rlog("mss failed..")
+        mss_failed_on_start= True
         time.sleep(1)
     
 print(os.getcwd())
@@ -251,7 +253,8 @@ if __name__ == '__main__':
     
     channel_id = network.recv_string(conn)
     title_hashs = network.recv_string(conn)
-
+    
+    a.rlog(f"mss failed on start:{ mss_failed_on_start}")
     a.rlog("Yt id: " + channel_id + " title and hashtags: " + title_hashs)
 
     a.rlog("Starting tt task..")
