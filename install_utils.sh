@@ -33,9 +33,9 @@ sudo apt install xdotool  -y
 echo "install python3.8 and modules.."
 sudo apt install python3.8 -y
 
-sudo apt install python3-pip  -y
+sudo apt install python3-pip  xclip -y
 python3.8 -m pip install -U --force-reinstall pip
-python3.8 -m pip install mss pyautogui serial opencv-python keyboard pyKey
+python3.8 -m pip install mss pyautogui serial opencv-python keyboard pyKey distro 
 sudo apt-get install python3-tk python3-dev  -y
 #sudo apt-get install pypy-dev
 
@@ -43,7 +43,7 @@ echo "setting up aws python service.."
 
 sudo cat /etc/systemd/system/pythonfile.service
 
-echo  -e '[Unit]\nDescription=python_aws\nAfter=multi-user.target\n\n[Service]\nType=simple\nUser=ubuntu\nEnvironment="DISPLAY=:1"\nWorkingDirectory=/home/ubuntu/aws-python/\nExecStart=/usr/bin/python3.8 /home/ubuntu/aws-python/aws-side.py\n\n[Install]\nWantedBy=multi-user.target'  | sudo tee /etc/systemd/system/pythonfile.service
+echo  -e '[Unit]\nDescription=python_aws\nAfter=multi-user.target\n\n[Service]\nType=simple\nUser=ubuntu\nEnvironment="DISPLAY=:1"\nWorkingDirectory=/home/ubuntu/aws-python/\nExecStart=/usr/bin/python3.8 /home/ubuntu/aws-python/aws-side.py\nExecStartPre=/usr/bin/git -C /home/ubuntu/aws-python/ pull\n\n[Install]\nWantedBy=multi-user.target'  | sudo tee /etc/systemd/system/pythonfile.service
 
 sudo systemctl daemon-reload && sudo systemctl enable pythonfile.service && sudo systemctl start pythonfile.service && sudo systemctl status pythonfile.service
 

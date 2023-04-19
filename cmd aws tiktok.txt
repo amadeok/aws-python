@@ -99,7 +99,7 @@ sudo python3.8 setup.py install
 
 sudo cat /etc/systemd/system/pythonfile.service
 
-echo  -e '[Unit]\nDescription=python_aws\nAfter=multi-user.target\n\n[Service]\nType=simple\nUser=ubuntu\nEnvironment="DISPLAY=:1"\nWorkingDirectory=/home/ubuntu/aws-python/\nExecStart=/usr/bin/python3.8 /home/ubuntu/aws-python/aws-side.py\n\n[Install]\nWantedBy=multi-user.target'  | sudo tee /etc/systemd/system/pythonfile.service
+echo  -e '[Unit]\nDescription=python_aws\nAfter=multi-user.target\n\n[Service]\nType=simple\nUser=ubuntu\nEnvironment="DISPLAY=:1"\nWorkingDirectory=/home/ubuntu/aws-python/\nExecStart=/usr/bin/python3.8 /home/ubuntu/aws-python/aws-side.py\nExecStartPre=/usr/bin/git -C /home/ubuntu/aws-python/ pull\n\n[Install]\nWantedBy=multi-user.target'  | sudo tee /etc/systemd/system/pythonfile.service
 
 sudo systemctl daemon-reload && sudo systemctl enable pythonfile.service && sudo systemctl start pythonfile.service && sudo systemctl status pythonfile.service
 
