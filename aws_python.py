@@ -31,7 +31,9 @@ class aws_handler():
     def aws_task(s, inst_name, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None):
         logging.info(f"Starting aws task instance {inst_name}")
 
-        aws_id, yt_id, region, mail, name  = s.sql.get_row(inst_name)
+        tt = time.time()
+
+        aws_id, yt_id, region,  name, tt_mail, yt_mail  = s.sql.get_row(inst_name)
         s.sql.add_update_table_col(name)
         s.sql.add_track(ctx.input_f.win_name)
         if inst_id: aws_id = inst_id
@@ -54,7 +56,6 @@ class aws_handler():
             while len(ret[0]) == 0:
                 ret = b3.gather_public_ip(region, s.client)
 
-        tt = time.time()
 
         instance_ip = ret[0][0][0] if not s.local else  "192.168.1.160"#79.42.227.212" # "192.168.1.160" #"127.0.0.1"
         if not s.local and s.start_vnc:
@@ -108,7 +109,7 @@ class aws_handler():
                 print(str)
 
         try:
-            nn = mail.split(r"@")[0]
+            nn = tt_mail.split(r"@")[0]
             tt_parsed_s =  tt_parsed.split("Videos\n\nLiked\n")
             tt_parsed_p = tt_parsed_s[1]
             tt_parsed_s2 =  tt_parsed_p.split("Get app\nGet TikTok App\n")

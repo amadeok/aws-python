@@ -21,8 +21,10 @@ class sql_():
         logging.info(f"\nId: {record[0]}")
         logging.info(f"yt-id: {record[1]}")
         logging.info(f"region: {record[2]}")
-        logging.info(f"mail: {record[3]}")
-        logging.info(f"name : {record[4]}")
+        logging.info(f"name : {record[3]}")
+        logging.info(f"tt_mail: {record[4]}")
+        logging.info(f"yt_mail: {record[5]}")
+
         return record
 
     # array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]

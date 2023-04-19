@@ -21,7 +21,7 @@ from collections import namedtuple
 import seaborn as sns
 import aws_python
 from avee_utils import *
-import dav
+import dav, app_logging
 
 audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
 
@@ -60,10 +60,12 @@ ctx = context()
 
 perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, beats_per_bar=ctx.beats_per_bar)
 
+
 if not os.path.isfile(ctx.input_f.dav_final_file):
-    davinci = dav.dav_handler(ctx)
+    text = random.choice(app_logging.possible_texts)
+    davinci = dav.dav_handler(ctx, text)
 
 aws = aws_python.aws_handler()
 aws.local=0
-aws.start_vnc=0
-aws.aws_task("virg0", ctx, reboot_inst=True, stop_instance=False, hashtags="#pop #lofi #originalsong #music")
+aws.start_vnc=0 #fucks up the display?
+aws.aws_task("virg0", ctx, reboot_inst=True, stop_instance=False, hashtags=app_logging.get_hashtags(6))

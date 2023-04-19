@@ -53,7 +53,7 @@ def point_displacement(point, vec, disp):
 
 
 class dav_handler():
-    def __init__(s, ctx) -> None:
+    def __init__(s, ctx, text) -> None:
 
         s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
         s.ctx = ctx
@@ -83,7 +83,7 @@ class dav_handler():
 
         s.get_random_text_style(s.textp, 6, s.fonts)
 
-        s.textp.StyledText = "Follow cristian_k_music\n" + "on IG"
+        s.textp.StyledText =  text #"Follow cristian_k_music\n" + "on IG"
         time.sleep(0.2)
         s.add_text_effects()
 
