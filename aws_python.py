@@ -72,7 +72,7 @@ class aws_handler():
         if (remote_sha == app_logging.sha):
             logging.info("repos match")
         else:
-            raise Exception("Repos don't match")
+            raise Exception("Repos don't match ")
 
         mt = True
         network.send_string("1" if mt else "0", conn)
