@@ -9,6 +9,7 @@ from subprocess import Popen, PIPE, STDOUT
 import time, random
 import sqlite3 as sl
 import sql_utils
+from datetime import datetime
 
 class aws_handler():
     def __init__(s) -> None:
@@ -97,9 +98,22 @@ class aws_handler():
                 tt_parsed = network.recv_string(conn)            
             else:
                 print(str)
-        with open(f"vis/{ctx.input_f.win_name}.txt", "a") as fff:
-            fff.write(tt_parsed)
-            
+
+        try:
+            nn = mail.split(r"@")[0]
+            tt_parsed_s =  tt_parsed.split("Videos\n\nLiked\n")
+            tt_parsed_p = tt_parsed_s[1]
+            tt_parsed_s2 =  tt_parsed_p.split("Get app\nGet TikTok App\n")
+            tt_parsed_p2 = tt_parsed_s2[0]
+
+            with open(f"vis/{nn}.txt", "a") as fff:
+                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed_p2) # current date and time tt_parsed)
+        except Exception as e:
+            logging.info("Failed to process parsed text")
+            with open(f"vis/{nn}.txt", "a") as fff:
+                fff.write("\###nNew entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) # current date and time tt_parsed)
+
+
         logging.info(f"aws task took aprox : {tt - time.time()}")
         if stop_instance:
             logging.info(f"stopping instance..")
