@@ -23,6 +23,7 @@ import logging
 import shutil, keyboard, random
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
+from clipboard import getClipboardData
 
 pg.FAILSAFE =  False
 prefix = "70p_"
@@ -242,6 +243,8 @@ if __name__ == '__main__':
 
     a.rlog("Starting tt task..")
     try_task(tt_task, title_hashs)
+
+
     if len(channel_id):
         a.rlog("Starting yt task..")
         try_task(yt_task, title_hashs, channel_id)
