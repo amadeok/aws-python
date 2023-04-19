@@ -243,8 +243,22 @@ if __name__ == '__main__':
 
     a.rlog("Starting tt task..")
     try_task(tt_task, title_hashs)
-    
-    getClipboardData()
+    data = ""
+    while 1:
+        data = getClipboardData()
+        if "For You" in data:
+            a.rlog("TT parsed")
+            network.send_string("TT_PARSE")
+            network.send_string(data)
+            break
+        a.rlog("Waiting for TT parse..")
+        pg.keyDown('ctrl') 
+        pg.press('a')     
+        pg.press('c')        
+        pg.keyUp('ctrl')  
+        time.sleep(1)
+            #pg.hotkey('ctrl', 'a', 'esc')
+
     if len(channel_id):
         a.rlog("Starting yt task..")
         try_task(yt_task, title_hashs, channel_id)
