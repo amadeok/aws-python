@@ -28,7 +28,7 @@ class aws_handler():
         s.local = 0
         s.start_vnc = 1
 
-    def aws_task(s, inst_name, ctx, stop_instance, hashtags,  inst_id = None, yt_ch_id=None):
+    def aws_task(s, inst_name, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None):
         logging.info(f"Starting aws task instance {inst_name}")
 
         aws_id, yt_id, region, mail, name  = s.sql.get_row(inst_name)
@@ -47,6 +47,9 @@ class aws_handler():
                 rest = s.client.start_instances( InstanceIds=InstanceIds)
             except Exception as e:
                 logging.info(e)
+
+            if reboot_inst:
+                s.client.reboot_instances( InstanceIds=InstanceIds)
             ret = [[]]
             while len(ret[0]) == 0:
                 ret = b3.gather_public_ip(region, s.client)
