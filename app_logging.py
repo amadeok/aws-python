@@ -17,3 +17,8 @@ else:
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 ubuntu_ver = distro.info()["version"]
+
+import git
+repo = git.Repo(search_parent_directories=True)
+sha = repo.head.object.hexsha
+logging.info(f"repo : {repo} sha: {sha}")
