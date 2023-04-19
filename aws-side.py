@@ -204,6 +204,7 @@ if __name__ == '__main__':
     print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
     
     conn = network.server_connect(REM_PORT, REM_HOST)
+    network.send_string(app_logging.sha, conn)
     # conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     # conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
