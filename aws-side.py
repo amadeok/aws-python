@@ -280,7 +280,6 @@ if __name__ == '__main__':
         start_firefox(yt_url)
         copy_parse_task("Comments", "Likes (vs. dislikes)", "YT_PARSE")
     
-
     close_firefox()
     
 
