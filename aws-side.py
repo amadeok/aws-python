@@ -227,7 +227,7 @@ if __name__ == '__main__':
     conn = network.server_connect(REM_PORT, REM_HOST)
     do_tt = network.recv_string(conn) == "1" 
     do_yt = network.recv_string(conn) == "1"
-    a.rlog(f"do TT: " + str(do_tt) " do YT: " + str(do_yt))
+    a.rlog(f"do TT: " + str(do_tt) + " do YT: " + str(do_yt))
 
     network.send_string(app_logging.sha, conn)
 
