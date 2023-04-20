@@ -66,6 +66,6 @@ if not os.path.isfile(ctx.input_f.dav_final_file):
     davinci = dav.dav_handler(ctx, text)
 
 aws = aws_python.aws_handler()
-aws.local=1
+aws.local=0
 aws.start_vnc=0
-aws.aws_task("melb0", ctx, reboot_inst=True, stop_instance=False, hashtags=app_logging.get_hashtags(6))
+aws.aws_task("virg0", ctx, reboot_inst=0, stop_instance=False, hashtags=app_logging.get_hashtags(6), do_yt="f")
