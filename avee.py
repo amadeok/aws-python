@@ -68,4 +68,4 @@ if not os.path.isfile(ctx.input_f.dav_final_file):
 aws = aws_python.aws_handler()
 aws.local=1
 aws.start_vnc=0 #fucks up the display?
-aws.aws_task("virg0", ctx, reboot_inst=True, stop_instance=False, hashtags=app_logging.get_hashtags(6))
+aws.aws_task("melb0", ctx, reboot_inst=True, stop_instance=False, hashtags=app_logging.get_hashtags(6), do_tt=0)
