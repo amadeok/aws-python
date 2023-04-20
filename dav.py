@@ -449,9 +449,9 @@ class dav_handler():
 
     def render(s):
         s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4"})
-        # aa = s.project.GetRenderCodecs()
-        # aa2 = s.project.GetRenderFormats()
-        # aa3 = s.project.GetCurrentRenderFormatAndCodec()
+        aa = s.project.GetRenderCodecs()
+        aa2 = s.project.GetRenderFormats()
+        aa3 = s.project.GetCurrentRenderFormatAndCodec()
         ret = s.project.SetCurrentRenderFormatAndCodec("mp4",  "H264_NVIDIA")
         ret= s.project.AddRenderJob()
         logging.info(f"Starting render..")
