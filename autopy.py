@@ -223,6 +223,7 @@ class autopy:
         self.ext_src = ext_src
         self.ext_src_buffer = None
         self.conn = None
+        self.store_first = False
 
 
     def rlog(self, str_, conn=None,  level=logging.DEBUG):
@@ -280,8 +281,9 @@ class autopy:
             pyautogui.write(text, interval=interval_)
 
     def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, do_until: fun_delegate =None,
-              grayscale=True,  center=True, click=False, store_first=True, check_avee_running=True, timeout_exception=True):
+              grayscale=True,  center=True, click=False, store_first=None, check_avee_running=True, timeout_exception=True):
         
+        store_first = self.store_first
         if timeout == None: 
             timeout = self.find_fun_timeout
         if timeout:  
