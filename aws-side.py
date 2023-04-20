@@ -207,7 +207,7 @@ def copy_parse_task(str0, str1, parse_code):
         data = getClipboardData()
         if str0 in data and str1 in data: 
             a.rlog(parse_code +  " strings found")
-            network.send_string(parse_code conn)
+            network.send_string(parse_code, conn)
             network.send_string(data, conn)
             break
         a.rlog("Waiting for " + parse_code + "...")
