@@ -201,28 +201,35 @@ def try_task(task, title_hashs, channel_id="", tries=3):
             e_l.append(e)
     return e_l
 
+def copy_parse_task(str0, str1, parse_code):
+    data = ""
+    for xx in range(10):
+        data = getClipboardData()
+        if str0 in data and str1 in data: 
+            a.rlog(parse_code +  " strings found")
+            network.send_string(parse_code, conn)
+            network.send_string(data, conn)
+            break
+        a.rlog("Waiting for " + parse_code + "...")
+        pg.keyDown('ctrl') 
+        pg.press('a')     
+        pg.press('c')        
+        pg.keyUp('ctrl')  
+        time.sleep(1)
+        if xx == 9: 
+            a.rlog(parse_code + "task failed after 10 tries")
+            #pg.hotkey('ctrl', 'a', 'esc')
+
 if __name__ == '__main__':
 
     print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
     
     conn = network.server_connect(REM_PORT, REM_HOST)
-    network.send_string(app_logging.sha, conn)
-    # conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    # conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    
-    # while 1:
-    #     try:
-    #         conn.bind((REM_HOST, REM_PORT))
-    #         conn.listen()
-    #         conn, addr = conn.accept()
-    #         print("Socket connected " + addr[0] + ":" + str(addr[1]))
-    #         break
-              
+    do_tt = network.recv_string(conn) == "1" 
+    do_yt = network.recv_string(conn) == "1"
+    a.rlog(f"do TT: " + str(do_tt) " do YT: " + str(do_yt))
 
-    #     except Exception as e:
-    #         print(e)
-    #         time.sleep(1)
-    #         #conn.close()
+    network.send_string(app_logging.sha, conn)
 
     upload_fld = os.path.expanduser('~') + "/Desktop"
 
@@ -257,28 +264,19 @@ if __name__ == '__main__':
     a.rlog(f"mss failed on start:{ mss_failed_on_start}")
     a.rlog("Yt id: " + channel_id + " title and hashtags: " + title_hashs)
 
-    a.rlog("Starting tt task..")
-    try_task(tt_task, title_hashs)
-    data = ""
-    for xx in range(10):
-        data = getClipboardData()
-        if "For You" in data and "TikTok" in data: 
-            a.rlog("TT parsed")
-            network.send_string("TT_PARSE", conn)
-            network.send_string(data, conn)
-            break
-        a.rlog("Waiting for TT parse..")
-        pg.keyDown('ctrl') 
-        pg.press('a')     
-        pg.press('c')        
-        pg.keyUp('ctrl')  
-        time.sleep(1)
-        if xx == 9: a.rlog("failed to parse TT after 10 tries")
-            #pg.hotkey('ctrl', 'a', 'esc')
+    if do_tt:
+        a.rlog("Starting tt task..")
+        try_task(tt_task, title_hashs)
+        copy_parse_task("For You", "TikTok", "TT_PARSE") 
 
-    if len(channel_id):
+    if do_yt and  len(channel_id):
         a.rlog("Starting yt task..")
         try_task(yt_task, title_hashs, channel_id)
+        close_firefox()
+        yt_url = f"https://studio.youtube.com/channel/"+channel_id+"/videos/" 
+        start_firefox(yt_url)
+        copy_parse_task("Comments", "Likes (vs. dislikes)", "YT_PARSE")
+    
 
     close_firefox()
     
