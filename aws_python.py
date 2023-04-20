@@ -140,7 +140,6 @@ class aws_handler():
             s.parse_task(yt_mail, yt_parsed,  "Likes (vs. dislikes)" , "Rows per page:" )
             
 
-
         logging.info(f"aws task took aprox : {time.time() -tt } sec")
         if stop_instance:
             logging.info(f"stopping instance..")
