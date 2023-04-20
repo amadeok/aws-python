@@ -61,13 +61,28 @@ class sql_():
         s.cur.execute(f"""UPDATE {table} SET "{col}" = ? WHERE __ = ?;""", (val, row ))
         #s.cur.execute(f"UPDATE Uploads SET new_aws_id = 1 WHERE rowid = 0;")
         s.con.commit()
+    
+    def get_record(s, col, row, table):
+        try:
+            s.cur.execute(f""" SELECT  "{col}" FROM  {table} WHERE "__" = "{row}" """)
+        except Exception as e:
+            logging.info(e)
+            return None
+        record = s.cur.fetchone()
+        if not record or record[0] == col:
+            logging.info(f"not found: col {col} row {row} table {table} ")
+            return None
+        return record[0]
 
-    # qq = cur.execute("SELECT rowid, * FROM Uploads;")
-    # for x in qq:
-    #     logging.info(x)
 
 if __name__ == '__main__' :
     sql = sql_()
+    print(sql.get_record("virg0","00003(4).wav", "TT_Uploads"))
+    print(sql.get_record("melb0","00003(4).wav", "TT_Uploads"))
+    print(sql.get_record("melb0","00002(5).wav", "TT_Uploads"))
+    print(sql.get_record("virg0","00002(5).wav", "TT_Uploads"))
+    print(sql.get_record("Non5e","00002(5).wav", "TT_Uploads"))
+
     sql.get_row("melb0", use_name=True)
     exit()
     #q = "UPDATE Uploads SET __ = new_value1, new_aws_id = new_value2, ... WHERE rowid = (SELECT max(rowid) FROM Uploads);"

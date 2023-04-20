@@ -28,13 +28,32 @@ class aws_handler():
         s.local = 0
         s.start_vnc = 1
 
-    def aws_task(s, inst_name, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None):
+
+    def parse_tt(tt_mail, tt_parsed ):
+        try:
+            nn = tt_mail.split(r"@")[0]
+            tt_parsed_s =  tt_parsed.split("Videos\n\nLiked\n")
+            tt_parsed_p = tt_parsed_s[1]
+            tt_parsed_s2 =  tt_parsed_p.split("Get app\nGet TikTok App\n")
+            tt_parsed_p2 = tt_parsed_s2[0]
+
+            with open(f"vis/{nn}.txt", "a") as fff:
+                fff.write("\n### New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed_p2) 
+
+        except Exception as e:
+            logging.info("Failed to process parsed text")
+            with open(f"vis/{nn}.txt", "a") as fff:
+                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) 
+
+    def aws_task(s, inst_name, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
         logging.info(f"Starting aws task instance {inst_name}")
 
         tt = time.time()
 
         aws_id, yt_id, region,  name, tt_mail, yt_mail  = s.sql.get_row(inst_name)
         s.sql.add_update_table_col(name)
+        if name == None or name == "None":
+            logging.info("Name is none")
         s.sql.add_track(ctx.input_f.win_name)
         if inst_id: aws_id = inst_id
         if yt_ch_id: yt_id = yt_ch_id
@@ -72,6 +91,9 @@ class aws_handler():
         file_ = ctx.input_f.dav_final_file
 
         conn = network.client_connect(REM_PORT, REM_HOST)
+        network.send_string("1" if do_tt else "0", conn)
+        network.send_string("1" if do_yt else "0", conn)
+
         remote_sha = network.recv_string(conn)
         if (remote_sha == app_logging.sha):
             logging.info(f"repos match: {remote_sha}")
@@ -91,7 +113,9 @@ class aws_handler():
         #logging.info(f"transfer size {os.stat(file_).st_size} took {(time.time()  - t_)/60:<3} mins")
         network.send_string(YtChannelIds[0] if YtChannelIds[0] else "" , conn)
         network.send_string(hashtags, conn)
+
         tt_parsed = ""
+        yt_parsed = ""
         while 1:
             str = network.recv_string(conn)
             if str == -1:
@@ -108,19 +132,7 @@ class aws_handler():
             else:
                 print(str)
 
-        try:
-            nn = tt_mail.split(r"@")[0]
-            tt_parsed_s =  tt_parsed.split("Videos\n\nLiked\n")
-            tt_parsed_p = tt_parsed_s[1]
-            tt_parsed_s2 =  tt_parsed_p.split("Get app\nGet TikTok App\n")
-            tt_parsed_p2 = tt_parsed_s2[0]
-
-            with open(f"vis/{nn}.txt", "a") as fff:
-                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed_p2) # current date and time tt_parsed)
-        except Exception as e:
-            logging.info("Failed to process parsed text")
-            with open(f"vis/{nn}.txt", "a") as fff:
-                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) # current date and time tt_parsed)
+        s.parse_tt(tt_mail, tt_parsed)
 
 
         logging.info(f"aws task took aprox : {time.time() -tt } sec")
