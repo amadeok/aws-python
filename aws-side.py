@@ -156,11 +156,14 @@ def yt_task(title_hashs,  channel_id):
     start_firefox(yt_url)
     
     upload_arrow = a.find(a.i.upload_arrow, loop=2,timeout=80, timeout_exception="yt page didn't open",
-                    do_until=del_(start_firefox, [yt_url], 30 ))
+                    do_until=del_(start_firefox, [yt_url], 30 ), confidence=0.9)
 
     open_file =  a.find(a.i.dict["open_file" + suffix], loop=2,click=1,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ), confidence=0.9) #    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ))
-
-    two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 )])
+    try:
+        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 )], confidence=0.9)
+    except:
+        a.rlog("two_empty second try")
+        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 )], confidence=0.9)
 
     pg.keyDown('ctrl')  
     pg.press('a')     
