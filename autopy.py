@@ -275,7 +275,7 @@ class autopy:
     def type(self, text, interval_=0):
         self.rlog(f"typing  {text}")
         if (self.stop_t):  return -1
-        if app_logging.ubuntu_ver == "20.04":
+        if app_logging.ubuntu_ver == "20.04" and 0:
             sendSequence(text)
         else:
             pyautogui.write(text, interval=interval_)
