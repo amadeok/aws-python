@@ -8,7 +8,7 @@ class sql_():
         s.cur = s.con.cursor()
         for row in s.cur.execute('''SELECT * FROM Main '''):
             logging.info(row)
-            s.add_update_table_col(row[4])
+            s.add_update_table_col(row[3])
 
     def get_row(s, input : str, use_name : bool = True):
         sqlite_select_query = f"""SELECT * from Main where "{"name" if use_name else "aws-id"}" = ?"""
