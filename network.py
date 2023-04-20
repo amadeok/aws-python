@@ -242,14 +242,38 @@ def send_string(string, conn):
     conn.sendall(size_bytes)
     conn.sendall(mb)
 
+
+
 def recv_string(conn):
     size_b = conn.recv(4)
     if not size_b:
         return -1
     size = int.from_bytes(size_b, 'little')
     #print("receving " + str(size) + " bytes")
-    data=conn.recv(size)
-    return data.decode("utf-8")
+    #data=conn.recv(size)
+    buf = size  if size < 512 else 512
+    buffer = bytearray(size)
+    pos = 0; rem = size
+    while True:
+        data=conn.recv(buf)
+        buf = len(data)+1
+        chunk_size = len(data)
+
+        buffer[pos:pos+chunk_size] = data
+        pos += chunk_size
+        rem-= chunk_size
+        if (rem < buf):
+            buf = rem
+        
+        if not data or pos >= size:
+            break
+    return buffer.decode("utf-8")
+
+
+
+
+
+
     print(str(data))
 
 
