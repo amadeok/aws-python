@@ -29,21 +29,21 @@ class aws_handler():
         s.start_vnc = 1
 
 
-    def parse_tt(tt_mail, tt_parsed ):
+    def parse_task(s, tt_mail, parsed, text0, text1):
         try:
             nn = tt_mail.split(r"@")[0]
-            tt_parsed_s =  tt_parsed.split("Videos\n\nLiked\n")
-            tt_parsed_p = tt_parsed_s[1]
-            tt_parsed_s2 =  tt_parsed_p.split("Get app\nGet TikTok App\n")
-            tt_parsed_p2 = tt_parsed_s2[0]
+            parsed_s =  parsed.split(text0)
+            parsed_p = parsed_s[1]
+            parsed_s2 =  parsed_p.split(text1)
+            parsed_p2 = parsed_s2[0]
 
             with open(f"vis/{nn}.txt", "a") as fff:
-                fff.write("\n### New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed_p2) 
+                fff.write("\n### New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed_p2) 
 
         except Exception as e:
             logging.info("Failed to process parsed text")
             with open(f"vis/{nn}.txt", "a") as fff:
-                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + tt_parsed) 
+                fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed) 
 
     def aws_task(s, inst_name, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
         logging.info(f"Starting aws task instance {inst_name}")
@@ -128,11 +128,17 @@ class aws_handler():
                 s.sql.set_record(name, ctx.input_f.win_name, 1, "YT_Uploads")
                 logging.info(str)
             elif str == "TT_PARSE":
-                tt_parsed = network.recv_string(conn)            
+                tt_parsed = network.recv_string(conn)        
+            elif str == "YT_PARSE":
+                yt_parsed = network.recv_string(conn)          
             else:
                 print(str)
 
-        s.parse_tt(tt_mail, tt_parsed)
+        if len(tt_parsed):
+            s.parse_task(tt_mail, tt_parsed, "Videos\n\nLiked\n", "Get app\nGet TikTok App\n")
+        if len(yt_parsed):
+            s.parse_task(yt_mail, yt_parsed,  "Likes (vs. dislikes)" , "Rows per page:" )
+            
 
 
         logging.info(f"aws task took aprox : {time.time() -tt } sec")
