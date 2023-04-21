@@ -79,6 +79,17 @@ def type_hashtags(select_file, hashtags):
     a.type(hashtags)
     time.sleep(0.5)
 
+def delelte_files_in_folder(folder):
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
+
 def close_firefox():
     tries = 5
     for x in range(tries):
@@ -248,6 +259,8 @@ if __name__ == '__main__':
     a.default_region = [1, 1, 1280-2 , 1024-2]
     a.find_fun_timeout = 30
     mt = network.recv_string(conn) == "1"
+
+    delelte_files_in_folder(os.path.expanduser('~') + "/Desktop/")
 
     r = RandomWords()
     f_path = upload_fld +  f"/{r.get_random_word()}.mp4"
