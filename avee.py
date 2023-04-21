@@ -22,6 +22,7 @@ import seaborn as sns
 import aws_python
 from avee_utils import *
 import dav, app_logging
+from configparser import ConfigParser
 
 audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
 
@@ -38,17 +39,21 @@ if not os.path.isdir("tmp"): os.mkdir("tmp")
 if not os.path.isdir("vis"): os.mkdir("vis")
 
 class context():
-    def __init__(s) -> None:
-
-        s.bpm = 85
-        s.s_m = 0
-        s.s_sec = 22
-        s.s_ms = 727
-        s.bars=8
-        s.bars_per_template=1
-        s.beats_per_bar = 4
+    def __init__(s, instance_name) -> None:
+        s.instance_name = instance_name
         s.out_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\\"
-        s.input_f = name_storage(input_file,  s.out_fld)
+        s.input_f = name_storage(input_file,  s.out_fld, s.instance_name)
+        config = ConfigParser()
+        config.read(s.input_f.dirpath + "\\" + s.input_f.basename + ".ini")
+
+        s.bpm = config.getint('main', 'bpm')
+        s.s_m = config.getint('main', 's_m')
+        s.s_sec = config.getint('main', 's_sec')
+        s.s_ms = config.getint('main', 's_ms')
+        s.bars = config.getint('main', 'bars')
+        s.bars_per_template = config.getint('main', 'bars_per_template')
+        s.beats_per_bar = config.getint('main', 'beats_per_bar')
+
         s.fps = 60 #59940/1000
         s.time_per_beat = (60/s.bpm)
         s.frames_per_beat = s.fps * s.time_per_beat
@@ -56,10 +61,11 @@ class context():
         s.transition_delta = s.frames_per_bar * s.bars_per_template
         s.tot_transitions = s.bars // s.bars_per_template
 
-ctx = context()
+
+
+ctx = context("osa0")
 
 perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, beats_per_bar=ctx.beats_per_bar)
-
 
 if not os.path.isfile(ctx.input_f.dav_final_file):
     text = random.choice(app_logging.possible_texts)
@@ -68,4 +74,4 @@ if not os.path.isfile(ctx.input_f.dav_final_file):
 aws = aws_python.aws_handler()
 aws.local=0
 aws.start_vnc=0
-aws.aws_task("jak0", ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(6))
+aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(6))

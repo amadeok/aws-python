@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-n", help="instance name", default="")
 parser.add_argument("-s", help="ssh", type=str, default=False )
 parser.add_argument("-q", help="stop instance", type=bool, default=False )
+parser.add_argument("-r", help="reboot instance", type=bool, default=False )
 
 args = parser.parse_args()
 
@@ -31,6 +32,9 @@ YtChannelIds= [yt_id ]
 
 if args.q:
     rest = client.stop_instances( InstanceIds=InstanceIds)
+    exit()
+if args.r:
+    rest = client.reboot_instances( InstanceIds=InstanceIds)
     exit()
 if 1:
     try:

@@ -45,8 +45,8 @@ class aws_handler():
             with open(f"vis/{nn}.txt", "a") as fff:
                 fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed) 
 
-    def aws_task(s, inst_name, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
-        
+    def aws_task(s, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
+        inst_name = ctx.instance_name
         aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = s.sql.get_row(inst_name)
         tt = s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
         do_tt = tt != "1" and do_tt or do_tt == "f"

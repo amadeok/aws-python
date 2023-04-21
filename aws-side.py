@@ -237,7 +237,7 @@ def copy_parse_task(str0, str1, parse_code):
 
 if __name__ == '__main__':
 
-    print("lisetining at " + REM_HOST + ":" + str(REM_PORT))
+    print("listening at " + REM_HOST + ":" + str(REM_PORT))
     
     conn = network.server_connect(REM_PORT, REM_HOST)
     do_tt = network.recv_string(conn) == "1" 

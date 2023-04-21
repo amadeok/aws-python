@@ -22,16 +22,17 @@ from collections import namedtuple
 #nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
 class name_storage():
-    def __init__(self, input_path, out) -> None:
+    def __init__(self, input_path, out, instance_name) -> None:
         self.input_path = input_path
         self.win_name = os.path.basename(input_path)
         self.android_name = shlex.quote(self.win_name)
         self.basename =  self.win_name.split(".")[0]
         self.android_basename =  shlex.quote(self.basename)
         self.dirpath = os.path.dirname(input_path)
-        self.out_fld = f"{out}\\{self.basename}\\".replace("\\\\", "\\")
+        self.out_fld = f"{out}\\{instance_name}_{self.basename}\\".replace("\\\\", "\\")
         self.avee_final_file = f"{self.out_fld}\\{self.basename}_joined.mp4".replace("\\\\", "\\")
         self.dav_final_file = self.out_fld + "\\" +  f"{self.basename}_dav.mp4"
+        self.instance_name = instance_name
 
 #device = "ce041714f506223101" # emulator-5554
 device = "emulator-5554"
@@ -100,6 +101,11 @@ def adb_output(cmd):
 
     out, err = process.communicate()
     errcode = process.returncode
+    return out if len(out) else err
+
+def sub_output(cmd):
+    process = sp.Popen(cmd, shell=True,  stdout=sp.PIPE, stderr=sp.PIPE)
+    out, err = process.communicate()
     return out if len(out) else err
 
 def is_avee_running():
@@ -183,8 +189,12 @@ def tab_scroll(target_file, suffix):
 
 def avee_task(target_file, template_file, start, dur, suffix):
     global ctx
+
     os.system("adb start-server ")
     os.system("adb start-server ")
+    while "'emulator-5554' not found" in str(sub_output(base + " ls")):
+        time.sleep(1)
+
     adb("mkdir /mnt/sdcard/Pictures/output ")
     adb("mkdir /mnt/shared/Pictures/input ")
     adb("mkdir /mnt/shared/Pictures/input/audio ")
@@ -265,9 +275,10 @@ def avee_task(target_file, template_file, start, dur, suffix):
     logging.info(f"encode took aprox {time.time() - t0}secs")
     ex_file_spl =  ex_file.split(".")
 
-    adb(f"mkdir /mnt/shared/Pictures/output/{target_file.android_basename }/ ")
-    adb(f"mkdir /mnt/shared/Pictures/output/{target_file.android_basename }/tmp ")
-    cmd = "mv " + f'"/mnt/sdcard/Download/{target_file.android_basename }_{suffix:02d}_0.mp4"' +  f" /mnt/shared/Pictures/output/{target_file.android_basename }/tmp/"+ target_file.android_basename  + f"_{suffix:02d}.mp4" 
+    inst_name =  shlex.quote(target_file.instance_name)
+    adb(f"mkdir /mnt/shared/Pictures/output/{inst_name}_{target_file.android_basename }/ ")
+    adb(f"mkdir /mnt/shared/Pictures/output/{inst_name}_{target_file.android_basename }/tmp ")
+    cmd = "mv " + f'"/mnt/sdcard/Download/{target_file.android_basename }_{suffix:02d}_0.mp4"' +  f" /mnt/shared/Pictures/output/{inst_name}_{target_file.android_basename }/tmp/"+ target_file.android_basename  + f"_{suffix:02d}.mp4" 
     #cmd = "mv " + f'"/mnt/sdcard/Pictures/output/{target_file.android_basename }_{suffix:02d}_0.mp4"' +  f" /mnt/shared/Pictures/output/{target_file.android_basename }/tmp/"+ target_file.android_basename  + f"_{suffix:02d}.mp4" 
 
     adb(cmd)

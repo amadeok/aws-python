@@ -66,8 +66,6 @@ passwd ubuntu
 exit
 "
 sudo su -
-passwd ubuntu
-exit
 
 echo "
 manual tasks:"
