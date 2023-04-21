@@ -60,6 +60,16 @@ xrandr -s 1280x1024
 vncpasswd
 
 echo "
+set ubuntu password:
+sudo su -
+passwd ubuntu
+exit
+"
+sudo su -
+passwd ubuntu
+exit
+
+echo "
 manual tasks:"
 echo "
 ubuntu 18, 2gb ram instance, 
