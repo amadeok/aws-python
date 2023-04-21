@@ -1,8 +1,7 @@
 #Python Program for creating a connection
 import boto3
 import numpy
-import logging, network, os
-import app_logging
+import logging,  os
 
 access_key_id = "AKIAQTONZDFNOK7WKRXN"
 secret_access_key = "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"

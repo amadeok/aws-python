@@ -35,7 +35,7 @@ sudo apt install python3.8 -y
 
 sudo apt install python3-pip  xclip -y
 python3.8 -m pip install -U --force-reinstall pip
-python3.8 -m pip install mss pyautogui serial opencv-python keyboard pyKey distro 
+python3.8 -m pip install mss pyautogui serial opencv-python keyboard pyKey distro random-word
 sudo apt-get install python3-tk python3-dev  -y
 #sudo apt-get install pypy-dev
 
@@ -63,6 +63,7 @@ echo "
 manual tasks:"
 echo "
 ubuntu 18, 2gb ram instance, 
+-set screen resolution to 1280x1024
 -firefox, block video and audio, use Disable HTML5 Autoplay plugin 
 -log in to both yt and tt
 -right click bottom bar and delete toolbar

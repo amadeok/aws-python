@@ -24,6 +24,7 @@ import shutil, keyboard, random, mss
 from pathlib import Path
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
 from clipboard import getClipboardData
+from random_word import RandomWords
 
 pg.FAILSAFE =  False
 prefix = "70p_"
@@ -248,7 +249,8 @@ if __name__ == '__main__':
     a.find_fun_timeout = 30
     mt = network.recv_string(conn) == "1"
 
-    f_path = upload_fld +  "/file.mp4"
+    r = RandomWords()
+    f_path = upload_fld +  f"/{r.get_random_word()}.mp4"
     t_ = time.time()
     if mt:
         parts = int(network.recv_string(conn) )

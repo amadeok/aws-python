@@ -1,5 +1,4 @@
 import sqlite3 as sl
-import app_logging
 import logging
 
 class sql_():
