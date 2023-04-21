@@ -4,7 +4,7 @@ sudo apt-get update  -y
 echo "installing mate.."
 #sudo apt-get install x2goserver x2goserver-xsession -y
 sudo apt install tasksel  -y
-sudo tasksel install ubuntu-mate-desktop  -y
+sudo tasksel install ubuntu-mate-desktop
 echo "installing tigervnc.."
 
 #sudo apt-get install tightvncserver  -y
@@ -58,3 +58,13 @@ export DISPLAY=:1
 xrandr -s 1280x1024
 
 vncpasswd
+
+echo "manual tasks:"
+echo "
+ubuntu 18, 2gb ram instance, firefox, block video and audio, use Disable HTML5 Autoplay plugin 
+-right click bottom bar and delete toolbar
+-set firefox zoom to 70%, both on tiktok and youtube
+-set youtube account language to english
+-start an upload with selecting file from desktop folder 
+instance inbound rule: click instance, click security, click security group ("sg-00 [...]"), edit inbound rules, add rule, type all traffic, source custom, 0.0.0.0/0
+"
