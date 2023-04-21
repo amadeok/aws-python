@@ -35,7 +35,7 @@ sudo apt install python3.8 -y
 
 sudo apt install python3-pip  xclip -y
 python3.8 -m pip install -U --force-reinstall pip
-python3.8 -m pip install mss pyautogui serial opencv-python keyboard pyKey distro random-word
+python3.8 -m pip install mss pyautogui serial opencv-python keyboard pyKey distro random-word git-python
 sudo apt-get install python3-tk python3-dev  -y
 #sudo apt-get install pypy-dev
 
@@ -65,10 +65,11 @@ echo "
 ubuntu 18, 2gb ram instance, 
 -set screen resolution to 1280x1024
 -firefox, block video and audio, use Disable HTML5 Autoplay plugin 
--log in to both yt and tt
 -right click bottom bar and delete toolbar
+-log in to both yt and tt
 -set firefox zoom to 70%, both on tiktok and youtube (both upload page and channel page)
 -set youtube account language to english
 -start an upload with selecting file from desktop folder 
 instance inbound rule: click instance, click security, click security group ("sg-00 [...]"), edit inbound rules, add rule, type all traffic, source custom, 0.0.0.0/0
+- make sure no changes were made that keep repo from being pulled
 "
