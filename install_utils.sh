@@ -50,18 +50,20 @@ sudo systemctl daemon-reload && sudo systemctl enable pythonfile.service && sudo
 echo "uninstalling libre office.."
 
 sudo apt-get remove --purge libreoffice* -y
-sudo apt-get clean
-sudo apt-get autoremove
-sudo apt --fix-broken install
+sudo apt-get clean -y
+sudo apt-get autoremove -y
+sudo apt --fix-broken install -y
 
 export DISPLAY=:1
 xrandr -s 1280x1024
 
 vncpasswd
 
-echo "manual tasks:"
 echo "
-ubuntu 18, 2gb ram instance, firefox, block video and audio, use Disable HTML5 Autoplay plugin 
+manual tasks:"
+echo "
+ubuntu 18, 2gb ram instance, 
+-firefox, block video and audio, use Disable HTML5 Autoplay plugin 
 -log in to both yt and tt
 -right click bottom bar and delete toolbar
 -set firefox zoom to 70%, both on tiktok and youtube (both upload page and channel page)
