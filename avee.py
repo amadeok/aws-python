@@ -68,4 +68,4 @@ if not os.path.isfile(ctx.input_f.dav_final_file):
 aws = aws_python.aws_handler()
 aws.local=0
 aws.start_vnc=0
-aws.aws_task("SA0", ctx, reboot_inst=0, stop_instance=False, hashtags=app_logging.get_hashtags(6))
+aws.aws_task("jak0", ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(6))
