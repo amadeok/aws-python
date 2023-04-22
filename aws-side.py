@@ -172,10 +172,10 @@ def yt_task(title_hashs,  channel_id):
 
     open_file =  a.find(a.i.dict["open_file" + suffix], loop=2,click=1,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ), confidence=0.9) #    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ))
     try:
-        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 )], confidence=0.9)
+        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
     except:
         a.rlog("two_empty second try")
-        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 )], confidence=0.9)
+        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
 
     pg.keyDown('ctrl')  
     pg.press('a')     
