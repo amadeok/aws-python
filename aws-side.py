@@ -166,28 +166,26 @@ def yt_task(title_hashs,  channel_id):
 
     yt_url = f"https://studio.youtube.com/channel/"+channel_id+"/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D" 
     start_firefox(yt_url)
-    
+    time.sleep(2)
     upload_arrow = a.find(a.i.upload_arrow, loop=2,timeout=80, timeout_exception="yt page didn't open",
                     do_until=del_(start_firefox, [yt_url], 30 ), confidence=0.9)
 
     open_file =  a.find(a.i.dict["open_file" + suffix], loop=2,click=1,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ), confidence=0.9) #    a.find(a.i.dict["open_file" + suffix], loop=2,  do_until=del_(a.click, [upload_arrow.found[0:2]], 2 ))
-    try:
-        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
-    except:
-        a.rlog("two_empty second try")
-        two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
+
+    #two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
+
+    one_empty =  a.find(a.i.one_empty, loop=2)
 
     pg.keyDown('ctrl')  
     pg.press('a')     
     pg.keyUp('ctrl')    
     a.type(title_hashs)
 
-    one_empty =  a.find(a.i.one_empty, loop=2,   do_until=del_(a.click, [two_empty.found, 0, 13 ], 2 ))
-
     next_btn = (one_empty.found[0] + 603, one_empty.found[1] + (105 if app_logging.ubuntu_ver == "20.04" else 51))
-    three_empty = a.find(a.i.three_empty, loop=2,   do_until=del_(a.click, [next_btn], 2 ))
 
-    a.find(a.i.one_empty_public, loop=2,   do_until=del_(a.click, [three_empty.found, 0, 45], 2 ))
+    #three_empty = a.find(a.i.three_empty, loop=2,   do_until=del_(a.click, [next_btn], 2 ))
+
+    a.find(a.i.one_empty_public, loop=2,    do_until=del_(a.click, [next_btn], 2 ))
 
     #a.click(next_btn)
 
