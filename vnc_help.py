@@ -48,12 +48,15 @@ if 1:
     while len(ret[0]) == 0:
         ret = b3.gather_public_ip(region, client)
 
+import os
 
 instance_ip = ret[0][0][0] 
 if args.s == "True" or args.s == "true"or args.s == "1" or args.s == True:
 
     ipp = instance_ip.replace(".", "-")
-    command = f'ssh -i "C:\\Users\\amade\\{region}.pem" ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com'
+    pem = f"C:\\Users\\amade\\{region}.pem" if os.name == 'nt' else f"/home/amadeok/{region}.pem"
+
+    command = f'ssh -i "{pem}" ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com'
     #p = Popen(["start", "ssh", "-i", f"C:\\Users\\amade\\{region}.pem", f"ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com"])
 
     os.system(command)
