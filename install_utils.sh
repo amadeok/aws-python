@@ -81,4 +81,5 @@ ubuntu 18, 2gb ram instance,
 instance inbound rule: click instance, click security, click security group ("sg-00 [...]"), edit inbound rules, add rule, type all traffic, source custom, 0.0.0.0/0
 - make sure no changes were made that keep repo from being pulled
 - make sure there's no files in the desktop
+- set video to never be for kids
 "

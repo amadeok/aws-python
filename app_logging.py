@@ -50,8 +50,17 @@ with open("hashtags_list.txt", "r") as inp:
     print(hashtags_list)
 
 def get_hashtags(n):
+    assert n <= 7
     l = random.sample(hashtags_list, n)
     ll = " ".join(l)
+    ll2 = ll[:100] if len(ll) >= 100 else ll
+    i = len(ll2) -1
+    for c in reversed(ll2):
+        if c == " ":
+            break
+        i-=1
+    ll2 = ll2[0:i]
     return ll
 
-print(get_hashtags(5))
+if __name__ == "__main__":
+    print(get_hashtags(12))

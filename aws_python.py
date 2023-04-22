@@ -61,7 +61,8 @@ class aws_handler():
 
         tt = time.time()
 
-        s.sql.add_update_table_col(name)
+        if not s.local:
+            s.sql.add_update_table_col(name)
         if name == None or name == "None":
             logging.info("Name is none")
         s.sql.add_track(ctx.input_f.win_name)
@@ -132,10 +133,12 @@ class aws_handler():
                 print("connection closed")
                 break
             elif str == "TT_SUCCESS":
-                s.sql.set_record(name, ctx.input_f.win_name, 1, "TT_Uploads")
+                if not s.local:
+                    s.sql.set_record(name, ctx.input_f.win_name, 1, "TT_Uploads")
                 logging.info(str)
             elif str == "YT_SUCCESS":
-                s.sql.set_record(name, ctx.input_f.win_name, 1, "YT_Uploads")
+                if not s.local:
+                    s.sql.set_record(name, ctx.input_f.win_name, 1, "YT_Uploads")
                 logging.info(str)
             elif str == "TT_PARSE":
                 tt_parsed = network.recv_string(conn)        
