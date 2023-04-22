@@ -267,6 +267,11 @@ class autopy:
         else:
             pyautogui.click() 
 
+    def scroll(self, amount):
+        self.rlog(f"scrolling  {amount}")
+        if (self.stop_t):  return -1
+        pyautogui.scroll(amount)
+
     def press(self, key):
         self.rlog(f"pressing {key}")
         if (self.stop_t):  return -1
