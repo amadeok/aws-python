@@ -49,9 +49,9 @@ class aws_handler():
         inst_name = ctx.instance_name
         aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = s.sql.get_row(inst_name)
         tt = s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
-        do_tt = tt != "1" and do_tt or do_tt == "f"
+        do_tt = tt != "1" and do_tt and (len(tt_mail) if tt_mail else False) or do_tt == "f"
         yt = s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads")
-        do_yt = yt != "1" and do_yt or do_yt == "f"
+        do_yt = yt != "1" and do_yt and (len(yt_mail) if yt_mail else False) or do_yt == "f"
 
         if not do_tt and not do_yt:
             logging.info("No TT or YT task to perform, returning")
