@@ -63,7 +63,7 @@ class context():
 
 
 
-ctx = context("syd0")
+ctx = context("can0")
 
 perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, beats_per_bar=ctx.beats_per_bar)
 

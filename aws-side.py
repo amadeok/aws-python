@@ -190,7 +190,7 @@ def yt_task(title_hashs,  channel_id):
 
     #a.click(next_btn)
 
-    a.find([a.i.SD, a.i.video_published_socials ], timeout=120, loop=2, do_until=del_(a.click, [next_btn], 2 ), region=(404, 365, 501, 384))
+    a.find([a.i.SD, a.i.video_published_socials ], timeout=60*4, loop=2, do_until=del_(a.click, [next_btn], 2 ), region=(404, 365, 501, 384))
 
     network.send_string("YT_SUCCESS", conn)
 

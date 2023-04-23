@@ -62,6 +62,16 @@ am start -d  "/storage/emulated/0/Pictures/00000.mp3"
 act=android.intent.action.VIEW dat=content://media/external/audio/media/53 typ=audio/x-wav flg=0x13000000 cmp=com.daaw.avee/.MainActivity
 
 adb -s emulator-5554 shell
+adb -s emulator-5554 shell am force-stop com.daaw.avee
+
+ls /mnt/shared/Pictures/output/ > /dev/null 2>&1 && echo "exists" || echo "not exists"
+
+adb  -s emulator-5554 shell "su -c 'cd /data/data/com.daaw.avee/shared_prefs; ls;'"
+
+adb  -s emulator-5554 shell "su -c 'cp /storage/emulated/0/Pictures/shared_prefs/admob.xml /data/data/com.daaw.avee/shared_prefs; ls;'"
+
+cp /storage/emulated/0/Pictures/shared_prefs/admob.xml /data/data/com.daaw.avee/shared_prefs
+
 dumpsys activity
 
 am start -a android.intent.action.VIEW -d content://media/external/audio/media/47 -n com.daaw.avee/.MainActivity
@@ -71,7 +81,7 @@ am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/00024.wav 
 am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/AveeTemplate_normal/CX%20liquify.viz -n com.daaw.avee/.MainActivity
 
 am broadcast -a com.llamalab.automate.intent.action.START_FLOW -d content://com.llamalab.automate.provider/flows/8/statements/1 -n com.llamalab.automate/.StartServiceReceiver -e Payload "x99x99"
-
+/BW NCS.viz Neonly.viz The fuzzy lear.viz
 am broadcast -a com.llamalab.automate.intent.action.START_FLOW -d content://com.llamalab.automate.provider/flows/9/statements/1 -n com.llamalab.automate/.StartServiceReceiver 
 
 Intent { act=android.intent.action.VIEW dat=file:///mnt/shared/Pictures/AveeTemplate_normal/Bass%20Nation.viz typ=application/octet-stream flg=0x10000000 cmp=com.daaw.avee/.MainActivity }
