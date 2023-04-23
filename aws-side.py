@@ -174,14 +174,15 @@ def yt_task(title_hashs,  channel_id):
 
     #two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
 
-    one_empty =  a.find(a.i.one_empty, loop=2,  do_until=[del_(a.scroll, [-1], 2 ) ])
+    #one_empty =  a.find(a.i.one_empty, loop=2,  do_until=[del_(a.scroll, [-1], 2 ) ])
+    next =  a.find(a.i.next, loop=2, confidence=0.9)
 
     pg.keyDown('ctrl')  
     pg.press('a')     
     pg.keyUp('ctrl')    
     a.type(title_hashs)
 
-    next_btn = (one_empty.found[0] + 603, one_empty.found[1] + (105 if app_logging.ubuntu_ver == "20.04" else 51))
+    next_btn = next.found[0:2]# (one_empty.found[0] + 603, one_empty.found[1] + (105 if app_logging.ubuntu_ver == "20.04" else 51))
 
     #three_empty = a.find(a.i.three_empty, loop=2,   do_until=del_(a.click, [next_btn], 2 ))
 
