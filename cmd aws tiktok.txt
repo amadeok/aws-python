@@ -72,12 +72,20 @@ https://github.com/cli/cli/blob/trunk/docs/install_linux.md
 
 
 
-#git clone https://github.com/amadeok/aws-python && cd aws-python && sudo chmod +x ./install_utils.sh && ./install_utils.sh
-
+#git clone https://github.com/amadeok/aws-python && cd aws-python && sudo chmod +x ./install_utils.sh && #./install_utils.sh
+---------------------------------------------------------
 git clone https://github.com/amadeok/aws-python && 
 cp aws-python/install_utils.sh ./install_utils.sh &&
 sudo chmod +x ./install_utils.sh && 
 ./install_utils.sh
+
+sudo systemctl  status tigervnc@1.service
+
+sudo journalctl -u tigervnc
+
+sudo journalctl -u pythonfile
+---------------------------------------------------------
+
 
 #############
 ec2-16-50-156-38.ap-southeast-4.compute.amazonaws.com
