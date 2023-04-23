@@ -29,9 +29,9 @@ class aws_handler():
         s.start_vnc = 1
 
 
-    def parse_task(s, tt_mail, parsed, text0, text1):
+    def parse_task(s, tt_mail, parsed, text0, text1, suffix=""):
         try:
-            nn = tt_mail.split(r"@")[0]
+            nn = suffix + "_" + tt_mail.split(r"@")[0]
             parsed_s =  parsed.split(text0)
             parsed_p = parsed_s[1]
             parsed_s2 =  parsed_p.split(text1)
@@ -149,9 +149,9 @@ class aws_handler():
                 print(str)
 
         if len(tt_parsed):
-            s.parse_task(tt_mail, tt_parsed, "Videos\n\nLiked\n", "Get app\nGet TikTok App\n")
+            s.parse_task(tt_mail, tt_parsed, "Videos\n\nLiked\n", "Get app\nGet TikTok App\n", "tt")
         if len(yt_parsed):
-            s.parse_task(yt_mail, yt_parsed,  "Likes (vs. dislikes)" , "Rows per page:" )
+            s.parse_task(yt_mail, yt_parsed,  "Likes (vs. dislikes)" , "Rows per page:", "yt")
             
 
         logging.info(f"aws task took aprox : {time.time() -tt } sec")
