@@ -85,6 +85,7 @@ class aws_handler():
             ret = [[]]
             while len(ret[0]) == 0:
                 ret = b3.gather_public_ip(region, s.client)
+                time.sleep(0.8)
 
 
         instance_ip = ret[0][0][0] if not s.local else  "192.168.1.160"#79.42.227.212" # "192.168.1.160" #"127.0.0.1"

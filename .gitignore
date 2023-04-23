@@ -9,38 +9,20 @@ sct-164x3638_1080x1920.png
 sct-715x2638_1080x1920.png
 test.png
 accs.txt
-__pycache__/autopy.cpython-310.pyc
 tmp/
 ad1.png
 ad1.png
-__pycache__/avee_utils.cpython-310.pyc
-__pycache__/open_ai.cpython-310.pyc
-__pycache__/openai.cpython-310.pyc
-__pycache__/spline.cpython-310.pyc
 spline.py - collegamento.lnk
 To get the list of tools available in Da.py
 spline_old.py
-__pycache__/avee.cpython-310.pyc
 rtf
-__pycache__/dav.cpython-310.pyc
 video.mp4
-
 .aws-side.py.swp
-__pycache__/autopy.cpython-38.pyc
 file.mp4
 
 ooo
-__pycache__/app_logging.cpython-310.pyc
-__pycache__/network.cpython-310.pyc
-__pycache__/app_logging.cpython-38.pyc
-__pycache__/network.cpython-38.pyc
-__pycache__/aws_python.cpython-310.pyc
-__pycache__/sql_utils.cpython-310.pyc
-__pycache__/boto3_utils.cpython-310.pyc
-__pycache__/boto3_utils.cpython-310.pyc
-__pycache__/boto3_utils.cpython-310.pyc
+
 vis/
-__pycache__/clipboard.cpython-38.pyc
-__pycache__/boto3_utils.cpython-310.pyc
-__pycache__/boto3_utils.cpython-38.pyc
-__pycache__/sql_utils.cpython-38.pyc
+
+__pycache__/
+new 8.txt
