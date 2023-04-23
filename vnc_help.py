@@ -62,5 +62,5 @@ if args.s == "True" or args.s == "true"or args.s == "1" or args.s == True:
     os.system(command)
     print()
 else:
-    p = Popen([r"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe", f'{instance_ip}:1'])
+    p = Popen([r"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe", f'{instance_ip}:1', "-KeepAliveResponseTimeout", "60"])
     p.wait()

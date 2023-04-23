@@ -174,7 +174,7 @@ def yt_task(title_hashs,  channel_id):
 
     #two_empty = a.find(a.i.two_empty, loop=2,  do_until=[del_(a.click, [open_file.found], 2 ), del_(a.press, ["center"], 2 ), del_(pg.scroll, [-1], 2 ) ], confidence=0.9)
 
-    one_empty =  a.find(a.i.one_empty, loop=2)
+    one_empty =  a.find(a.i.one_empty, loop=2,  do_until=[del_(a.scroll, [-1], 2 ) ])
 
     pg.keyDown('ctrl')  
     pg.press('a')     
