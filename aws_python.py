@@ -12,7 +12,7 @@ import sql_utils
 from datetime import datetime
 
 class aws_handler():
-    def __init__(s) -> None:
+    def __init__(s, sql=None) -> None:
 
         if os.path.isfile("rtf"):
             with open("rtf", "r")as i:
@@ -24,7 +24,7 @@ class aws_handler():
 
         s.debug_mode = 0
         s.client = None
-        s.sql = sql_utils.sql_()
+        s.sql = sql_utils.sql_() if not sql else sql
         s.local = 0
         s.start_vnc = 1
 
@@ -44,6 +44,11 @@ class aws_handler():
             logging.info("Failed to process parsed text")
             with open(f"vis/{nn}.txt", "a") as fff:
                 fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed) 
+
+    def delete_files(s, ctx):
+        sql_utils.delete_file(ctx.input_f.avee_final_file)
+        sql_utils.delete_file(ctx.input_f.dav_final_file)
+        sql_utils.delelte_files_in_folder(ctx.input_f.output_fld + "\\tmp\\")
 
     def aws_task(s, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
         inst_name = ctx.instance_name
@@ -147,6 +152,17 @@ class aws_handler():
                 yt_parsed = network.recv_string(conn)          
             else:
                 print(str)
+        
+        if tt_mail and len(tt_mail) and yt_mail and len(yt_mail):
+            tt = s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
+            yt = s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads")
+            if tt == "1" and yt  == "1":
+                s.delete_files()
+        elif tt_mail and len(tt_mail) and s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads") == "1":
+            s.delete_files()        
+        elif yt_mail and len(yt_mail) and s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads") == "1":
+            s.delete_files()
+                
 
         if len(tt_parsed):
             s.parse_task(tt_mail, tt_parsed, "Videos\n\nLiked\n", "Get app\nGet TikTok App\n", "tt")

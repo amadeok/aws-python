@@ -1,7 +1,7 @@
 from sql_utils import sql_
-import logging
+import logging, time
 import git, os, random
-import argparse, distro
+import argparse, distro, threading
 from subprocess import Popen
 import boto3, boto3_utils as b3
 
@@ -25,24 +25,44 @@ else:
 sql = sql_()
 
 
-if args.n == "check":
+if "check" in args.n:
+    rows = []
+    if args.n != "check":
+        ss = args.n.split(":")
+        ss = ss[1:len(ss)]
+        for elem in ss:
+            rows.append(sql.get_row(elem))
+    else:
+        for i, row in enumerate(sql.cur.execute('''SELECT * FROM Main ''')):
+            rows.append(row)
     
-    pass
-    for row in sql.cur.execute('''SELECT * FROM Main '''):
-        
+    def get_instance_state(row, region, instance_id, name):
+        #region, instance_id =  row[2], row[0]
         logging.info(row)
 
-        ec2 = boto3.client('ec2', region_name=row[2],  aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key)
-        instance_id =row[0]
+        ec2 = boto3.client('ec2', region_name=region,  aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key)
 
         response = ec2.describe_instances(InstanceIds=[instance_id])
 
         state = response['Reservations'][0]['Instances'][0]['State']['Name']
 
         if state == 'running':
-            print(f'! ! ! The EC2 instance {row[2]} {row[3]} is running')
+            print(f'! ! ! The EC2 instance {row[0]:<2} {name:<10}  {region:<20} is running')
         else:
-            print(f'The EC2 instance {row[2]} {row[3]}  is in {state} state')
+            print(f'The EC2 instance {row[0]:<2} {name:<10}  {region:<20}   is in {state} state')
+    ts = []
+    for i, row in enumerate(rows):
+        t = threading.Thread(target=get_instance_state, args=([i, row], row[2], row[0], row[3]))
+        ts.append(t)
+        t.start()
+        time.sleep(0.1)
+
+    for tt in ts:
+        tt.join()
+        
+
+        #get_instance_state(row, row[2], row[0], row[3])
+    print("Press enter to exit")
     input()
 
 else:
@@ -85,5 +105,5 @@ else:
         os.system(command)
         print()
     else:
-        p = Popen([r"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe", f'{instance_ip}:1', "-KeepAliveResponseTimeout", "60"])
+        p = Popen([r"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe", f'{instance_ip}:1', "-KeepAliveResponseTimeout", "180"])
         p.wait()

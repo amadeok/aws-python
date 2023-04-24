@@ -203,7 +203,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
     ctx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopy=None)
     a = ctx.a
 
-    sleep_t = 2
+    sleep_t = 0.1
 
     #target_file =  nt(shlex.quote(basef),basef, basef.split(".")[0], os.path.dirname(basef))
 
@@ -233,9 +233,9 @@ def avee_task(target_file, template_file, start, dur, suffix):
     r = (ctx.ld_win.topleft.x, ctx.ld_win.topleft.y, ctx.wid, ctx.hei)
 
     adb("am force-stop com.daaw.avee")
-    time.sleep(0.5)
+    time.sleep(0.1)
     reset_settings()
-    time.sleep(1)
+    time.sleep(0.1)
     check_avee_running()
 
     time.sleep(sleep_t)

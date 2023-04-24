@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "vnc_help.py",
-            "args": ["-n", "check", "-s", "fals"],
+            "args": ["-n", "check:spa0:sanp0", "-s", "fals"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
