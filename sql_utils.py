@@ -18,12 +18,12 @@ class sql_():
             logging.info(f"{'name' if use_name else 'aws-id'} {input} not found")
             return None
 
-        logging.info(f"\nId: {record[0]}")
-        logging.info(f"yt-id: {record[1]}")
-        logging.info(f"region: {record[2]}")
-        logging.info(f"name : {record[3]}")
-        logging.info(f"tt_mail: {record[4]}")
-        logging.info(f"yt_mail: {record[5]}")
+        # logging.info(f"\nId: {record[0]}")
+        # logging.info(f"yt-id: {record[1]}")
+        # logging.info(f"region: {record[2]}")
+        # logging.info(f"name : {record[3]}")
+        # logging.info(f"tt_mail: {record[4]}")
+        # logging.info(f"yt_mail: {record[5]}")
 
         return record
 

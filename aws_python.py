@@ -11,6 +11,15 @@ import sqlite3 as sl
 import sql_utils
 from datetime import datetime
 
+def get_tt_and_ty_do(sql, ctx, name, row, do_tt=True, do_yt=True):
+    aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = row
+    tt = sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
+    do_tt = tt != "1" and do_tt and (len(tt_mail) if tt_mail else False) or do_tt == "f"
+    yt = sql.get_record(name, ctx.input_f.win_name, "YT_Uploads")
+    do_yt = yt != "1" and do_yt and (len(yt_mail) if yt_mail else False) or do_yt == "f"
+    return do_tt, do_yt
+
+
 class aws_handler():
     def __init__(s, sql=None) -> None:
 
@@ -37,34 +46,36 @@ class aws_handler():
             parsed_s2 =  parsed_p.split(text1)
             parsed_p2 = parsed_s2[0]
 
-            with open(f"vis/{nn}.txt", "a") as fff:
+            with open(f"vis/{nn}.txt", "a",  encoding="utf-8") as fff:
                 fff.write("\n### New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed_p2) 
 
         except Exception as e:
             logging.info("Failed to process parsed text")
-            with open(f"vis/{nn}.txt", "a") as fff:
+            with open(f"vis/{nn}.txt", "a",  encoding="utf-8") as fff:
                 fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed) 
 
     def delete_files(s, ctx):
         sql_utils.delete_file(ctx.input_f.avee_final_file)
         sql_utils.delete_file(ctx.input_f.dav_final_file)
-        sql_utils.delelte_files_in_folder(ctx.input_f.output_fld + "\\tmp\\")
+        sql_utils.delelte_files_in_folder(ctx.input_f.out_fld + "\\tmp\\")
+
+
+
+
 
     def aws_task(s, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
         inst_name = ctx.instance_name
-        aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = s.sql.get_row(inst_name)
-        tt = s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
-        do_tt = tt != "1" and do_tt and (len(tt_mail) if tt_mail else False) or do_tt == "f"
-        yt = s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads")
-        do_yt = yt != "1" and do_yt and (len(yt_mail) if yt_mail else False) or do_yt == "f"
+        row = s.sql.get_row(inst_name)
+        aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = row
 
+        do_tt, do_yt = get_tt_and_ty_do(s.sql,ctx, inst_name, row)
         if not do_tt and not do_yt:
             logging.info("No TT or YT task to perform, returning")
-            return
+            return      
 
         logging.info(f"Starting aws task instance {inst_name}")
 
-        tt = time.time()
+        time_start = time.time()
 
         if not s.local:
             s.sql.add_update_table_col(name)
@@ -89,8 +100,11 @@ class aws_handler():
                 s.client.reboot_instances( InstanceIds=InstanceIds)
             ret = [[]]
             while len(ret[0]) == 0:
-                ret = b3.gather_public_ip(region, s.client)
-                time.sleep(0.8)
+                time.sleep(1)
+                try:
+                    ret = b3.gather_public_ip(region, s.client)
+                except Exception as e:
+                    logging.info(e)
 
 
         instance_ip = ret[0][0][0] if not s.local else  "192.168.1.160"#79.42.227.212" # "192.168.1.160" #"127.0.0.1"
@@ -170,7 +184,7 @@ class aws_handler():
             s.parse_task(yt_mail, yt_parsed,  "Likes (vs. dislikes)" , "Rows per page:", "yt")
             
 
-        logging.info(f"aws task took aprox : {time.time() -tt } sec")
+        logging.info(f"aws task took aprox : {time.time() -time_start } secs")
         if stop_instance:
             logging.info(f"stopping instance..")
             rest = s.client.stop_instances( InstanceIds=InstanceIds)
