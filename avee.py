@@ -78,8 +78,12 @@ def general_task(instance, input_file, sql):
     aws.local=0
     aws.start_vnc=0
     #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
-    aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7))
+    aws.aws_task( ctx, reboot_inst=1, stop_instance=True, hashtags=app_logging.get_hashtags(7))
 
 sql = sql_utils.sql_()
-for i, row in enumerate(sql.cur.execute('''SELECT * FROM Main ''')):
+rows = []
+for  row in sql.cur.execute('''SELECT * FROM Main '''):
+    rows.append(row)
+for  row in rows:
+    logging.info(f"Performing general task instance {row[3]}")
     general_task(row[3], input_file_, sql)

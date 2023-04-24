@@ -98,8 +98,10 @@ else:
 
         ipp = instance_ip.replace(".", "-")
         pem = f"C:\\Users\\amade\\{region}.pem" if os.name == 'nt' else f"/home/amadeok/{region}.pem"
-
-        command = f'ssh -i "{pem}" ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com'
+        if "us-east" in region:
+            command = f'ssh -i "{pem}" ubuntu@ec2-{ipp}.compute-1.amazonaws.com'
+        else:
+            command = f'ssh -i "{pem}" ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com'
         #p = Popen(["start", "ssh", "-i", f"C:\\Users\\amade\\{region}.pem", f"ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com"])
 
         os.system(command)

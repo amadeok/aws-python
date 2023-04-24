@@ -157,11 +157,11 @@ class aws_handler():
             tt = s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
             yt = s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads")
             if tt == "1" and yt  == "1":
-                s.delete_files()
+                s.delete_files(ctx)
         elif tt_mail and len(tt_mail) and s.sql.get_record(name, ctx.input_f.win_name, "TT_Uploads") == "1":
-            s.delete_files()        
+            s.delete_files(ctx)        
         elif yt_mail and len(yt_mail) and s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads") == "1":
-            s.delete_files()
+            s.delete_files(ctx)
                 
 
         if len(tt_parsed):
