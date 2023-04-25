@@ -1,6 +1,6 @@
 
 import time, subprocess as sp
-import logging, math
+import logging, math, datetime, os
 # time.sleep(1)
 import random
 import time, shlex, random, numpy as np
@@ -9,6 +9,7 @@ from collections import namedtuple
 import seaborn as sns
 import spline, webcolors
 import matplotlib.pyplot as plt
+from avee_utils import get_duration
 
 import DaVinciResolveScript as dvr_script
 
@@ -53,12 +54,20 @@ def point_displacement(point, vec, disp):
 
 
 class dav_handler():
-    def __init__(s, ctx, text) -> None:
+    def __init__(s, ctx, text, codec="H264") -> None:
 
+        if os.path.isfile(ctx.input_f.dav_final_file):
+            logging.info("Dav file already exists, returning")
+            return 
+        
+        assert(codec == "H264" or codec== "H264_NVIDIA")
+
+        t2 = time.time()
         s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
         s.ctx = ctx
         s.init()
-        
+        # aa3 = s.project.GetCurrentRenderFormatAndCodec()
+
         s.ease_funs = spline.ease_funs()
         s.add_intro_outro = 0
 
@@ -91,7 +100,10 @@ class dav_handler():
 
         s.apply_video_transitions()
 
-        s.render()
+        s.render(codec)
+
+        logging.info(f"Times: davinci = {str(datetime.timedelta(seconds=time.time()-t2))} ")
+
         
     def plot_center(s, transition_frame):
         ti = int((s.ctx.transition_delta-20)+transition_frame)
@@ -447,12 +459,13 @@ class dav_handler():
         for i in range(0, s.ctx.tot_transitions):
             s.apply_random_transition(i, i*s.ctx.transition_delta, dir_list[i], curve_list)
 
-    def render(s):
+    def render(s, codec):
         s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4"})
-        aa = s.project.GetRenderCodecs()
-        aa2 = s.project.GetRenderFormats()
-        aa3 = s.project.GetCurrentRenderFormatAndCodec()
-        ret = s.project.SetCurrentRenderFormatAndCodec("mp4",  "H264_NVIDIA")
+        #s.project.SetRenderSettings({"MarkIn" : 0, "MarkOut" : 20, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4"})int(s.clip_end-1)
+        # aa = s.project.GetRenderCodecs()
+        # aa2 = s.project.GetRenderFormats()
+        # aa3 = s.project.GetCurrentRenderFormatAndCodec()
+        ret = s.project.SetCurrentRenderFormatAndCodec("mp4",  codec)
         ret= s.project.AddRenderJob()
         logging.info(f"Starting render..")
 
@@ -460,3 +473,9 @@ class dav_handler():
         while s.project.IsRenderingInProgress():
             logging.info("Waiting for render to finish..")
             time.sleep(1)
+
+        with open(s.ctx.input_f.out_fld + "\\lenght.txt", "w") as fff:
+            dur = get_duration(s.ctx.input_f.dav_final_file)
+            fff.write(str(dur))
+
+

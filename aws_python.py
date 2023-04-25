@@ -35,7 +35,7 @@ class aws_handler():
         s.client = None
         s.sql = sql_utils.sql_() if not sql else sql
         s.local = 0
-        s.start_vnc = 1
+        s.start_vnc = 0
 
 
     def parse_task(s, tt_mail, parsed, text0, text1, suffix=""):

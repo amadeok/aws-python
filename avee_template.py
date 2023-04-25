@@ -85,7 +85,8 @@ def find_template():
 
 def on_press(key):
     global text; global template_index 
-    #print('{0} pressed'.format(
+    #print('{0} pressed'.format(23
+    
     #    key))
     try:
         if key.char == "+": 

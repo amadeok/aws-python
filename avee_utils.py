@@ -1,4 +1,4 @@
-import traceback
+import traceback, datetime
 import win32gui,pywintypes
 import win32con,win32file,win32pipe,win32api, numpy, threading
 import pygetwindow as gw
@@ -6,6 +6,7 @@ import time, subprocess as sp, mss
 from PIL import Image
 import logging
 # time.sleep(1)
+from pymediainfo import MediaInfo
 
 import win32gui
 import win32ui
@@ -20,6 +21,14 @@ from collections import namedtuple
 
 #a = r"C:\Program Files\WindowsApps\11314DaawAww.AveePlayer_0.8.25.0_x64__3mhsykt1m20fj\BleuPlayer.UWP.exe"
 #nt = namedtuple("name_storage", "android_name win_name basename dirpath")
+def get_duration(file):
+    media_info = MediaInfo.parse(file)
+    for track in media_info.tracks:
+        if track.track_type == "Video":
+            print("Bit rate: {t.bit_rate}, Frame rate: {t.frame_rate}, "  "Format: {t.format}".format(t=track))
+            return track.duration
+           # print("Duration (raw value):", track.duration)
+            #print("Duration (other values:")
 
 class name_storage():
     def __init__(self, input_path, out, instance_name) -> None:
@@ -39,7 +48,7 @@ device = "emulator-5554"
 
 base = f"adb  -s {device} shell "
 
-ctx = None
+actx = None
 
 nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
@@ -115,11 +124,11 @@ def is_avee_running():
     return False
     
 def check_avee_running():
-    global ctx
+    global actx
     if not is_avee_running():
         logging.debug("Avee not running, starting")
         os.system(f"{base} am start -a android.intent.action.VIEW -n com.daaw.avee/.MainActivity")
-        ret = ctx.a.find(ctx.a.i.speaker, timeout=40, loop=3, region=ctx.r, check_avee_running=False)
+        ret = actx.a.find(actx.a.i.speaker, timeout=40, loop=3, region=actx.r, check_avee_running=False)
         time.sleep(4)
     else:
         logging.debug("Avee running")
@@ -159,12 +168,12 @@ def wait_for_device():
 
 
 def tab_scroll(target_file, suffix):
-    global t0; global ctx
+    global t0; global actx
     logging.debug(f"Tab scrolling ")
 
-    found = ctx.a.find(ctx.a.i.file_name, loop=6, region=ctx.r, grayscale=True)
-    x =ctx.xcoor(found.found[0]+141)
-    y = ctx.ycoor(found.found[1])
+    found = actx.a.find(actx.a.i.file_name, loop=6, region=actx.r, grayscale=True)
+    x =actx.xcoor(found.found[0]+141)
+    y = actx.ycoor(found.found[1])
     cmd = f'"input tap {x} {y}& sleep 0.1; input tap {x} {y}"'
     adb(cmd)
     time.sleep(0.6)
@@ -176,9 +185,9 @@ def tab_scroll(target_file, suffix):
     found = None
     for x in range(20):
         adb(f" input keyevent 61") #back
-        found = ctx.a.find(ctx.a.i.export2, region=ctx.r, grayscale=True)
+        found = actx.a.find(actx.a.i.export2, region=actx.r, grayscale=True)
         if found:
-            adb(f'input tap {ctx.xcoor(found.found[0])} {ctx.ycoor(found.found[1])}')
+            adb(f'input tap {actx.xcoor(found.found[0])} {actx.ycoor(found.found[1])}')
             t0 = time.time()
             return
         time.sleep(0.1)
@@ -188,7 +197,7 @@ def tab_scroll(target_file, suffix):
 
 
 def avee_task(target_file, template_file, start, dur, suffix):
-    global ctx
+    global actx
 
     os.system("adb start-server ")
     os.system("adb start-server ")
@@ -200,8 +209,8 @@ def avee_task(target_file, template_file, start, dur, suffix):
     adb("mkdir /mnt/shared/Pictures/input/audio ")
     adb("mkdir /mnt/shared/Pictures/input/templates")
 
-    ctx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopy=None)
-    a = ctx.a
+    actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopy=None)
+    a = actx.a
 
     sleep_t = 0.1
 
@@ -227,10 +236,10 @@ def avee_task(target_file, template_file, start, dur, suffix):
     #print("####->", cmd)
     os.system(cmd)
 
-    ctx.hwnd, ctx.ld_win= restart_ld_player()
+    actx.hwnd, actx.ld_win= restart_ld_player()
     wait_for_device()
-    ctx.a.ext_src = ctx.hwnd
-    r = (ctx.ld_win.topleft.x, ctx.ld_win.topleft.y, ctx.wid, ctx.hei)
+    actx.a.ext_src = actx.hwnd
+    r = (actx.ld_win.topleft.x, actx.ld_win.topleft.y, actx.wid, actx.hei)
 
     adb("am force-stop com.daaw.avee")
     time.sleep(0.1)
@@ -243,7 +252,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
     check_avee_running()
     os.system(file_cmd)
     ret = a.find(a.i.pause, timeout=15, loop=0.5, region=r)
-    adb(f'input tap {ctx.xcoor(ret.found[0])} {ctx.ycoor(ret.found[1])}')
+    adb(f'input tap {actx.xcoor(ret.found[0])} {actx.ycoor(ret.found[1])}')
     time.sleep(sleep_t)
 
     check_avee_running()
@@ -262,7 +271,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
             adb(f"input keyevent 4") #back
         found = a.find([a.i.export], loop=1, region=r, grayscale=True)
         if found:
-            adb(f'input tap  {ctx.xcoor(found.found[0])} {ctx.ycoor(found.found[1])}')
+            adb(f'input tap  {actx.xcoor(found.found[0])} {actx.ycoor(found.found[1])}')
     #    else:
     #scroll to find final export button
     adb('"cd /mnt/sdcard/Download && rm -rf *.mp4"')
@@ -287,13 +296,28 @@ def avee_task(target_file, template_file, start, dur, suffix):
         if found == a.i.exporting_finished:
             time.sleep(1)
             adb(f" input keyevent 61") #back
-            adb(f'input tap  {ctx.xcoor(found.found[0]) +240 } {ctx.ycoor(found.found[1] + 158)}')
+            adb(f'input tap  {actx.xcoor(found.found[0]) +240 } {actx.ycoor(found.found[1] + 158)}')
 
         adb(f'input tap  {440} {610}')
 
 
+def handle_extra_frames(extra_fames, input_file, nb_tasks):
+    if extra_fames > 0 or 1:
+        cmd = f"ffmpeg.exe -loop 1 -i 1920x1080_black.png -t {0.016*abs(extra_fames)} -s 1920x1080 -r 60 {input_file.out_fld}\\tmp\\1920x1080_black.mp4 -y "
+        os.system(cmd)
+    else:
+        f = f"{input_file.out_fld}\\tmp\\{input_file.basename}_{nb_tasks-1:02d}.mp4"
+        f2 = f"{input_file.out_fld}\\tmp\\{input_file.basename}_{nb_tasks-1:02d}_.mp4"
+        dur = get_duration(f)
+        os.rename(f, f2)
+        #cmd =   f"ffmpeg -sseof -$ -i {f2} {f}"
+        cmd = f"ffmpeg -ss 0 -t {(dur/1000) - 0.016*abs(extra_fames)} -i {f2} -profile:v baseline -level:v 4.1 {f}"
 
-def perform_avee_task(input_file, bpm, start, bars, bars_per_template, beats_per_bar=4):
+        os.system(cmd)
+        os.remove(f2)
+
+def perform_avee_task(input_file, bpm, start, bars, bars_per_template, extra_fames, beats_per_bar=4 ):
+    t1 = time.time()
 
     first_start = start[0]*60+ start[1] + start[2]/1000
 
@@ -315,12 +339,16 @@ def perform_avee_task(input_file, bpm, start, bars, bars_per_template, beats_per
                     logging.info(f"Skipping chunk: {x}, already exists")
                     break
                 avee_task(input_file, template, first_start + x*dur, f"{dur}", x)
+                if x == nb_tasks-1:
+                    handle_extra_frames(extra_fames, input_file, nb_tasks)
                 break
             except Exception as e:
                 logging.info(f"Error during chunk {x}: {e} , traceback:\n {traceback.format_exc()}")
                 time.sleep(1)
 
 
+    
+    
     if not os.path.isfile(input_file.avee_final_file):
         logging.info("Joining parts and adding audio")
         paths = [os.path.join(input_file.out_fld + "\\tmp", elem).replace("\\\\", "\\")  for elem in os.listdir(input_file.out_fld + "\\tmp")]
@@ -331,7 +359,10 @@ def perform_avee_task(input_file, bpm, start, bars, bars_per_template, beats_per
                     pp = p.replace("\\", "\\\\")
                     ff.write("file " +  pp + "\n")
         #os.system(f"ffmpeg -i {target_file.input_path } -ss {start} -t {dur*bars} tmp\\{target_file.win_name} -y")
-        os.system(f"ffmpeg  -f concat -safe 0 -i {input_file.out_fld}\\file_list.txt  -ss {first_start} -t {dur*bars} -i {input_file.input_path}   -c:v copy -map 0:v -map 1:a -c:a aac -b:a 128k {input_file.avee_final_file} -y")
+        os.system(f"ffmpeg  -f concat -safe 0 -segment_time_metadata 1 -i {input_file.out_fld}\\file_list.txt  -ss {first_start} -t {dur*bars} -i {input_file.input_path}   -c:v copy -map 0:v -map 1:a -c:a aac -b:a 128k {input_file.avee_final_file} -y")
         print()
     else:
         logging.info("Joined file already exists, skipping")
+
+    t2 = time.time()
+    logging.info(f"Time: avee= {str(datetime.timedelta(seconds=t2 -t1))}")
