@@ -109,7 +109,7 @@ def aws_worker():
             logging.info(f"Aws worker received end signal, returning")
             return    
         logging.info(f"Aws worker GOT task for instance {ctx.instance_name}")
-        aws.aws_task( ctx, reboot_inst=1, stop_instance=1, hashtags=app_logging.get_hashtags(7))
+        aws.aws_task( ctx, reboot_inst=1, stop_instance=1, hashtags=app_logging.get_hashtags(random.randint(2,3)))
         logging.info(f"Dav worker FINISHED task for instance {ctx.instance_name}")
         
 
