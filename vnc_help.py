@@ -66,7 +66,7 @@ if "check" in args.n:
     input()
 
 else:
-    aws_id, yt_id, region,  name, tt_mail, yt_mail, ch_name, do = sql.get_row(args.n)
+    aws_id, yt_id, region,  name, tt_mail, yt_mail, ch_name, dott, doyt, addtext = sql.get_row(args.n)
 
     client = boto3.client('ec2', region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key)
 
@@ -98,7 +98,7 @@ else:
 
         ipp = instance_ip.replace(".", "-")
         pem = f"C:\\Users\\amade\\{region}.pem" if os.name == 'nt' else f"/home/amadeok/{region}.pem"
-        if "us-east" in region:
+        if "us-east-1" in region:
             command = f'ssh -i "{pem}" ubuntu@ec2-{ipp}.compute-1.amazonaws.com'
         else:
             command = f'ssh -i "{pem}" ubuntu@ec2-{ipp}.{region}.compute.amazonaws.com'
