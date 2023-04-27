@@ -324,7 +324,8 @@ def perform_avee_task(input_file, bpm, start, bars, bars_per_template, extra_fam
     logging.info(f"- task: {input_file.input_path} |  {bpm}bpm | start {first_start} 00:{start[0]}:{start[1]}.{start[2]} | bars per template: {bars_per_template}, beats per bar: {beats_per_bar} " )
     time_per_beat = (60/bpm)
     dur = time_per_beat*beats_per_bar*bars_per_template
-
+    if dur > 110:
+        raise Exception("duration is greater than 27 seconds, you'll have to fix the 'End at' bug in avee player again")
     nb_tasks = bars//bars_per_template
 
     for x in range(nb_tasks):

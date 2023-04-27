@@ -33,8 +33,8 @@ nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(audio_fld) if ".wav" in elem or ".mp3" in elem]
 
 #f = "00002(5).wav"
-#f = "00003(4).wav"
-f = "00020v2_s.wav"
+f = "00003(4).wav"
+f = "00023v2_s.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
 
@@ -42,8 +42,9 @@ if not os.path.isdir("tmp"): os.mkdir("tmp")
 if not os.path.isdir("vis"): os.mkdir("vis")
 
 class context():
-    def __init__(s, instance_name, input_file) -> None:
+    def __init__(s, instance_name, input_file, extra_frames) -> None:
         s.instance_name = instance_name
+        s.extra_frames = extra_frames
         s.out_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\\"
         s.input_f = name_storage(input_file,  s.out_fld, s.instance_name)
         config = ConfigParser()
@@ -74,7 +75,7 @@ def avee_worker(rows, input_file, fr_l):
     logging.info("Avee worker started")
     sql =  sql_utils.sql_()
     for  i, row in enumerate(rows):
-        ctx, do = init_task(row[3], input_file, sql)
+        ctx, do = init_task(row[3], input_file, sql, fr_l[i])
         if not do:
             continue
 
@@ -94,7 +95,7 @@ def dav_worker():
             logging.info(f"Dav worker received end signal, returning")
             return    
         logging.info(f"Dav worker GOT task for instance {ctx.instance_name}")
-        davinci = dav.dav_handler(ctx, random.choice(app_logging.possible_texts))
+        davinci = dav.dav_handler(ctx)  
         logging.info(f"Dav worker FINISHED task for instance {ctx.instance_name}")
         aws_queue.put(ctx)
 
@@ -108,16 +109,19 @@ def aws_worker():
             logging.info(f"Aws worker received end signal, returning")
             return    
         logging.info(f"Aws worker GOT task for instance {ctx.instance_name}")
-        aws.aws_task( ctx, reboot_inst=1, stop_instance=True, hashtags=app_logging.get_hashtags(7))
+        aws.aws_task( ctx, reboot_inst=1, stop_instance=1, hashtags=app_logging.get_hashtags(7))
         logging.info(f"Dav worker FINISHED task for instance {ctx.instance_name}")
         
 
-def init_task(instance, input_file, sql):
-    ctx = context(instance, input_file)
+def init_task(instance, input_file, sql, extra_frames):
     #davinci = dav.dav_handler(ctx, "text")
     
     row = sql.get_row(instance) #aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = row
+
+    ctx = context(instance, input_file, extra_frames)
+
     do_tt, do_yt = aws_python.get_tt_and_ty_do(sql, ctx, instance, row)
+    add_text  = row[9]
     
     logging.info("")
     if not do_tt and not do_yt:
@@ -126,18 +130,21 @@ def init_task(instance, input_file, sql):
     else:
         logging.info(f"Performing general task instance {instance} name {input_file}")
     logging.info("")
+
+    ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
+
     return (ctx, True)
 
 def general_task(instance, input_file, sql, extra_frames):
 
     t0 = time.time()
 
-    ctx, do = init_task(instance, input_file, sql)
+    ctx, do = init_task(instance, input_file, sql, extra_frames)
     if not do: return
 
-    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, extra_frames=extra_frames,  beats_per_bar=ctx.beats_per_bar)
+    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, extra_frames=ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar)
 
-    davinci = dav.dav_handler(ctx, random.choice(app_logging.possible_texts))
+    davinci = dav.dav_handler(ctx)
     
     aws = aws_python.aws_handler(sql)# aws.local=0
     aws.aws_task( ctx, reboot_inst=1, stop_instance=True, hashtags=app_logging.get_hashtags(7)) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
@@ -151,7 +158,7 @@ rows = []
 for  row in sql.cur.execute('''SELECT * FROM Main '''):
     rows.append(row)
 
-fr_l = [n-0 for n in range(len(rows))] #len(rows)//2 
+fr_l = [n+1 for n in range(len(rows))]; assert (not 0 in fr_l) #len(rows)//2 
 random.shuffle(fr_l)
 multithread = True
 

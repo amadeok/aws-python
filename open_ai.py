@@ -13,7 +13,7 @@ openai.api_key = k
 response = openai.ChatCompletion.create(
   model = 'gpt-3.5-turbo',
   messages = [
-    {'role': 'user', 'content': "write a few short lines of 9 words or less to make people follow me on my music instagram"}
+    {'role': 'user', 'content': "give me a prompt for creating a album cover for my music. it has to be artistic and has to seem real and well made"}
   ],
   temperature = 0  
 )

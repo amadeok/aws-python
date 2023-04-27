@@ -66,7 +66,7 @@ if "check" in args.n:
     input()
 
 else:
-    aws_id, yt_id, region,  name, tt_mail, yt_mail, ch_name  = sql.get_row(args.n)
+    aws_id, yt_id, region,  name, tt_mail, yt_mail, ch_name, do = sql.get_row(args.n)
 
     client = boto3.client('ec2', region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key)
 

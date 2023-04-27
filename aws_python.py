@@ -12,7 +12,7 @@ import sql_utils
 from datetime import datetime
 
 def get_tt_and_ty_do(sql, ctx, name, row, do_tt=True, do_yt=True):
-    aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = row
+    aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name, do_tt, do_yt, add_text = row
     tt = sql.get_record(name, ctx.input_f.win_name, "TT_Uploads")
     do_tt = tt != "1" and do_tt and (len(tt_mail) if tt_mail else False) or do_tt == "f"
     yt = sql.get_record(name, ctx.input_f.win_name, "YT_Uploads")
@@ -66,7 +66,7 @@ class aws_handler():
     def aws_task(s, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
         inst_name = ctx.instance_name
         row = s.sql.get_row(inst_name)
-        aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name = row
+        aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name, do_tt, do_yt, add_text = row
 
         do_tt, do_yt = get_tt_and_ty_do(s.sql,ctx, inst_name, row)
         if not do_tt and not do_yt:
@@ -176,7 +176,9 @@ class aws_handler():
             s.delete_files(ctx)        
         elif yt_mail and len(yt_mail) and s.sql.get_record(name, ctx.input_f.win_name, "YT_Uploads") == "1":
             s.delete_files(ctx)
-                
+
+        sql_utils.delete_file(ctx.input_f.avee_final_file)
+        sql_utils.delelte_files_in_folder(ctx.input_f.out_fld + "\\tmp\\")
 
         if len(tt_parsed):
             s.parse_task(tt_mail, tt_parsed, "Videos\n\nLiked\n", "Get app\nGet TikTok App\n", "tt")

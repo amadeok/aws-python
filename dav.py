@@ -54,8 +54,8 @@ def point_displacement(point, vec, disp):
 
 
 class dav_handler():
-    def __init__(s, ctx, text, codec="H264") -> None:
-
+    def __init__(s, ctx, codec="H264") -> None:
+        
         if os.path.isfile(ctx.input_f.dav_final_file):
             logging.info("Dav file already exists, returning")
             return 
@@ -65,6 +65,8 @@ class dav_handler():
         t2 = time.time()
         s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
         s.ctx = ctx
+        s.text = ctx.text
+
         s.init()
         # aa3 = s.project.GetCurrentRenderFormatAndCodec()
 
@@ -90,13 +92,14 @@ class dav_handler():
         
         s.add_tools_and_modifiers()
 
-        s.get_random_text_style(s.textp, 6, s.fonts)
+        if s.text:
+            s.get_random_text_style(s.textp, 6, s.fonts)
 
-        s.textp.StyledText =  text #"Follow cristian_k_music\n" + "on IG"
-        time.sleep(0.2)
-        s.add_text_effects()
+            s.textp.StyledText =  s.text #"Follow cristian_k_music\n" + "on IG"
+            time.sleep(0.2)
+            s.add_text_effects()
 
-        s.apply_text_transitions()
+            s.apply_text_transitions()
 
         s.apply_video_transitions()
 
@@ -298,16 +301,18 @@ class dav_handler():
         s.main_shake = s.comp.AddTool("ofx.com.blackmagicdesign.resolvefx.CameraShake", -32768, -32768) #for rest
         s.main_shake.MotionScale = 0.378
         s.main_shake.SpeedScale = 0.126
-
-        s.textp = s.comp.AddTool("TextPlus", -32768, -32768)
-        ret = s.textp.AddModifier("Size", "BezierSpline")
-        ret = s.textp.AddModifier("AngleX", "BezierSpline")
-        ret = s.textp.AddModifier("AngleY", "BezierSpline")
-        ret = s.textp.AddModifier("AngleZ", "BezierSpline")
-        s.textp.Center = s.comp.Path()
-        time.sleep(0.5)
-        #ff = s.textp.GetInput("Font")
-        s.textp.Enabled2 = 1
+        if s.text:
+            s.textp = s.comp.AddTool("TextPlus", -32768, -32768)
+            ret = s.textp.AddModifier("Size", "BezierSpline")
+            ret = s.textp.AddModifier("AngleX", "BezierSpline")
+            ret = s.textp.AddModifier("AngleY", "BezierSpline")
+            ret = s.textp.AddModifier("AngleZ", "BezierSpline")
+            s.textp.Center = s.comp.Path()
+            time.sleep(0.5)
+            #ff = s.textp.GetInput("Font")
+            s.textp.Enabled2 = 1
+        else:
+            print()
 
     def add_text_effects(s):
         s.comp.SetActiveTool(s.textp)
@@ -374,7 +379,7 @@ class dav_handler():
 
     def apply_random_transition(s, i, transition_frame, dir, cur_list):
         expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
-        factor =  s.clip_end/expected_clip_end
+        factor =  (s.clip_end - s.ctx.extra_frames) / expected_clip_end
         transition_frame = transition_frame*factor
         logging.info(f"Applying transition {i}, at frame {transition_frame}, direction: {dir}")
         r = random.uniform; r2 = random.randint
