@@ -147,7 +147,7 @@ def general_task(instance, input_file, sql, extra_frames):
     davinci = dav.dav_handler(ctx)
     
     aws = aws_python.aws_handler(sql)# aws.local=0
-    aws.aws_task( ctx, reboot_inst=1, stop_instance=True, hashtags=app_logging.get_hashtags(7)) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
+    aws.aws_task( ctx, reboot_inst=1, stop_instance=True, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
 
     t4 = time.time()
 
