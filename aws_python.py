@@ -55,7 +55,7 @@ class aws_handler():
                 fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed) 
 
     def delete_files(s, ctx):
-        sql_utils.delete_file(ctx.input_f.avee_final_file)
+        #sql_utils.delete_file(ctx.input_f.avee_final_file)
         sql_utils.delete_file(ctx.input_f.dav_final_file)
         sql_utils.delelte_files_in_folder(ctx.input_f.out_fld + "\\tmp\\")
 

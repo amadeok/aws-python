@@ -72,6 +72,7 @@ class dav_handler():
 
         s.ease_funs = spline.ease_funs()
         s.add_intro_outro = 0
+        s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4", "AudioDataRata": 200, "AudioSampleRate": random.choice([48000, 44100]) })
 
         ret = s.resolve.OpenPage("Edit")
 
@@ -181,7 +182,8 @@ class dav_handler():
         clips = []
         for x in range(10): 
             added = s.MediaStorage.AddItemListToMediaPool(s.ctx.input_f.avee_final_file)
-
+            added2 = s.MediaStorage.AddItemListToMediaPool(s.ctx.black_f)
+            assert(len(added2))
             clips = s.folder.GetClipList()
             if len(clips) == 0:
                 logging.info(f"error clip list is empty")
@@ -465,7 +467,7 @@ class dav_handler():
             s.apply_random_transition(i, i*s.ctx.transition_delta, dir_list[i], curve_list)
 
     def render(s, codec):
-        s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4"})
+        s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4", "AudioSampleRate": random.choice([48000, 44100]) })
         #s.project.SetRenderSettings({"MarkIn" : 0, "MarkOut" : 20, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4"})int(s.clip_end-1)
         # aa = s.project.GetRenderCodecs()
         # aa2 = s.project.GetRenderFormats()
@@ -482,5 +484,8 @@ class dav_handler():
         with open(s.ctx.input_f.out_fld + "\\lenght.txt", "w") as fff:
             dur = get_duration(s.ctx.input_f.dav_final_file)
             fff.write(str(dur))
+
+        import metadata
+        metadata.randomize_metadata(s.ctx.input_f.dav_final_file)
 
 

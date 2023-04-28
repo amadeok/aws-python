@@ -34,7 +34,7 @@ audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(el
 
 #f = "00002(5).wav"
 f = "00003(4).wav"
-f = "00023v2_s.wav"
+f = "00024v2_s.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
 
@@ -65,6 +65,11 @@ class context():
         s.transition_delta = s.frames_per_bar * s.bars_per_template
         s.tot_transitions = s.bars // s.bars_per_template
 
+        s.nb_tasks = s.bars//s.bars_per_template
+        s.black_f = f"{s.input_f.out_fld}\\black_f.mp4".replace("\\\\", "\\")
+        s.black_f = s.black_f.replace("\\\\", "\\")
+
+
 def ds(s): return str(datetime.timedelta(seconds=s))
 
 avee_queue = queue.Queue()
@@ -78,8 +83,10 @@ def avee_worker(rows, input_file, fr_l):
         ctx, do = init_task(row[3], input_file, sql, fr_l[i])
         if not do:
             continue
-
-        perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, extra_fames=fr_l[i],  beats_per_bar=ctx.beats_per_bar)
+        if os.path.isfile(ctx.input_f.dav_final_file) or os.path.isfile( os.path.isfile(ctx.input_f.avee_final_file)):
+            logging.info("Dav or avee final files already exist, skipping avee task")
+        else:
+            perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, extra_fames=fr_l[i],  beats_per_bar=ctx.beats_per_bar)
         logging.info(f"Avee worker FINISHED task for instance {ctx.instance_name}")
         dav_queue.put(ctx)
     dav_queue.put(-1)
@@ -147,7 +154,7 @@ def general_task(instance, input_file, sql, extra_frames):
     davinci = dav.dav_handler(ctx)
     
     aws = aws_python.aws_handler(sql)# aws.local=0
-    aws.aws_task( ctx, reboot_inst=1, stop_instance=True, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
+    aws.aws_task( ctx, reboot_inst=1, stop_instance=0, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
 
     t4 = time.time()
 
@@ -158,7 +165,7 @@ rows = []
 for  row in sql.cur.execute('''SELECT * FROM Main '''):
     rows.append(row)
 
-fr_l = [n+1 for n in range(len(rows))]; assert (not 0 in fr_l) #len(rows)//2 
+fr_l = [n+5 for n in range(len(rows))]; assert (not 0 in fr_l) #len(rows)//2 
 random.shuffle(fr_l)
 multithread = True
 
@@ -168,11 +175,14 @@ threads = []
 if multithread:
     threads.append(threading.Thread(target=avee_worker, args=(rows, input_file_, fr_l)))
     threads.append(threading.Thread(target=dav_worker, args=()))
-    threads.append(threading.Thread(target=aws_worker, args=()))
+    if 1: threads.append(threading.Thread(target=aws_worker, args=()))
     for tt in threads:
         tt.start()
     for tt in threads:
         tt.join()
+    #to fix the wrong "end at" bug in avee
+    os.system("adb -s emulator-5554 push C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00034.wav /mnt/sdcard/Pictures/00001.wav")
+    
 else:
     for  i, row in enumerate(rows):
         general_task(row[3], input_file_, sql, fr_l[i])

@@ -40,8 +40,12 @@ class name_storage():
         self.dirpath = os.path.dirname(input_path)
         self.out_fld = f"{out}\\{instance_name}_{self.basename}\\".replace("\\\\", "\\")
         self.avee_final_file = f"{self.out_fld}\\{self.basename}_joined.mp4".replace("\\\\", "\\")
+        self.avee_tmp_file = f"{self.out_fld}\\{self.basename}_tmp.mp4".replace("\\\\", "\\")
+
         self.dav_final_file = self.out_fld + "\\" +  f"{self.basename}_dav.mp4"
         self.instance_name = instance_name
+        
+
 
 #device = "ce041714f506223101" # emulator-5554
 device = "emulator-5554"
@@ -301,9 +305,10 @@ def avee_task(target_file, template_file, start, dur, suffix):
         adb(f'input tap  {440} {610}')
 
 
-def handle_extra_frames(extra_fames, input_file, nb_tasks):
+def handle_extra_frames(extra_fames, input_file, nb_tasks, black_f):
+
     if extra_fames > 0 or 1:
-        cmd = f"ffmpeg.exe -loop 1 -i 1920x1080_black.png -t {0.016*abs(extra_fames)} -s 1920x1080 -r 60 {input_file.out_fld}\\tmp\\1920x1080_black.mp4 -y "
+        cmd = f"ffmpeg.exe -loop 1 -i 1920x1080_black.png -t {0.016*abs(extra_fames*2)} -video_track_timescale 90k -s 1920x1080 -r 59.860 {black_f} -y "
         os.system(cmd)
     else:
         f = f"{input_file.out_fld}\\tmp\\{input_file.basename}_{nb_tasks-1:02d}.mp4"
@@ -327,6 +332,8 @@ def perform_avee_task(input_file, bpm, start, bars, bars_per_template, extra_fam
     if dur > 110:
         raise Exception("duration is greater than 27 seconds, you'll have to fix the 'End at' bug in avee player again")
     nb_tasks = bars//bars_per_template
+    
+    black_f = f"{input_file.out_fld}\\black_f.mp4"
 
     for x in range(nb_tasks):
         for attempt_n in range(10):
@@ -341,16 +348,18 @@ def perform_avee_task(input_file, bpm, start, bars, bars_per_template, extra_fam
                     break
                 avee_task(input_file, template, first_start + x*dur, f"{dur}", x)
                 if x == nb_tasks-1:
-                    handle_extra_frames(extra_fames, input_file, nb_tasks)
+                    handle_extra_frames(extra_fames, input_file, nb_tasks, black_f)
                 break
             except Exception as e:
                 logging.info(f"Error during chunk {x}: {e} , traceback:\n {traceback.format_exc()}")
                 time.sleep(1)
 
 
+
     
-    
+
     if not os.path.isfile(input_file.avee_final_file):
+        handle_extra_frames(extra_fames, input_file, nb_tasks, black_f)
         logging.info("Joining parts and adding audio")
         paths = [os.path.join(input_file.out_fld + "\\tmp", elem).replace("\\\\", "\\")  for elem in os.listdir(input_file.out_fld + "\\tmp")]
         paths = [elem.replace("\\\\", "\\")  for elem in paths]
@@ -364,6 +373,19 @@ def perform_avee_task(input_file, bpm, start, bars, bars_per_template, extra_fam
         print()
     else:
         logging.info("Joined file already exists, skipping")
+
+    # if os.path.isfile(black_f):
+    #     paths = [input_file.avee_tmp_file, black_f]
+    #     with open(input_file.out_fld + "\\file_list.txt" , "w") as ff:
+    #         for p in paths:
+    #             if ".mp4" in p:
+    #                 pp = p.replace("\\", "\\\\")
+    #                 ff.write("file " +  pp + "\n")
+    #     os.system(f"ffmpeg  -f concat -safe 0 -segment_time_metadata 1 -i {input_file.out_fld}\\file_list.txt  -ss {first_start} -t {dur*bars} -i {input_file.input_path}   -c:v copy -map 0:v -map 1:a -c:a aac -b:a 128k {input_file.avee_final_file} -y")
+
+
+
+    
 
     t2 = time.time()
     logging.info(f"Time: avee= {str(datetime.timedelta(seconds=t2 -t1))}")
