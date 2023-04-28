@@ -34,7 +34,7 @@ audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(el
 
 #f = "00002(5).wav"
 f = "00003(4).wav"
-f = "00024v2_s.wav"
+#f = "00024v2_s.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
 
@@ -181,7 +181,7 @@ if multithread:
     for tt in threads:
         tt.join()
     #to fix the wrong "end at" bug in avee
-    os.system("adb -s emulator-5554 push C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00034.wav /mnt/sdcard/Pictures/00001.wav")
+    os.system("adb -s emulator-5554 push"+  r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00034.wav" + "/mnt/sdcard/Pictures/00001.wav")
     
 else:
     for  i, row in enumerate(rows):
