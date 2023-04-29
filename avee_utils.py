@@ -21,10 +21,11 @@ from collections import namedtuple
 
 #a = r"C:\Program Files\WindowsApps\11314DaawAww.AveePlayer_0.8.25.0_x64__3mhsykt1m20fj\BleuPlayer.UWP.exe"
 #nt = namedtuple("name_storage", "android_name win_name basename dirpath")
-def get_duration(file):
+def get_duration(file, type="Video"):
+    assert(type == "Video" or type == "Audio")
     media_info = MediaInfo.parse(file)
     for track in media_info.tracks:
-        if track.track_type == "Video":
+        if track.track_type == type:
             print("Bit rate: {t.bit_rate}, Frame rate: {t.frame_rate}, "  "Format: {t.format}".format(t=track))
             return track.duration
            # print("Duration (raw value):", track.duration)
@@ -322,6 +323,7 @@ def handle_extra_frames(extra_fames, input_file, nb_tasks, black_f):
         os.remove(f2)
 
 def perform_avee_task(input_file, bpm, start, bars, bars_per_template, extra_fames, beats_per_bar=4 ):
+
     t1 = time.time()
 
     first_start = start[0]*60+ start[1] + start[2]/1000

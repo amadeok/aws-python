@@ -63,7 +63,11 @@ class aws_handler():
 
 
 
-    def aws_task(s, ctx, reboot_inst, stop_instance, hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
+    def aws_task(s, ctx,  hashtags,  inst_id = None, yt_ch_id=None, do_tt=True, do_yt=True):
+
+        reboot_inst=ctx.reboot_inst
+        stop_instance=ctx.stop_inst
+
         inst_name = ctx.instance_name
         row = s.sql.get_row(inst_name)
         aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name, do_tt, do_yt, add_text = row

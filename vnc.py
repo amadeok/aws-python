@@ -55,7 +55,7 @@ if "check" in args.n:
         t = threading.Thread(target=get_instance_state, args=([i, row], row[2], row[0], row[3]))
         ts.append(t)
         t.start()
-        time.sleep(0.1)
+        time.sleep(0.01)
 
     for tt in ts:
         tt.join()

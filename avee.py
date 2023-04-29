@@ -4,7 +4,7 @@ import win32con,win32file,win32pipe,win32api, numpy, threading
 import pygetwindow as gw
 import time, subprocess as sp, mss
 from PIL import Image
-import logging, math
+import logging, math, shutil
 # time.sleep(1)
 
 import win32gui
@@ -33,7 +33,7 @@ nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(audio_fld) if ".wav" in elem or ".mp3" in elem]
 
 #f = "00002(5).wav"
-f = "00003(4).wav"
+f = "00016_s.wav"
 #f = "00024v2_s.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
@@ -68,6 +68,8 @@ class context():
         s.nb_tasks = s.bars//s.bars_per_template
         s.black_f = f"{s.input_f.out_fld}\\black_f.mp4".replace("\\\\", "\\")
         s.black_f = s.black_f.replace("\\\\", "\\")
+        s.reboot_inst = 1
+        s.stop_inst = 0
 
 
 def ds(s): return str(datetime.timedelta(seconds=s))
@@ -78,6 +80,9 @@ aws_queue = queue.Queue()
 
 def avee_worker(rows, input_file, fr_l):
     logging.info("Avee worker started")
+    shutil.copy(r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00034.wav", r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00001.wav")
+    assert(get_duration(r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00001.wav", "Audio") > 60*1000)
+
     sql =  sql_utils.sql_()
     for  i, row in enumerate(rows):
         ctx, do = init_task(row[3], input_file, sql, fr_l[i])
@@ -116,7 +121,7 @@ def aws_worker():
             logging.info(f"Aws worker received end signal, returning")
             return    
         logging.info(f"Aws worker GOT task for instance {ctx.instance_name}")
-        aws.aws_task( ctx, reboot_inst=1, stop_instance=1, hashtags=app_logging.get_hashtags(random.randint(2,3)))
+        aws.aws_task( ctx, hashtags=app_logging.get_hashtags(random.randint(2,3)))
         logging.info(f"Dav worker FINISHED task for instance {ctx.instance_name}")
         
 
@@ -154,7 +159,7 @@ def general_task(instance, input_file, sql, extra_frames):
     davinci = dav.dav_handler(ctx)
     
     aws = aws_python.aws_handler(sql)# aws.local=0
-    aws.aws_task( ctx, reboot_inst=1, stop_instance=0, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
+    aws.aws_task( ctx, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
 
     t4 = time.time()
 
@@ -168,7 +173,6 @@ for  row in sql.cur.execute('''SELECT * FROM Main '''):
 fr_l = [n+5 for n in range(len(rows))]; assert (not 0 in fr_l) #len(rows)//2 
 random.shuffle(fr_l)
 multithread = True
-
 
 
 threads = []
