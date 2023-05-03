@@ -10,6 +10,8 @@ import seaborn as sns
 import spline, webcolors
 import matplotlib.pyplot as plt
 from avee_utils import get_duration
+#from base import context
+import textwrap, ass
 
 import DaVinciResolveScript as dvr_script
 
@@ -54,12 +56,12 @@ def point_displacement(point, vec, disp):
 
 
 class dav_handler():
-    def __init__(s, ctx, codec="H264") -> None:
+    def __init__(s, ctx, codec="H264", overwrite=0) -> None:
         
-        if os.path.isfile(ctx.input_f.dav_final_file):
+        if os.path.isfile(ctx.input_f.dav_final_file) and not overwrite:
             logging.info("Dav file already exists, returning")
             return 
-        
+
         assert(codec == "H264" or codec== "H264_NVIDIA")
 
         t2 = time.time()
@@ -72,13 +74,16 @@ class dav_handler():
 
         s.ease_funs = spline.ease_funs()
         s.add_intro_outro = 0
-        s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4", "AudioDataRata": 200, "AudioSampleRate": random.choice([48000, 44100]) })
 
         ret = s.resolve.OpenPage("Edit")
 
         s.AddMediaItem()
 
         s.get_clip_info()
+
+        expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
+        s.factor = s.clip_end / expected_clip_end
+        logging.debug(f"s.factor {s.factor}")
 
         s.plot = 0
         if s.plot:
@@ -92,6 +97,11 @@ class dav_handler():
         s.tr_tool = s.add_transform_tool()
         
         s.add_tools_and_modifiers()
+
+        #s.lyrics_text = [("it's true i forgot about us all", 0), ("it's true i did see you fall", 100)]
+
+        if s.adding_lyrics():
+            s.add_lyrics(ctx.input_f.guessed_lyrics_file)
 
         if s.text:
             s.get_random_text_style(s.textp, 6, s.fonts)
@@ -108,6 +118,60 @@ class dav_handler():
 
         logging.info(f"Times: davinci = {str(datetime.timedelta(seconds=time.time()-t2))} ")
 
+    def adding_lyrics(s):
+        if s.ctx.add_lyrics and  os.path.isfile(s.ctx.input_f.guessed_lyrics_file):
+            return True
+        return False
+
+    def add_lyrics(s, lyrics_file):
+
+        s.comp.SetActiveTool(s.main_shake)
+        s.lyrics_textp = s.comp.AddTool("TextPlus", -32768, -32768)
+        time.sleep(0.5)
+        s.lyrics_textp.Enabled2 = 1
+        s.lyrics_textp.Center =  {1: 0.5, 2: 0.145, 3: 0.0}
+        s.lyrics_textp.Size[0] =  0.040 
+        ret = s.lyrics_textp.AddModifier("StyledText", "BezierSpline")
+        s.get_random_text_style(s.lyrics_textp, 6, font_list=s.fonts)
+
+        outp = s.lyrics_textp.FindMainOutput(1)
+        inps = outp.GetConnectedInputs()
+        merge_tool = inps[1].GetTool()
+        ret2 = merge_tool.AddModifier("Blend", "BezierSpline")
+        merge_tool.Blend[0] = 0
+
+        max_chars_per_line = 31# it's true i forgot about us all
+        wrapper = textwrap.TextWrapper(width=max_chars_per_line)
+
+        doc=None
+        with open(lyrics_file, encoding='utf_8_sig') as f:
+            doc = ass.parse(f)
+
+        for ev in doc.events:
+            fade_frames = 0.5 * s.clip_fps #seconds
+            
+            start =   ev.start - s.ctx.td_start 
+            start_secs = start.total_seconds()
+            if start_secs < 0: start_secs = 0
+
+            start_frame = start_secs*s.clip_fps
+            if start_frame >= s.clip_end:
+                break
+            wrapped =  wrapper.wrap(text=ev.text)
+            s.lyrics_textp.StyledText[start_frame] =  "\n".join(wrapped)
+
+            end = ev.end - s.ctx.td_start
+            end_secs = end.total_seconds()
+            end_frame = end_secs*s.clip_fps
+            if end_frame > s.clip_end: end_frame = s.clip_end - fade_frames
+            
+            merge_tool.Blend[start_frame] = 0
+            merge_tool.Blend[start_frame+fade_frames] = 1
+            merge_tool.Blend[end_frame-fade_frames] = 1
+            merge_tool.Blend[end_frame] = 0
+
+
+            
         
     def plot_center(s, transition_frame):
         ti = int((s.ctx.transition_delta-20)+transition_frame)
@@ -290,7 +354,7 @@ class dav_handler():
         operator.Font =  font__ 
         operator.Style = "Regular"
 
-        logging.info(f" font {font__}, {operator.GetInput('Font')}, c1 {hex1} c2 {hex2} , Shape: {operator.GetInput('ElementShape2')}")
+        logging.info(f"name {operator.Name},  font {font__}, {operator.GetInput('Font')}, c1 {hex1} c2 {hex2} , Shape: {operator.GetInput('ElementShape2')}")
 
         #textp.ElementShape2 = 2 #{1: 'Text Fill', 2: 'Text Outline', 3: 'Border Fill', 4: 'Border Outline'}
 
@@ -381,7 +445,7 @@ class dav_handler():
 
     def apply_random_transition(s, i, transition_frame, dir, cur_list):
         expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
-        factor =  (s.clip_end - s.ctx.extra_frames) / expected_clip_end
+        factor = s.clip_end / expected_clip_end
         transition_frame = transition_frame*factor
         logging.info(f"Applying transition {i}, at frame {transition_frame}, direction: {dir}")
         r = random.uniform; r2 = random.randint
@@ -405,9 +469,10 @@ class dav_handler():
     def apply_text_transitions(s):
         text_dirs_l = [(1,0), (-1, 0), (0, 1), (0, -1), (1,1), (-1,-1), (-1,1), (1,-1) ]
 
-        s.textp.Center =  {1: 0.5, 2: 0.145 if random.randint(1,1) else 0.855, 3: 0.0}
         s.textp.Size[0] =  0.050 #at 1080p 0.055 #at 1920x1920 0.08
         t_size = s.textp.Size[0]
+
+        s.textp.Center =  {1: 0.5, 2: 0.145 if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}
         t_center = s.textp.Center[0]
         t_center = (t_center[1], t_center[2])
         dir =  random.choice(text_dirs_l)
@@ -487,5 +552,21 @@ class dav_handler():
 
         import metadata
         metadata.randomize_metadata(s.ctx.input_f.dav_final_file)
+
+if __name__ == "__main__3":
+    print("hello")
+    audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
+
+    nt = namedtuple("name_storage", "android_name win_name basename dirpath")
+
+    audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(audio_fld) if ".wav" in elem or ".mp3" in elem]
+
+    f = "00019v2_s.wav"
+    input_file_ = audio_fld + "//" + f
+
+    ctx = context("lond1", input_file_, 24)
+    ctx.text = "gel"
+    dav = dav_handler(ctx, overwrite=1)
+
 
 

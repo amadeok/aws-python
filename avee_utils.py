@@ -45,6 +45,9 @@ class name_storage():
 
         self.dav_final_file = self.out_fld + "\\" +  f"{self.basename}_dav.mp4"
         self.instance_name = instance_name
+        self.guessed_lyrics_file = self.dirpath + "\\" + self.basename + ".ass"
+        print()
+
         
 
 
@@ -175,8 +178,11 @@ def wait_for_device():
 def tab_scroll(target_file, suffix):
     global t0; global actx
     logging.debug(f"Tab scrolling ")
+    
+    #found  = actx.a.find(actx.a.i.end_check, loop=1, region=actx.r, grayscale=True)
+    #if not found: raise Exception("End time of avee is not 1:55")
 
-    found = actx.a.find(actx.a.i.file_name, loop=6, region=actx.r, grayscale=True)
+    found = actx.a.find(actx.a.i.file_name, loop=3, region=actx.r, grayscale=True)
     x =actx.xcoor(found.found[0]+141)
     y = actx.ycoor(found.found[1])
     cmd = f'"input tap {x} {y}& sleep 0.1; input tap {x} {y}"'

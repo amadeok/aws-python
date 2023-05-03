@@ -55,8 +55,8 @@ class aws_handler():
                 fff.write("\n###New entry " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n" + parsed) 
 
     def delete_files(s, ctx):
-        #sql_utils.delete_file(ctx.input_f.avee_final_file)
-        sql_utils.delete_file(ctx.input_f.dav_final_file)
+        sql_utils.delete_file(ctx.input_f.avee_final_file)
+        #sql_utils.delete_file(ctx.input_f.dav_final_file)
         sql_utils.delelte_files_in_folder(ctx.input_f.out_fld + "\\tmp\\")
 
 
@@ -73,7 +73,7 @@ class aws_handler():
         aws_id, yt_id, region,  name, tt_mail, yt_mail , ch_name, do_tt, do_yt, add_text = row
 
         do_tt, do_yt = get_tt_and_ty_do(s.sql,ctx, inst_name, row)
-        if not do_tt and not do_yt:
+        if not do_tt and not do_yt or '!' in row[3]:
             logging.info("No TT or YT task to perform, returning")
             return      
 

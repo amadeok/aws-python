@@ -34,7 +34,8 @@ if "check" in args.n:
             rows.append(sql.get_row(elem))
     else:
         for i, row in enumerate(sql.cur.execute('''SELECT * FROM Main ''')):
-            rows.append(row)
+            if not "!" in row[3]:
+                rows.append(row)
     
     def get_instance_state(row, region, instance_id, name):
         #region, instance_id =  row[2], row[0]
@@ -55,7 +56,7 @@ if "check" in args.n:
         t = threading.Thread(target=get_instance_state, args=([i, row], row[2], row[0], row[3]))
         ts.append(t)
         t.start()
-        time.sleep(0.01)
+        time.sleep(0.1)
 
     for tt in ts:
         tt.join()

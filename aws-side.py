@@ -280,7 +280,7 @@ if __name__ == '__main__':
 
     if do_yt and  len(channel_id):
         a.rlog("Starting yt task..")
-        try_task(yt_task, title_hashs, channel_id)
+        try_task(yt_task, title_hashs, channel_id, tries=1)
         close_firefox()
         yt_url = f"https://studio.youtube.com/channel/"+channel_id+"/videos/" 
         start_firefox(yt_url)
