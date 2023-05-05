@@ -24,10 +24,11 @@ audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
 #f = "00002(5).wav"
 #f = "00019v2_s.wav"
 #f = "00024v2_s.wav"
-f = "00026v2_s.wav"
+f = "00032v2_s.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
-input_file_ = r"C:\Users\amade\Documents\dawd\Exported\00034\Mixdown\s_00034(5).wav"
+#input_file_ = r"C:\Users\amade\Documents\dawd\Exported\00034\Mixdown\s_00034(5).wav"
+#input_file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\v2\00028v2.wav"
 
 if not os.path.isfile(input_file_) or not os.path.isfile(input_file_.split(".")[0] + ".ini"):
     raise Exception("input files not found")

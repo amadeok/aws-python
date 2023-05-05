@@ -33,7 +33,7 @@ class context():
         s.black_f = f"{s.input_f.out_fld}\\black_f.mp4".replace("\\\\", "\\")
         s.black_f = s.black_f.replace("\\\\", "\\")
         s.reboot_inst = 1
-        s.stop_inst = 0
+        s.stop_inst = 1
         s.text = None
         s.add_lyrics = True
 
