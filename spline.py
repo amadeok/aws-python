@@ -7,6 +7,27 @@ from collections import namedtuple
 line__ = namedtuple("line", "line opposite name")
 
 class ease_funs():
+
+    def proc(self, i, f):
+        ll_op =None
+        ll = self.get_line(getattr(self, f))
+        if i < 10: 
+            ll_op =  self.get_line(getattr(self, self.function_l[i+10])) # self.get_mirror_fun(ll)
+        elif i < 20: 
+            ll_op =  self.get_line(getattr(self, self.function_l[i-10])) 
+        else: 
+            ll_op = ll
+        #print(ll)
+        #print(ll_op)
+        name = ""
+        if "InOut" in f:
+            name = f.split("InOut")[1]                
+        elif "In" in f:
+            name = f.split("In")[1]                
+        elif "Out" in f:
+            name = f.split("Out")[1]                
+        setattr(self, f+"_yline", line__(ll, ll_op, name))
+    
     def __init__(self) -> None:
         self.clear =True
         self.xrange_start = 0
@@ -17,6 +38,7 @@ class ease_funs():
         self.prev_fun = None
         self.proportion = True
         self.opposite = False
+        self.a, self.b, self.c, self.d, self.e =2, 2, 20, 10, 2
 
         #plt.style.use('dark_background')
         if __name__ == "__main__":
@@ -24,27 +46,10 @@ class ease_funs():
             self.box = self.ax.get_position()
 
         self.function_l = ["easeInSine",  "easeInCubic",  "easeInQuint",  "easeInCirc",  "easeInElastic",  "easeInQuad",  "easeInQuart",  "easeInExpo",  "easeInBack",  "easeInBounce",  
-"easeOutSine",  "easeOutCubic",  "easeOutQuint",  "easeOutCirc",  "easeOutElastic",  "easeOutQuad",  "easeOutQuart",  "easeOutExpo",  "easeOutBack",  "easeOutBounce",  "easeInOutSine",  "easeInOutCubic",  "easeInOutQuint",  "easeInOutCirc",  "easeInOutElastic",  "easeInOutQuad",  "easeInOutQuart",  "easeInOutExpo",  "easeInOutBack",  "easeInOutBounce"]
+"easeOutSine",  "easeOutCubic",  "easeOutQuint",  "easeOutCirc",  "easeOutElastic",  "easeOutQuad",  "easeOutQuart",  "easeOutExpo",  "easeOutBack",  "easeOutBounce",  "easeInOutSine",  "easeInOutCubic",  "easeInOutQuint",  "easeInOutCirc",  "easeInOutElastic",  "easeInOutQuad",  "easeInOutQuart",  "easeInOutExpo",  "easeInOutBack",  "easeInOutBounce", "easeInOutCustom"]
         #self.pre_made_funs = {}
         for i, f in enumerate(self.function_l):
-            ll_op =None
-            ll = self.get_line(getattr(self, f))
-            if i < 10: 
-                ll_op =  self.get_line(getattr(self, self.function_l[i+10])) # self.get_mirror_fun(ll)
-            elif i < 20: 
-                ll_op =  self.get_line(getattr(self, self.function_l[i-10])) 
-            else: 
-                ll_op = ll
-            #print(ll)
-            #print(ll_op)
-            name = ""
-            if "InOut" in f:
-                name = f.split("InOut")[1]                
-            elif "In" in f:
-                name = f.split("In")[1]                
-            elif "Out" in f:
-                name = f.split("Out")[1]                
-            setattr(self, f+"_yline", line__(ll, ll_op, name))
+            self.proc(i, f)
                     
             #self.pre_made_funs[f] = self.get_line(getattr(self, f))
         #xx, yy = self.get_range_spline(self.easeOutBack_yline, 0.4, 1.7, 0.3, 1.3)
@@ -180,6 +185,57 @@ class ease_funs():
     def easeInOutBounce(self, x):
         if x < 0.5: return (1 - self.easeOutBounce(1 - 2 * x)) / 2
         else: return (1 + self.easeOutBounce(2 * x - 1)) / 2;
+
+    def easeInOutCustom(self, x):
+        if x == 0: return 0
+        elif x == 1: return 1
+        elif x < 0.5:return   Math.pow(self.b,  self.c * x - self.d)  / self.e
+        else:return (self.a - Math.pow(self.b, -self.c * x + self.d)) / self.e;
+
+    # class EaseInOutSpline:
+    #     @staticmethod
+    def easeInOutCustom(self, t):
+        speed = 0
+        if t < self.a or t > self.b: 
+            speed = 1
+        accel = 1 / self.a
+        print(t,  " ", t*self.a, " ", t*self.b)
+        if t < self.a:
+            return  t  / self.a
+        elif t > self.b:
+            return (1 - t) / (1-self.b)
+        else: return 1
+        # if t <= 0.0:
+        #     return 0.0
+        # elif t >= 1.0:
+        #     return 1.0
+        # else:
+        #     # Cubic Bezier control points
+        #     # self.a = 0.0
+        #     # self.b = 0.42
+        #     # self.c = 0.58
+        #     # self.d = 1.0
+        #     p1x = self.b *self.d
+        #     p2x = self.c * self.d
+
+        #     u = 1 - t
+        #     tt = t * t
+        #     uu = u * u
+        #     uuu = uu * u
+        #     ttt = tt * t
+
+        #     p = uuu * self.a  # (1 - t)^3 * 0
+        #     p += 3 * uu * t * p1x  # 3 * (1 - t)^2 * t * 0.42
+        #     p += 3 * u * tt * p2x  # 3 * (1 - t) * t^2 * 0.58
+        #     p += ttt * self.d  # t^3 * 1
+
+        #return p
+
+    # Example usage
+    # for t in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+    #     print(f"t = {t}, eased value = {EaseInOutSpline.ease_in_out(t)}")
+
+
     @staticmethod
     def scale(val, src, dst):
         return ((val - src[0]) / (src[1]-src[0])) * (dst[1]-dst[0]) + dst[0]
@@ -211,7 +267,6 @@ class ease_funs():
         if self.clear:
             plt.cla()
         colors = ["#b41313", "#bbc439","#348912","#36a474", "#2890c7", "#0037ff", "#6423c6", "#9541b1", "#9e2c7f", "#000000"]
-
         
         plt.plot(xx, yy, random.choice(colors), label=f"{text.split('ease')[1]} x:[{self.xrange_start},{self.xrange_end}], y:[{self.yrange_start},{self.yrange_end}]")
         
@@ -220,6 +275,7 @@ class ease_funs():
         plt.ylabel('y', color='#1C2833')
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
           fancybox=True, shadow=True, ncol=3)
+
         ax = plt.gca()
         box = ax.get_position()
         ax = self.ax; box = self.box
@@ -232,7 +288,10 @@ class ease_funs():
             ax.set_aspect('auto')#, adjustable='box')
         #if self.prev_fun and self.cur_fun.line != self.prev_fun.line:
         plt.grid()
-        plt.show()
+        print("dwad")
+
+        plt.show(block=False)
+
         # f, ax = plt.subplots()
         # backend = matplotlib.get_backend()
         # if backend == 'TkAgg':
@@ -258,7 +317,12 @@ if __name__ == "__main__":
 
     column_layout1 = [new_layout(elem)[0] for elem in funs.function_l[0:10]]
     column_layout2 = [new_layout(elem)[0] for elem in funs.function_l[10:20]]
-    column_layout3 = [new_layout(elem)[0] for elem in funs.function_l[20:30]]
+    column_layout3 = [new_layout(elem)[0] for elem in funs.function_l[20:31]]
+    #column_layout4 = [new_layout(elem)[0] for elem in funs.function_l[30:31]]
+    def in_(le):
+        return sg.InputText(size=(5,1), key="inp_" + le, enable_events=True)
+    def in_2(le, def_ = 12.2):
+      return  [sg.Slider(range=(0,1), resolution=.01, size=(200,5),  default_value=def_,   expand_x=True, enable_events=True,   orientation='horizontal', key='inp_' + le)]
 
     layout = [
         [sg.T("X Range: "), 
@@ -271,9 +335,13 @@ if __name__ == "__main__":
           sg.Checkbox(text="clear",   enable_events=True, key="-cb-", default=True), 
           sg.Checkbox(text="1:1 proportion",   enable_events=True, key="-1:1 proportion-", default=True),
           sg.Checkbox(text="opposite",   enable_events=True, key="-opposite-", default=False)],
+          [in_2(e, def_=getattr(funs, e)) for e in ["a", "b", "c", "d"]],
         [sg.Column(column_layout1, key='-Column-'),
         sg.Column(column_layout2, key='-Column-'),
-        sg.Column(column_layout3, key='-Column-'),],
+        sg.Column(column_layout3, key='-Column-'),
+      #  sg.Column(column_layout4, key='-Column4-'),
+
+        ],
      #   [sg.Submit(button_text="Update/Insert"), sg.Cancel(button_text="Cancel")],
     ]
 
@@ -282,17 +350,29 @@ if __name__ == "__main__":
     import threading
    # t = threading.Thread(target=funs.graph_loop, args=(event[1], window))
   #  t.start()
+
+
     i = 1
     while True:
         event, values = window.read()
+      #  if event == "__TIMEOUT__": continue
+        if "inp_" in event:
+            le = event.split("_")[1]
+            setattr(funs, le, float(values[event]))
+            funs.proc(31, "easeInOutCustom")
+            funs.graph("easeInOutCustom", window)
+            plt.pause(0.1)
+            
         if event in (sg.WIN_CLOSED, 'Exit', 'Cancel'):
             break
         elif event[0] == '-plus-':
             #time.sleep(1)
             #for elem in l:
-            #    window.extend_layout(window['-Column-'], new_layout(elem))
+            #    window.extend_layout(window['-Column-'], new_layout(elem))&
 
             funs.graph(event[1], window)
+            plt.pause(0.1)
+
 
         elif event == "-cb-":
             funs.clear = not funs.clear
