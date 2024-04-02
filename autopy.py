@@ -22,6 +22,8 @@ class fun_delegate():
     def exec(self):
         cur_time = time.time()
         d = cur_time - self.prev_time 
+        if len(self.args) > 5:
+            raise Exception("fun_delegate is hardcoded to take max 5 args, to do increase")
         if  d > self.interval:        
             if len(self.args) == 0: self.fun()
             elif len(self.args) == 1: self.fun(self.args[0])
@@ -286,7 +288,7 @@ class autopy:
             pyautogui.write(text, interval=interval_)
 
     def find(self, obj_l, loop=-1, search_all=None, timeout=None, confidence=None, region=None, do_until: fun_delegate =None,
-              grayscale=True,  center=True, click=False, store_first=None, check_avee_running=True, timeout_exception=True):
+              grayscale=True,  center=True, click=False, store_first=None, check_avee_running=False, timeout_exception=True):
         
         store_first = self.store_first
         if timeout == None: 

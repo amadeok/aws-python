@@ -219,10 +219,12 @@ class dav_handler():
         #if __name__ == "__main__":
         projectManager = s.resolve.GetProjectManager()
 
-        projectManager.LoadProject("empty") 
+        ret = projectManager.LoadProject("empty") 
+        if not ret:
+            raise Exception("""Davinci error: empty project not found, create an empty project and call it "empty" """) 
         time.sleep(1)
         ret = projectManager.CloseProject(s.ctx.input_f.basename)
-
+        time.sleep(1)
         ret = projectManager.DeleteProject(s.ctx.input_f.basename)
         time.sleep(1)
         projectManager.CreateProject(s.ctx.input_f.basename)
@@ -444,9 +446,9 @@ class dav_handler():
         return getattr(s.ease_funs, random.choice(ll) + "_yline")
 
     def apply_random_transition(s, i, transition_frame, dir, cur_list):
-        expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
-        factor = s.clip_end / expected_clip_end
-        transition_frame = transition_frame*factor
+        # expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
+        # factor = s.clip_end / expected_clip_end
+        # transition_frame = transition_frame*factor
         logging.info(f"Applying transition {i}, at frame {transition_frame}, direction: {dir}")
         r = random.uniform; r2 = random.randint
         t_d = r(0.5, 0.8)
@@ -529,7 +531,7 @@ class dav_handler():
             curve_list.append([getattr(s.ease_funs, elem + "_yline") for elem in shuffled_l] )
 
         for i in range(0, s.ctx.tot_transitions):
-            s.apply_random_transition(i, i*s.ctx.transition_delta, dir_list[i], curve_list)
+            s.apply_random_transition(i, s.ctx.avee_fragments_info[i].frame_end, dir_list[i], curve_list) # i*s.ctx.transition_delta
 
     def render(s, codec):
         s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4", "AudioSampleRate": random.choice([48000, 44100]) })

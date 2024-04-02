@@ -130,3 +130,59 @@ taskkill /IM LDPlayer.exe
 adb shell input text 00043(3)
 
 rife torch torch-1.13.1+cu116
+
+
+----------------------------------------
+
+
+"C:\Users\amade\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe" "https://studio.youtube.com/channel/UCg_-P7-Kkmgg7ehNzV2jQZQ/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D"  --profile-directory="Profile 1"
+
+"C:\Users\amade\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe" "https://studio.youtube.com/channel/UCRFWvTVdgkejtxqh0jSlXBg/videos/upload?d=ud&filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D" --profile-directory="Default"
+
+
+edge://version
+
+
+
+<button class="css-byn4hh" aria-label="Select file"><div class="css-1db5cpb"><div class="css-1z070dx">Select file</div></div></button>
+
+
+ F:\LDPlayer\LDPlayer9\adb.exe shell pm list packages -f | grep instagram
+ F:\LDPlayer\LDPlayer9\adb.exe  com.instagram.android/.activity.MainTabActivity
+ F:\LDPlayer\LDPlayer9\adb.exe shell am start -n com.instagram.android/.activity.MainTabActivity
+
+ F:\LDPlayer\LDPlayer9\adb.exe shell dumpsys package com.instagram.android | grep -i activity
+ F:\LDPlayer\LDPlayer9\adb.exe shell dumpsys package com.lonelycatgames.Xplore | grep -i activity
+
+ F:\LDPlayer\LDPlayer9\adb.exe  shell dumpsys activity activities | grep mResumedActivity
+
+ F:\LDPlayer\LDPlayer9\adb.exe  shell "dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp'"
+
+adb shell am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/123.mkv -n com.instagram.android/.activity.MainTabActivity
+
+
+
+
+adb shell am start -a android.intent.action.VIEW -n com.android.gallery3d/.app.GalleryActivity
+adb shell am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/1234.mp4 -n com.lonelycatgames.Xplore/.Browser
+
+
+adb shell am start -a android.intent.action.VIEW -d "file:////mnt/shared/Pictures/20240318_170455.mp4"
+
+adb shell am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/20240318_170455.mp4 -n com.lonelycatgames.Xplore/.Browser
+
+adb shell am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/20240318_170455.mp4 -n com.instagram.android/.activity.MainTabActivity
+
+adb shell am start -a android.intent.action.VIEW -d file:///mnt/shared/Pictures/20240318_170455.mp4 -n com.instagram.android/com.instagram.share.handleractivity.ShareHandlerActivity
+
+
+
+adb shell am broadcast    -a android.intent.action.MEDIA_SCANNER_SCAN_FILE   -d file:///mnt/shared/Pictures/20240318_170455.mp4
+
+adb shell am broadcast    -a android.intent.action.MEDIA_SCANNER_SCAN_FILE   -d file:///mnt/shared/Pictures/1234.mp4
+
+
+
+adb -s emulator-5554 push "C:\Users\amade\Videos\20240318_170455.mp4" /mnt/shared/Pictures/1234.mp4
+adb shell am start -n com.android.gallery3d/.app.GalleryActivity
+adb shell am start -a android.intent.action.VIEW -n com.instagram.android/.activity.MainTabActivity

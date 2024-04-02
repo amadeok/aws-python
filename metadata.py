@@ -6,7 +6,7 @@ from random_word import RandomWords
 r = RandomWords()
 
 target_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\osa1_00024v2_s\00024v2_s_joined.mp4"
-cmd = f"""exiftool -Encoder="ave3e"  Graphics Mode {target_f}  -overwrite_original"""
+cmd = f"""exiftool\exiftool.exe -Encoder="ave3e"  Graphics Mode {target_f}  -overwrite_original"""
 
 #fields = ["ExifToolVersionNumber","MIME Type","GraphicsMode","MediaLanguageCode","MajorBrand","HandlerDescription","OtherFormat","HandlerType","HandlerVendorID","Encoder"]
 fields = ["MIME Type", "Encoder"]
@@ -16,7 +16,7 @@ def format(f):
     return f'-"{f}"={ran}'
 
 def randomize_metadata(file):
-    cmd_l = ["exiftool"]
+    cmd_l = ["exiftool\exiftool.exe"]
     for f in fields:
         cmd_l.append(format(f))
     
@@ -31,3 +31,7 @@ def randomize_metadata(file):
     
 
 #randomize_metadata(target_f)
+    
+if __name__ == "__main__":
+    randomize_metadata(r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\rom0!_00033v2_s\00033v2_s_dav.mp4")
+    print("main")

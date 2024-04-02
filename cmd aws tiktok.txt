@@ -147,3 +147,6 @@ So, set your password.
 ###############
 to get barrier working:
 disable ssl on both pcs
+
+
+

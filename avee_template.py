@@ -55,6 +55,9 @@ except: pass
 
 out = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\\"
 
+device = "emulator-5554"
+adb_binary =  r"F:\LDPlayer\LDPlayer9\adb.exe"
+base = f"{adb_binary}  -s {device} shell "
 
 os.system("adb start-server ")
 os.system("adb start-server ")
@@ -67,9 +70,13 @@ template_cmd = f'{base} am start -a android.intent.action.VIEW -d "{template_fil
 
 from pynput.keyboard import Key, Listener
 
+def adb(cmd):
+    cmd_ = base + cmd
+    os.system(cmd_)
+
 text = ""
 #template_ = ""
-template_index = 0
+template_index = 76
 
 def templ_cmd(templ):
     template_file_path = "file:///mnt/shared/Pictures/AveeTemplate_normal/" + shlex.quote(templ.win_name) # CX%20liquify.viz"
@@ -125,6 +132,12 @@ def lis(): # Collect events until released
             ) as listener:
         listener.join()
 
+def reset_settings():
+    settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
+    for f in os.listdir(settings_f):
+        bb = f"{adb_binary}  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
+        os.system(bb)
+        
 t= threading.Thread(target=lis)
 t.start()
 

@@ -2,6 +2,20 @@ from avee_utils import name_storage
 from configparser import ConfigParser
 from avee_utils import *
 import queue, app_logging, logging, shutil, sql_utils, aws_python, dav
+import json
+
+class avee_fragment():
+    def __init__(self, ctx, audio_start, audio_end) -> None:
+        self.audio_start = audio_start 
+        self.audio_end = audio_end 
+        self.dur = self.audio_end - self.audio_start #ctx.time_per_beat*ctx.beats_per_bar*ctx.bars_per_template#  self.abs_end - self.abs_start 
+        self.dur_fps = self.dur*ctx.fps
+        self.frame_start = audio_start*ctx.fps
+        self.frame_end =  audio_end*ctx.fps
+    def __repr__(self) -> str:
+        return " ".join([f'{key}: {value}' for key, value in vars(self).items() if not key.startswith('__')])
+    
+
 
 class context():
     def __init__(s, instance_name, input_file, extra_frames) -> None:
@@ -20,7 +34,8 @@ class context():
         s.bars = config.getint('main', 'bars')
         s.bars_per_template = config.getint('main', 'bars_per_template')
         s.beats_per_bar = config.getint('main', 'beats_per_bar')
-
+        s.avee_custom_lenghts = json.loads(config.get('main', 'avee_custom_lenghts', fallback="{}"))
+        
         s.td_start = datetime.timedelta(minutes=s.s_m, seconds=s.s_sec, milliseconds=s.s_ms)
         s.fps = 60 #59940/1000
         s.time_per_beat = (60/s.bpm)
@@ -28,7 +43,8 @@ class context():
         s.frames_per_bar = s.frames_per_beat * s.beats_per_bar
         s.transition_delta = s.frames_per_bar * s.bars_per_template
         s.tot_transitions = s.bars // s.bars_per_template
-
+        s.default_dur = s.time_per_beat*s.beats_per_bar*s.bars_per_template
+        
         s.nb_tasks = s.bars//s.bars_per_template
         s.black_f = f"{s.input_f.out_fld}\\black_f.mp4".replace("\\\\", "\\")
         s.black_f = s.black_f.replace("\\\\", "\\")
@@ -36,6 +52,20 @@ class context():
         s.stop_inst = 1
         s.text = None
         s.add_lyrics = True
+        
+        s.avee_fragment_lenghts = [None  for x in range(s.tot_transitions)]
+        for key, value in s.avee_custom_lenghts.items():
+            s.avee_fragment_lenghts[int(key)] = value["dur"]
+            print(key, ':', value)
+        s.avee_fragment_lenghts = [elem if elem else s.default_dur  for elem in s.avee_fragment_lenghts]
+        s.avee_fragments_info = []
+        
+        stream_pos = 0
+        for i, cur_dur in enumerate(s.avee_fragment_lenghts):
+            s.avee_fragments_info.append( avee_fragment(s, stream_pos, stream_pos+cur_dur ))
+            stream_pos+=cur_dur
+        print()
+            
 
 
 
@@ -113,21 +143,40 @@ def init_task(instance, input_file, sql, extra_frames):
 
     return (ctx, True)
 
-def general_task(instance, input_file, sql, extra_frames):
+def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
 
     t0 = time.time()
 
-    ctx, do = init_task(instance, input_file, sql, extra_frames)
+    ctx, do = init_task(instance, input_file, sql, extra_frames_)
     if not do: return
 
-    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, extra_frames=ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar)
+    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar)
 
     davinci = dav.dav_handler(ctx)
-    
-    aws = aws_python.aws_handler(sql)# aws.local=0
-    aws.aws_task( ctx, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
+    if do_aws:
+        aws = aws_python.aws_handler(sql)# aws.local=0
+        aws.aws_task( ctx, hashtags=app_logging.get_hashtags(random.randint(2,3) )) #aws.aws_task( ctx, reboot_inst=1, stop_instance=False, hashtags=app_logging.get_hashtags(7), do_yt="f", yt_ch_id="UCRFWvTVdgkejtxqh0jSlXBg")
 
     t4 = time.time()
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
 
+def general_task(input_file, extra_frames_, add_text, upload=False):
+
+    t0 = time.time()
+
+    ctx = context(None, input_file, extra_frames_)
+    
+    ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
+
+    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, ctx.avee_fragments_info, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar, fps=ctx.fps)
+
+    davinci = dav.dav_handler(ctx)
+    if upload:
+        pass #TO DO
+        # aws = aws_python.aws_handler(sql)# aws.local=0
+        # aws.aws_task( ctx, hashtags=app_logging.get_hashtags(random.randint(2,3) )) 
+
+    t4 = time.time()
+
+    logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")

@@ -9,7 +9,7 @@ from autopy import background_screenshot, receive_screen_shot_from_phone
 import time, shlex, random, numpy as np
 from urllib.parse import quote
 from collections import namedtuple
-import seaborn as sns
+import seaborn as sns            
 from avee_utils import *
 import dav, app_logging
 from configparser import ConfigParser
@@ -24,7 +24,7 @@ audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
 #f = "00002(5).wav"
 #f = "00019v2_s.wav"
 #f = "00024v2_s.wav"
-f = "00033v2_s.wav"
+f = "00039.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
 #input_file_ = r"C:\Users\amade\Documents\dawd\Exported\00034\Mixdown\s_00034(5).wav"
@@ -43,10 +43,10 @@ for  row in sql.cur.execute('''SELECT * FROM Main '''):
 
 fr_l = [n+5 for n in range(len(rows))]; assert (not 0 in fr_l) #len(rows)//2 
 random.shuffle(fr_l)
-multithread = True
+multithread = False
 #rows  = [sql.get_row("rom0!")]
 
-def main(do_aws=1):
+def main_aws(do_aws=1):
     threads = []
     if multithread:
         threads.append(threading.Thread(target=avee_worker, args=(rows, input_file_, fr_l)))
@@ -61,6 +61,9 @@ def main(do_aws=1):
         
     else:
         for  i, row in enumerate(rows):
-            general_task(row[3], input_file_, sql, fr_l[i])
+            general_task_aws(row[3], input_file_, sql, fr_l[i], do_aws)
 
-main(do_aws=1)
+def main(upload=False):
+    general_task(input_file_,  fr_l[0], add_text=True)
+
+main(upload=0)

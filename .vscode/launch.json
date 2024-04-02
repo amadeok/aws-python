@@ -6,10 +6,15 @@
     "configurations": [
         {
             "name": "vnc help",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "vnc_help.py",
-            "args": ["-n", "ohio0", "-s", "1"],
+            "args": [
+                "-n",
+                "ohio0",
+                "-s",
+                "1"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -22,7 +27,7 @@
         },
         {
             "name": "Python: file corrente",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -33,5 +38,18 @@
                 "PYTHONPATH": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310;C:\\ProgramData\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules\\"
             }
         },
+        {
+            "name": "PY:general_task()",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                // "RESOLVE_SCRIPT_API": "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting",
+                //"RESOLVE_SCRIPT_LIB": "C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\fusionscript.dll",
+                "PYTHONPATH": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310;C:\\ProgramData\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules\\"
+            }
+        }
     ]
 }

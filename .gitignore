@@ -28,3 +28,7 @@ __pycache__/
 new 8.txt
 exiftool/
 1920x1080_black.mp4
+gui/eel/node_modules/
+gui/eel/build/
+gui/eel/.env
+gui/eel/dist/
