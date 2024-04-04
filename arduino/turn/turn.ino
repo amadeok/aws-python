@@ -11,15 +11,16 @@ void setup() {
   pinMode(ledPin, OUTPUT);
 
 }
+int initMins = 5;
 
 void loop() {
-    delay(5000);
+    delay(initMins*60*1000);
 
-  // Press the "A" key
+  // Press the "A" keya
   Keyboard.press('a');
   // Blink the LEDaa
   digitalWrite(ledPin, HIGH); // Turn on the LED
-  digitalWrite(pcPowerPin, LOW); // Turn on the LEDaaaaa
+  digitalWrite(pcPowerPin, LOW); // Turn on the LED
 
   delay(500); // Wait for a short duration
   digitalWrite(ledPin, LOW); // Turn off the LED
