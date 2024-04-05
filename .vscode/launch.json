@@ -39,6 +39,14 @@
             }
         },
         {
+            "name": "Python not just my code",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
             "name": "PY:general_task()",
             "type": "debugpy",
             "request": "launch",
