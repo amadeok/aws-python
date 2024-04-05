@@ -1,6 +1,10 @@
 import socket
 
+import pyautogui
+import pyscreeze
 
+print("pyautogui version:", pyautogui.__version__)
+print("pyscreeze version:", pyscreeze.__version__)
 def server_program():
     # get the hostname
     host = socket.gethostname()
