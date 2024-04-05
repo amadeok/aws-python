@@ -32,3 +32,5 @@ gui/eel/node_modules/
 gui/eel/build/
 gui/eel/.env
 gui/eel/dist/
+__pycache__/boto3_utils.cpython-310.pyc
+.env
