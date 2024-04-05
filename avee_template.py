@@ -19,6 +19,8 @@ import seaborn as sns, webcolors
 #!/usr/bin/env python
 
 from avee_utils import *
+import app_env
+
 
 #a = r"C:\Program Files\WindowsApps\11314DaawAww.AveePlayer_0.8.25.0_x64__3mhsykt1m20fj\BleuPlayer.UWP.exe"
 
@@ -29,8 +31,8 @@ from avee_utils import *
 
 
 
-template_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\AveeTemplate_normal\\"
-audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
+template_fld = f"{app_env.ld_shared_folder}\AveeTemplate_normal\\"
+audio_fld = f"{app_env.ld_shared_folder}\\"
 fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
 
 nt = namedtuple("name_storage", "android_name win_name basename dirpath")
@@ -53,7 +55,7 @@ template =  "The fuzzy lear.viz"#random.choice(template_list).win_name
 try: os.mkdir("tmp")
 except: pass
 
-out = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\\"
+out = f"{app_env.ld_shared_folder}\output\\"
 
 device = "emulator-5554"
 adb_binary =  r"F:\LDPlayer\LDPlayer9\adb.exe"
@@ -133,7 +135,7 @@ def lis(): # Collect events until released
         listener.join()
 
 def reset_settings():
-    settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
+    settings_f = f"{app_env.ld_shared_folder}\shared_prefs"
     for f in os.listdir(settings_f):
         bb = f"{adb_binary}  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
         os.system(bb)
@@ -144,7 +146,7 @@ t.start()
 adb("am force-stop com.daaw.avee")
 time.sleep(0.5)
 reset_settings()
-settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
+settings_f = f"{app_env.ld_shared_folder}\shared_prefs"
 for f in os.listdir(settings_f):
     bb = "adb  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
     os.system(bb)

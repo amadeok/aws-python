@@ -53,23 +53,66 @@ def point_displacement(point, vec, disp):
     unit_vec = vec / nn
     return point + disp * unit_vec
 
+from fontTools.ttLib import TTFont
+
+def get_available_fonts():
+    available_fonts = []
+    # Replace the directory path with the appropriate path for your system
+    font_directory = "/usr/share/fonts"  # Example directory on Linux, could be different on other systems
+
+    # Iterate over font files in the directory
+    for font_file in os.listdir(font_directory):
+        if font_file.endswith(".ttf"):  # Adjust if your fonts are in a different format
+            font_path = os.path.join(font_directory, font_file)
+            try:
+                font = TTFont(font_path)
+                font_name = font['name'].getName(1, 3, 1).string.decode('utf-16')
+                available_fonts.append(font_name)
+            except Exception as e:
+                print(f"Error parsing {font_path}: {e}")
+
+    return available_fonts
+
+
+import winreg
+
+def get_available_fonts_win():
+    fonts_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts")
+    num_fonts = winreg.QueryInfoKey(fonts_key)[1]
+    available_fonts = []
+    for i in range(num_fonts):
+        font_name, font_path = winreg.EnumValue(fonts_key, i)[:2]
+        available_fonts.append((font_name, font_path))
+    winreg.CloseKey(fonts_key)
+    return available_fonts
+
+# available_fonts = get_available_fonts_win()
+# print("Available fonts:")
+# for font_name, font_path in available_fonts:
+#     print(f"{font_name}: {font_path}")
 
 
 class dav_handler():
     def __init__(s, ctx, codec="H264", overwrite=0) -> None:
-        
+
         if os.path.isfile(ctx.input_f.dav_final_file) and not overwrite:
             logging.info("Dav file already exists, returning")
             return 
+        assert(os.path.isfile(ctx.input_f.avee_final_file))
 
         assert(codec == "H264" or codec== "H264_NVIDIA")
 
         t2 = time.time()
-        s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
+
         s.ctx = ctx
         s.text = ctx.text
 
         s.init()
+
+        #s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
+        font_list = s.fusion.FontManager.GetFontList()
+        s.fonts = list(font_list.keys())
+
         # aa3 = s.project.GetCurrentRenderFormatAndCodec()
 
         s.ease_funs = spline.ease_funs()
@@ -248,8 +291,8 @@ class dav_handler():
         clips = []
         for x in range(10): 
             added = s.MediaStorage.AddItemListToMediaPool(s.ctx.input_f.avee_final_file)
-            added2 = s.MediaStorage.AddItemListToMediaPool(s.ctx.black_f)
-            assert(len(added2))
+            # added2 = s.MediaStorage.AddItemListToMediaPool(s.ctx.black_f)
+            # assert(len(added2))
             clips = s.folder.GetClipList()
             if len(clips) == 0:
                 logging.info(f"error clip list is empty")
@@ -557,7 +600,7 @@ class dav_handler():
 
 if __name__ == "__main__3":
     print("hello")
-    audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
+    audio_fld = f"{app_env.ld_shared_folder}\\"
 
     nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 

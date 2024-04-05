@@ -15,20 +15,26 @@ import dav, app_logging
 from configparser import ConfigParser
 import sql_utils
 from base import *
+import app_env
+import pyautogui
+import pyscreeze
 
-audio_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\\"
+print("pyautogui version:", pyautogui.__version__)
+print("pyscreeze version:", pyscreeze.__version__)
+
+audio_fld = f"{app_env.audio_folder}\\"
 
 #nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 #audio_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(audio_fld) if ".wav" in elem or ".mp3" in elem]
 
 #f = "00002(5).wav"
 #f = "00019v2_s.wav"
-#f = "00024v2_s.wav"
-f = "00039.wav"
+f = "00024v2_s.wav"
+#f = "00039.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
 #input_file_ = r"C:\Users\amade\Documents\dawd\Exported\00034\Mixdown\s_00034(5).wav"
-#input_file_ = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\v2\00028v2.wav"
+#input_file_ = f"{app_env.ld_shared_folder}\v2\00028v2.wav"
 
 if not os.path.isfile(input_file_) or not os.path.isfile(input_file_.split(".")[0] + ".ini"):
     raise Exception("input files not found")
@@ -46,6 +52,7 @@ random.shuffle(fr_l)
 multithread = False
 #rows  = [sql.get_row("rom0!")]
 
+
 def main_aws(do_aws=1):
     threads = []
     if multithread:
@@ -57,7 +64,7 @@ def main_aws(do_aws=1):
         for tt in threads:
             tt.join()
         #to fix the wrong "end at" bug in avee
-        os.system("adb -s emulator-5554 push "+  r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00034.wav" + " /mnt/sdcard/Pictures/00001.wav")
+        os.system("adb -s emulator-5554 push "+  f"{app_env.ld_shared_folder}\00034.wav" + " /mnt/sdcard/Pictures/00001.wav")
         
     else:
         for  i, row in enumerate(rows):

@@ -3,6 +3,7 @@ from configparser import ConfigParser
 from avee_utils import *
 import queue, app_logging, logging, shutil, sql_utils, aws_python, dav
 import json
+import app_env
 
 class avee_fragment():
     def __init__(self, ctx, audio_start, audio_end) -> None:
@@ -21,7 +22,7 @@ class context():
     def __init__(s, instance_name, input_file, extra_frames) -> None:
         s.instance_name = instance_name
         s.extra_frames = extra_frames
-        s.out_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\\"
+        s.out_fld = f"{app_env.output_folder}"
         s.input_f = name_storage(input_file,  s.out_fld, s.instance_name)
         config = ConfigParser()
         ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
@@ -75,8 +76,8 @@ aws_queue = queue.Queue()
 
 def avee_worker(rows, input_file, fr_l, add_lyrics=True):
     logging.info("Avee worker started")
-    shutil.copy(r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00034.wav", r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00001.wav")
-    assert(get_duration(r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00001.wav", "Audio") > 60*1000)
+    shutil.copy(f"{app_env.ld_shared_folder}\00034.wav", f"{app_env.ld_shared_folder}\00001.wav")
+    assert(get_duration(f"{app_env.ld_shared_folder}\00001.wav", "Audio") > 60*1000)
 
     sql =  sql_utils.sql_()
     for  i, row in enumerate(rows):

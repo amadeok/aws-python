@@ -17,7 +17,6 @@ while 1:
     #ac.write_custom(updateIntervalCode, [2])
     ac.write_custom(setBeepOnBlink, [0])
 
-
     # ac.mouse_move((n,n))
     break
     n+=1

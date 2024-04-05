@@ -23,7 +23,7 @@ import time, shlex, shutil
 import pywinauto, ctypes,win32process
 from urllib.parse import quote
 from collections import namedtuple
-
+import app_env
 
 def get_frame_count(file_path):
     # result = sp.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-count_frames', '-show_entries', 'stream=nb_frames', '-of', 'default=nokey=1:noprint_wrappers=1', file_path], stdout=sp.PIPE, stderr=sp.PIPE, universal_newlines=True)
@@ -64,8 +64,8 @@ def join_video_files(folder_path, output_file, lengths, audio_file):
     os.remove(tmp_no_audio)
 
     
-# folder_path = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\None_00024v2_s\tmp"
-# output_file = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\None_00024v2_s\\"+'\\output.mp4'
+# folder_path = f"{r"app_env.ld_shared_folder}\\output\\None_00024v2_s\\tmp"
+# output_file = f"{r"app_env.ld_shared_folder}\\output\\None_00024v2_s\\"+'\\output.mp4'
 #join_video_files(folder_path, output_file)
 # #a = r"C:\Program Files\WindowsApps\11314DaawAww.AveePlayer_0.8.25.0_x64__3mhsykt1m20fj\BleuPlayer.UWP.exe"
 
@@ -113,8 +113,18 @@ class name_storage():
 #hwnd, ld_win= restart_ld_player(hwnd = None )
 nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
+def is_ffmpeg_installed():
+    try:
+        sp.run(['ffmpeg', '-version'], stdout=sp.PIPE, stderr=sp.PIPE)
+        return True
+    except FileNotFoundError:
+        return False
+
+
+    
+
 class avee_context():
-    template_fld = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\AveeTemplate_normal\\"
+    template_fld = f"{app_env.ld_shared_folder}\\AveeTemplate_normal"
     template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld) if ".viz" in elem]
     
     def __init__(s, wid, hei, prefix, autopyFld) -> None:
@@ -128,7 +138,9 @@ class avee_context():
         s.a.default_region = s.rg
         
         s.device = "emulator-5554"
-        s.adb_binary =  r"F:\LDPlayer\LDPlayer9\adb.exe"
+        s.adb_binary =  app_env.config["ADB_BINARY"]
+        assert(os.path.isfile(s.adb_binary))
+        assert(is_ffmpeg_installed())
         s.base = f"{s.adb_binary}  -s {s.device} shell "
 
         s.sleep_t = 0.1
@@ -209,13 +221,13 @@ class avee_context():
         if not s.is_avee_running():
             logging.debug("Avee not running, starting")
             os.system(f"{s.base} am start -a android.intent.action.VIEW -n com.daaw.avee/.MainActivity")
-            ret = s.a.find(s.a.i.speaker, timeout=40, loop=3, region=s.r, check_avee_running=False)
+            ret = s.a.find(s.a.i.speaker, timeout=40, loop=3, region=s.rg, check_avee_running=False)
             time.sleep(4)
         else:
             logging.debug("Avee running")
 
     def reset_settings(s):
-        settings_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\shared_prefs"
+        settings_f = f"{app_env.ld_shared_folder}\\shared_prefs"
         for f in os.listdir(settings_f):
             bb = f"{s.adb_binary}  -s emulator-5554 shell" + f" su -c 'cp /storage/emulated/0/Pictures/shared_prefs/{f} /data/data/com.daaw.avee/shared_prefs;'"
             os.system(bb)
@@ -254,10 +266,10 @@ class avee_context():
         global t0; 
         logging.debug(f"Tab scrolling ")
         
-        #found  = s.a.find(s.a.i.end_check, loop=1, region=s.r, grayscale=True)
+        #found  = s.a.find(s.a.i.end_check, loop=1, region=s.rg, grayscale=True)
         #if not found: raise Exception("End time of avee is not 1:55")
 
-        found = s.a.find(s.a.i.file_name, loop=3, region=s.r, grayscale=True)
+        found = s.a.find(s.a.i.file_name, loop=3, region=s.rg, grayscale=True)
         x =s.xcoor(found.found[0]+141)
         y = s.ycoor(found.found[1])
         cmd = f'"input tap {x} {y}& sleep 0.1; input tap {x} {y}"'
@@ -295,6 +307,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
     
     os.system(f"{adb_binary} start-server ")
     os.system(f"{adb_binary} start-server ")
+
     while "'emulator-5554' not found" in str(sub_output(base + " ls")):
         time.sleep(1)
     if not os.path.isdir(os.path.join(target_file.out_fld, "tmp")): os.makedirs(os.path.join(target_file.out_fld, "tmp"))
@@ -315,6 +328,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
 
     wait_for_device()
     os.system(f"ffmpeg -i {target_file.input_path } -ss {start} -t {dur} tmp\\{target_file.win_name} -y")
+    assert(os.path.isfile(f"tmp\\{target_file.win_name}" ))
     adb("mkdir /mnt/sdcard/Pictures/output ")
     adb("mkdir /mnt/shared/Pictures/input ")
     adb("mkdir /mnt/shared/Pictures/input/audio ")
@@ -381,8 +395,8 @@ def avee_task(target_file, template_file, start, dur, suffix):
     #cmd = "mv " + f'"/mnt/sdcard/Pictures/output/{target_file.android_basename }_{suffix:02d}_0.mp4"' +  f" /mnt/shared/Pictures/output/{target_file.android_basename }/tmp/"+ target_file.android_basename  + f"_{suffix:02d}.mp4" 
 
     adb(cmd)
-    src = f"C:\\Users\\amade\\Documents\\XuanZhi9\\Pictures\\output\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
-    dst = f"C:\\Users\\amade\\Documents\\dawd\\lofi1\\lofi\\Mixdown\\output\\{inst_name}_{target_file.android_basename }\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
+    src = f"{app_env.ld_shared_folder}\\output\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
+    dst = f"{app_env.output_folder}\\{inst_name}_{target_file.android_basename }\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
     shutil.move(src, dst)
     if found: #and  
         if found == a.i.exporting_finished:
@@ -391,6 +405,10 @@ def avee_task(target_file, template_file, start, dur, suffix):
             adb(f'input tap  {actx.xcoor(found.found[0]) +240 } {actx.ycoor(found.found[1] + 158)}')
 
         adb(f'input tap  {440} {610}')
+
+    adb(f'input keyevent KEYCODE_HOME')
+
+
 
 
 def handle_extra_frames(extra_fames, input_file, nb_tasks, black_f):

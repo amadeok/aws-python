@@ -2,10 +2,11 @@ import random
 import subprocess
 import os
 from random_word import RandomWords
+import app_env
 
 r = RandomWords()
 
-target_f = r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\osa1_00024v2_s\00024v2_s_joined.mp4"
+target_f = f"{app_env.ld_shared_folder}\\output\\osa1_00024v2_s\\00024v2_s_joined.mp4"
 cmd = f"""exiftool\exiftool.exe -Encoder="ave3e"  Graphics Mode {target_f}  -overwrite_original"""
 
 #fields = ["ExifToolVersionNumber","MIME Type","GraphicsMode","MediaLanguageCode","MajorBrand","HandlerDescription","OtherFormat","HandlerType","HandlerVendorID","Encoder"]
@@ -33,5 +34,5 @@ def randomize_metadata(file):
 #randomize_metadata(target_f)
     
 if __name__ == "__main__":
-    randomize_metadata(r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\rom0!_00033v2_s\00033v2_s_dav.mp4")
+    randomize_metadata(f"{app_env.ld_shared_folder}\output\rom0!_00033v2_s\00033v2_s_dav.mp4")
     print("main")
