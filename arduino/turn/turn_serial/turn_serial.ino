@@ -24,6 +24,7 @@ unsigned long long start2 = start;
 unsigned long long startPress = start;
 
 const int PIN_BEEP_REM = 3;
+char buffer[120];
 
 void setup() {
   pinMode(PC_POWER_PIN, OUTPUT);
@@ -37,10 +38,11 @@ void setup() {
     pinMode(proMicroLED_pin, OUTPUT);  // Set RX LED as an output
     LED_PIN = proMicroLED_pin;
   }
-  for (int n = 0; n < 2; n++) {
-    blink(1, 300, 100, 700);
-    blink(1, 300, 100, 1000);
-  }
+  if (0)
+    for (int n = 0; n < 2; n++) {
+      blink(1, 300, 100, 700);
+      blink(1, 300, 100, 1000);
+    }
   digitalWrite(resetPin, HIGH);
   delay(200);
   pinMode(resetPin, OUTPUT);
@@ -121,22 +123,22 @@ void loop() {
 
   unsigned long elapsedMs2 = ct - start2;
   unsigned long remMs2 = blinkRemTimeIntervalMs - elapsedMs2;
+  if (1)
+    if (elapsedMs2 > blinkRemTimeIntervalMs) {
+      // Serial.println("trigger");
+      bool beep = beepOrNot();
 
-  if (elapsedMs2 > blinkRemTimeIntervalMs) {
-    // Serial.println("trigger");
-    bool beep = beepOrNot();
+      if (hours || tensOfMinutes) {
+        blink(hours, 500, 300, beep ? 500 : 0);
+        delay(1000);
+        blink(tensOfMinutes, 150, 150, beep ? 700 : 0);
+      } else if (minutes >= 2)
+        blink(4, 75, 75, beep ? 900 : 0);
+      else
+        blink(20, 75, 75, beep ? 1000 : 0);
 
-    if (hours || tensOfMinutes) {
-      blink(hours, 500, 300, beep ? 500 : 0);
-      delay(1000);
-      blink(tensOfMinutes, 150, 150, beep ? 700 : 0);
-    } else if (minutes >= 2)
-      blink(4, 75, 75, beep ? 900 : 0);
-    else
-      blink(20, 75, 75, beep ? 1000 : 0);
-
-    start2 = millis();
-  }
+      start2 = millis();
+    }
 
   if (bPressEnter) {
     unsigned long elapsedMsPress = ct - startPress;
@@ -223,6 +225,30 @@ void loop() {
               break;
             case 40011:
               bBeepRemainerTime = serial_read_2bytes();
+              break;
+            case 40012:
+              y = serial_read_2bytes();
+              unsigned long intervalMins_ = intervalMins;
+              unsigned long ct_ = millis() /1000;
+              unsigned long *ptrArray[] = {
+                &intervalMins_,
+                &targetMs,
+                &elapsedMs,
+                &remMs,
+                &hours,
+                &minutes,
+                &tensOfMinutes,
+                &ct_
+              };
+              //blink(13, 150, 50, 0);
+              int s = 4;// sizeof(ptrArray[0])
+              for (int n =  0; n < sizeof(ptrArray); n++)
+              memcpy(buffer+ s*n, ptrArray[n], s);
+              // for (int n = 0; n < 1; n++){
+              //   unsigned char cc = buffer[n];
+              Serial.write(buffer, 120);
+              // }
+
               break;
             default:
               move_click(x, y);
