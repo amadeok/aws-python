@@ -26,26 +26,30 @@ unsigned long long startPress = start;
 const int PIN_BEEP_REM = 3;
 char buffer[120];
 
+
+
 void setup() {
+  pinMode(PIN_BEEP_REM, INPUT_PULLUP);
+
+  blink(2, 100, 100, 1200);
+
   pinMode(PC_POWER_PIN, OUTPUT);
   digitalWrite(PC_POWER_PIN, HIGH);
   waitMs = intervalMins * 60;
   waitMs *= 1000;
   debugMs *= 1000;
-  pinMode(PIN_BEEP_REM, INPUT_PULLUP);
+
 
   if (using_pro_micro) {
     pinMode(proMicroLED_pin, OUTPUT);  // Set RX LED as an output
     LED_PIN = proMicroLED_pin;
   }
-  if (0)
+  if (1)
     for (int n = 0; n < 2; n++) {
       blink(1, 300, 100, 700);
       blink(1, 300, 100, 1000);
     }
-  digitalWrite(resetPin, HIGH);
   delay(200);
-  pinMode(resetPin, OUTPUT);
 
   Serial.begin(115200);
   Serial.setTimeout(1);
@@ -153,6 +157,8 @@ void loop() {
   }
 
   String s;
+  // if (Serial.availableForWrite() < 1)
+  //   blink(10, 250, 50, 500);
 
   if (Serial.available()) {
     switch (serialStatus) {
@@ -188,6 +194,11 @@ void loop() {
               AbsMouse.move(x, y);
               break;
             case 30005:
+
+              x = serial_read_2bytes();
+              y = serial_read_2bytes();
+              AbsMouse.init(x, y);
+              bPressEnter = false;
               for (int n_counter = 0; n_counter < 10; n_counter++) {
                 digitalWrite(LED_PIN, HIGH);
                 if (n_counter % 2 == 0)
@@ -197,16 +208,12 @@ void loop() {
                 digitalWrite(LED_PIN, LOW);
                 delay(50);
               }
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              AbsMouse.init(x, y);
-              bPressEnter = false;
 
               break;
             case 30006:
-              delay(10);
-              digitalWrite(resetPin, LOW);
-              delay(10);
+              // delay(10);
+              // digitalWrite(resetPin, LOW); //reset can be done opening and closing serial with baud 1200
+              // delay(10);
               break;
             case 30007:  // right click
               x = serial_read_2bytes();
@@ -229,7 +236,7 @@ void loop() {
             case 40012:
               y = serial_read_2bytes();
               unsigned long intervalMins_ = intervalMins;
-              unsigned long ct_ = millis() /1000;
+              unsigned long ct_ = millis() / 1000;
               unsigned long *ptrArray[] = {
                 &intervalMins_,
                 &targetMs,
@@ -241,9 +248,9 @@ void loop() {
                 &ct_
               };
               //blink(13, 150, 50, 0);
-              int s = 4;// sizeof(ptrArray[0])
-              for (int n =  0; n < sizeof(ptrArray); n++)
-              memcpy(buffer+ s*n, ptrArray[n], s);
+              int s = 4;  // sizeof(ptrArray[0])
+              for (int n = 0; n < sizeof(ptrArray); n++)
+                memcpy(buffer + s * n, ptrArray[n], s);
               // for (int n = 0; n < 1; n++){
               //   unsigned char cc = buffer[n];
               Serial.write(buffer, 120);

@@ -4,7 +4,7 @@ const int PC_POWER_PIN = A0;
 
 #define SPEAKER_PIN A3 // Define the pin where the speaker is connected
 
-int resetPin = 2;
+// int resetPin = 2;
 int Xres = 1920;
 int Yres = 1080;
 unsigned char b0 = 0;

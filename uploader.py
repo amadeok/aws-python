@@ -5,11 +5,14 @@ import autopyBot
 import random
 from avee_utils import avee_context
 
-ac = autoChromePy.autoChrome.autoChromePy()
+ac = autoChromePy.autoChrome.autoChromePy("")
 _del = autopyBot.autopy.fun_delegate
 import app_logging, logging
 
 #ap = autopyBot.autopy.autopy()
+
+#test_file =  r"C:\Users\amade\Videos\002_sky pm 12 30.mkv"
+test_file =  r"C:\Users\amade\Videos\20240318_170455.mp4"
 
 def procHash(title_hashs, add_short):
     title_hashs_ = title_hashs.split(" ")
@@ -19,8 +22,8 @@ def procHash(title_hashs, add_short):
     title_hashs = " ".join(title_hashs_)
     return title_hashs
 
-def insta_task(title_hashs="#music #piano", upload_file=r"C:\Users\amade\Videos\20240318_170455.mp4", track_title="Op. 42 - Cristian Kusch"):
-    title_hashs = procHash(title_hashs, True)
+def insta_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+    procHash(title_hashs, True)
 
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_insta_avee")
     at: autopyBot.autopy.autopy = actx.a
@@ -89,7 +92,9 @@ def insta_task(title_hashs="#music #piano", upload_file=r"C:\Users\amade\Videos\
 
     adb(" am force-stop com.instagram.android")
     adb(f" input keyevent 4") #back
+    time.sleep(2)
+    adb(f'input keyevent KEYCODE_HOME')
     if not ret: raise Exception("Instagram task failed")
 
-
-insta_task()
+if __name__ == "__main__":
+    insta_task()
