@@ -13,7 +13,7 @@ n= 0
 updateIntervalCode =  40010
 setBeepOnBlink =  40011
 getVars =  40012
-ac.write_custom(updateIntervalCode, [120])
+#ac.write_custom(updateIntervalCode, [120])
 
 while 1:
     #time.sleep(1)
