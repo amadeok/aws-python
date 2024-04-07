@@ -161,7 +161,7 @@ def terminate_processes_by_exe(exe_path):
             #     print("--->", proc_name)
             if proc_name == exe_path.lower():
                 proc.terminate()
-                print(f"Terminated process with PID {proc.pid}")
+                logging.info(f"Terminated process with PID {proc.pid}")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
@@ -200,8 +200,8 @@ async def start_browser(args):# url, profile):
 
     title_to_search = "Edge Canary"
     handles = get_window_handles_with_title(title_to_search)
-    print("Window handles with title containing '{}' :".format(title_to_search))
-    print(handles)
+    logging.info(f"Window handles with title containing '{title_to_search}' : {handles}")
+    
     for h in handles:
         win32gui.MoveWindow(h, 0, 0, 1920, 1080, True)
     await asyncio.sleep(2)
@@ -579,7 +579,7 @@ all_tasks = [yt_task, tt_task, insta_task, threads_task, twitter_task, fb_task, 
 def is_async_function(func):
     return inspect.iscoroutinefunction(func)
 
-def perform_upload_tasks(payload:taskPayload, tasks = tasks):
+def perform_upload_tasks(payload:taskPayload, tasks = all_tasks):
 
     t1 = time.time()
     
