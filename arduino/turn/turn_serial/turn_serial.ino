@@ -124,6 +124,7 @@ void loop() {
     start = millis();
     bPressEnter = true;
   }
+  
 
   unsigned long elapsedMs2 = ct - start2;
   unsigned long remMs2 = blinkRemTimeIntervalMs - elapsedMs2;
@@ -144,7 +145,7 @@ void loop() {
       start2 = millis();
     }
 
-  if (bPressEnter) {
+  if (bPressEnter && elapsedMs < 600000) { // less than 10 minutes
     unsigned long elapsedMsPress = ct - startPress;
     unsigned long remMsPress = (10 * 1000) - elapsedMsPress;
     if (elapsedMsPress > (10 * 1000)) {
