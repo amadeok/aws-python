@@ -120,9 +120,18 @@ def is_ffmpeg_installed():
     except FileNotFoundError:
         return False
 
-
+def get_window_handles_with_title(titles):
+    handles = []
+    for title in titles:
+        def callback(handle, data):
+            if win32gui.IsWindowVisible(handle) and title.lower() in win32gui.GetWindowText(handle).lower():
+                obj = gw.Window(handle)
+                if not obj in data:
+                    data.append(gw.Window(handle))
+            return True
+        win32gui.EnumWindows(callback, handles)
+    return handles
     
-
 class avee_context():
     template_fld = f"{app_env.ld_shared_folder}\\AveeTemplate_normal"
     template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld) if ".viz" in elem]
@@ -131,6 +140,19 @@ class avee_context():
         s.wid = wid
         s.hei = hei
         s.hwnd, s.ld_win= s.restart_ld_player(hwnd = None )
+        print(s.ld_win.width,s.ld_win.height )
+        win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
+        print(s.ld_win.width,s.ld_win.height )
+        resolve_handles = get_window_handles_with_title(["DaVinci", "resolve", "project manager"])
+        for w in resolve_handles:
+            win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
+
+        windows = pyautogui.getAllWindows()
+
+        for window in windows:
+            if window.left < s.ld_win.width and window._hWnd != s.hwnd:
+                window.moveTo(window.left + s.ld_win.width, window.top)
+
         s.prefix = prefix
         s.rg = (s.ld_win.topleft.x, s.ld_win.topleft.y, s.wid, s.hei)
 
