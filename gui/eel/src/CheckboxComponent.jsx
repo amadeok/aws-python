@@ -6,8 +6,9 @@ function CheckboxComponent({value, label, style, path}) {
 
   const handleCheckboxChange = (event) => {
     setIsChecked(event.target.checked);
-    console.log("event.target.checked",event.target.checked)
-    eel.update_field({...path, value: event.target.checked})
+    console.log("event.target.checked", event.target.checked)
+    if (path)
+      eel.update_field({ ...path, value: event.target.checked })
 
   };
 

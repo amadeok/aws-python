@@ -11,44 +11,55 @@ load_dotenv()
 
 
 class MongoDBClient:
-    def __init__(self, connection_string, database_name, collection_name):
+    def __init__(self, connection_string, database_name, collection_schemas):
         self.client = MongoClient(connection_string)
         self.db = self.client[database_name]
-        self.collection = self.db[collection_name]
-
-    def fetch_entries(self, query=None):
+        self.collection_names = {key for key, value in collection_schemas.items() }
+        self.collections = {key: self.db[key] for key, value in collection_schemas.items() }
+        self.schemas = collection_schemas
+        self.cd =  {name: [] for name in collection_schemas}
+        
+    def col(self, name): return self.collections[name]
+    
+    def fetch_entries(self, collection, query=None):
+    
         if query is None:
             query = {}
-        return list(self.collection.find(query))
+        elems = list(self.col(collection).find(query))
+        
+        for entry in elems :  entry["_id"] = str(entry["_id"])
+
+        return  elems
 
     # def create_entry(self, document):
-    #     return self.collection.insert_one(document).inserted_id
+    #     return collection.insert_one(document).inserted_id
 
-    def delete_entry(self, query):
-        return self.collection.delete_one(query)
+    def delete_entry(self, query,collection ):
+        return self.col(collection).delete_one(query)
 
     # def update_entry(self, query, update_data):
-    #     return self.collection.update_one(query, {"$set": update_data})
+    #     return collection.update_one(query, {"$set": update_data})
 
-    def update_entry(self, query, update_data, schema=None):
+    def update_entry(self, query, update_data, collection, schema=None):
         if not schema or  self.validate_document(update_data, schema):
             update_data_ = update_data.copy()
             del update_data_["_id"]
-            return self.collection.update_one(query, {"$set": update_data_})
+            return self.col(collection).update_one(query, {"$set": update_data_})
             print("Document updated successfully.")
         else:
             print("Document validation failed. Not inserted.")
 
-    def create_entry(self, document, schema=None):
-        if not schema or  self.validate_document(document):
-            self.collection.insert_one(document)
+    def create_entry(self, document, collection, schema=None):
+        if not schema or  self.validate_document(document, schema):
+            ret = self.col(collection).insert_one(document)
             document["_id"] = str(document["_id"])
             print("Document inserted successfully.")
+            return ret
         else:
             print("Document validation failed. Not inserted.")
 
-    def delete_all_in_collection(self):
-        result = self.collection.delete_many({})
+    def delete_all_in_collection(self, collection):
+        result = self.col(collection).delete_many({})
 
         print(result.deleted_count, "documents deleted.")
 
@@ -65,6 +76,7 @@ class MongoDBClient:
         except Exception as e:
             print("Validation Error:", e)
             return False
+import mongo_schema
 
 # Example usage:
 if __name__ == "__main__":
@@ -80,8 +92,12 @@ if __name__ == "__main__":
     "required": ["name", "age", "email"]
 }   
     # Initialize MongoDBClient with your connection string, database name, and collection name
-    mongo_client = MongoDBClient(uri, 'social-media-helper', 'track-tasks')
-    mongo_client.delete_all_in_collection()
+    mongo_client = MongoDBClient(uri, 'social-media-helper',
+                             {'track_entries': mongo_schema.trackSchema.schema, 
+                              "upload_attempts": mongo_schema.uploadAttempt.schema,
+                              "upload_sessions": mongo_schema.uploadSession.schema} )
+    mongo_client.delete_all_in_collection("upload_attempts")
+    exit()
     # Fetch entries
     entries = mongo_client.fetch_entries()
     print("Existing entries:", entries)

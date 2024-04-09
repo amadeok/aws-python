@@ -2,29 +2,29 @@ import React from 'react';
 
 function RadioComponent({ style, label, selectedOption, setSelectedOption, values }) {
 
-    const onOptionChange = (event) => {
-        setSelectedOption(event.target.value);
-      };
+    // const onOptionChange = (event) => {
+    //     setSelectedOption(event.target.value);
+    //   };
 
   return (
 
-    <div className={`${style}`}>
+    <div className={`flex  items-center`}>
         <div className='px-2'>{label}</div>
-        {values.map((value) => (
-            module(value)
+        {values.map((value, i) => (
+            module(value, i)
         ))}
 
     </div>
   );
 
-    function module(value) {
-        return <div className='px-[5px]'>
+    function module(value, i) {
+        return <div key={i} className='px-[5px]'>
             <label>
                 <input
                     type="radio"
                     value={value}
                     checked={selectedOption === value}
-                    onChange={onOptionChange} />
+                    onChange={setSelectedOption} />
                 {value}
             </label>
             {/* <br /> */}

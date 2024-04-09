@@ -19,15 +19,20 @@ base_schema = {
 }
 
 
-class uploadAttemp():
+class uploadAttempt():
     schema = {
     "type": "object",
-    "properties":  { "date": {"type": "string"}, "error": {"type": "string"} },
-    "required": ["date", "error"],"additionalProperties": False 
+    "properties":  { "track_entry_id": {"type": "string"}, "session_entry_id": {"type": "string"},
+                    "site": {"type": "string"},  "date": {"type": "string"}, "error": {"type": "string"},
+                    "_id": {"type": "string"},
+                    },
+    
+    "required": ["track_entry_id", "session_entry_id", "site", "date", "error"],"additionalProperties": False 
     }
-    def create(date, error):  
-        obj =  { "date": date,  "error": error   } 
-        validate(obj, uploadAttemp.schema)
+    def create(track_entry_id, session_entry_id, site, date, error):  
+        obj =  { "track_entry_id": track_entry_id, "session_entry_id": session_entry_id, 
+                "site": site, "date": date,  "error": error   } 
+        validate(obj, uploadAttempt.schema)
         return obj
     
 
@@ -39,7 +44,7 @@ class uploadSite(TypedDict):
            # "name": {"type": "string"},
             "upload_attempts": {
                 "type": "array",
-                "items": uploadAttemp.schema
+                "items": uploadAttempt.schema
             }
         },
         "required": ["upload_attempts"],"additionalProperties": False 
@@ -49,7 +54,7 @@ class uploadSite(TypedDict):
         validate(obj, uploadSite.schema)
         return obj
 
-class uploadSites(TypedDict):
+class uploadSites():
     obj = {}
     for i in upload_sites:
         obj[i] = uploadSite.schema
@@ -66,7 +71,7 @@ class uploadSites(TypedDict):
         return obj
     
     
-class trackSchema(TypedDict):
+class trackSchema():
     _dict = {}
     for i in upload_sites:
         _dict[i] = uploadSite.schema
@@ -76,18 +81,36 @@ class trackSchema(TypedDict):
             "track_title": {"type": "string"},
             "grade": {"type": "string"},
             "for_distrokid": {"type": "boolean"},
-            "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
+            "file_name": {"type": "string"},
+            "entry_status": {"type": "string"},
+             "upload_attempts": {"type": "array", "default": []},   #{ "type": "array", "items": uploadSite.schema}
+            # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
             "_id": {"type": "string"},
         },
-        "required": ["track_title", "uploads"],"additionalProperties": False 
+        "required": ["track_title", "grade", "for_distrokid", "entry_status", "upload_attempts"], "additionalProperties": False 
     }
-    def create(track_title, grade, for_distrokid, uploads ):  
-        obj =  { "track_title": track_title,  "grade":grade, "for_distrokid": for_distrokid, "uploads": uploads  } 
+    def create(track_title, grade, for_distrokid, uploads, file_name, entry_status ):  
+        obj =  { "track_title": track_title,  "grade":grade, "for_distrokid": for_distrokid, "file_name": file_name, "entry_status": entry_status}#,  "uploads": uploads  } 
         validate(obj, trackSchema.schema)
         return obj
 
 
-
+class uploadSession():
+    schema = {
+    "type": "object",
+    "properties":{
+            "date": {"type": "string"},
+            "pre_upload_errors": {"type": "array", "default": []},
+            "upload_attempts": { "type": "array", "default": [] },
+            "track_ids": { "type": "array", "default": [] },
+            "_id": {"type": "string"},
+        },
+        "required": ["date", "pre_upload_errors", "upload_attempts", "track_ids" ],"additionalProperties": False 
+    }
+    def create( date): 
+        obj = { "date":date } 
+        validate(obj, uploadSession.schema)
+        return obj
     
     
 if __name__ == "__main__":
@@ -138,7 +161,7 @@ if __name__ == "__main__":
     print("Entries after insertion:", entries_after_insertion)
 
     update_query = {"track_title": "op 32"}
-    example_track["uploads"]["youtube"]["upload_attempts"].append(uploadAttemp.create("2423" , "success"))
+    example_track["uploads"]["youtube"]["upload_attempts"].append(uploadAttempt.create("youtube", "2423" , "success"))
     update_result = mongo_client.update_entry(update_query, example_track, trackSchema.schema)
     example_track["uploads"]["youtube"]["upload_attempts"][0]["date"] = "4323"
 

@@ -17,7 +17,9 @@ class App extends Component {
     compRef = this
 
     this.state = {
-      track_entries: null, // Example state variable
+      track_entries: null,
+      upload_attempts: null,
+      upload_sites: null,
       count: 0
     };
     eel.set_host("ws://localhost:8888");
@@ -35,7 +37,10 @@ class App extends Component {
   
   componentDidMount() {
     window.eel.expose( this.setCompState, 'setCompState' )
-    eel.get_track_entries()(( payload )  => this.setState( {track_entries : payload } ) )
+    eel.get_track_entries()(( payload )  => this.setState( payload ) ) //{track_entries : payload["track_entries"], platforms: payload["upload_sites"] }
+    // setTimeout(() => {
+    //   console.log("------------- >", this.state)
+    // }, 1000);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -46,54 +51,12 @@ class App extends Component {
     return (
       <AppProvider>
         <Main compRef={compRef}></Main>
-      {/* <div className="App">
-        <header className="_App-header bg-[#222222] text-white min-h-[100px]">
-          <h1 className="text-xl _App-title p-2">Upload monitor  </h1>
-        </header>
-        <div><RadioComponent></RadioComponent></div>
-        <div className="App-intro_">
-          <div className="flex flex-col">
-          {track_entries && track_entries.map((entry, i) => (
-            <div key={`${entry["_id"]}${i}`} className="m-5"> 
-            <TrackComponent  track={entry}></TrackComponent>
-            </div>
-          ))}
-          </div>
-
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </div>
-        <div> test</div>
-      </div> */}
       </AppProvider>
 
     );
   }
 }
 
-// const App = () => {
-//   useEffect(() => {
-//     // This code will run after the component mounts
-//     eel.set_host("ws://localhost:8888");
-//     eel.hello();
 
-//     // Return a cleanup function if needed
-//     return () => {
-//       // Cleanup code here if needed
-//     };
-//   }, []); // Empty dependency array means this effect runs only once after mount
-
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <h1 className="App-title">Welcome to React</h1>
-//       </header>
-//       <p className="App-intro">
-//         To get started, edit <code>src/App.js</code> and save to reload.
-//       </p>
-//       <div> test</div>
-//     </div>
-//   );
-// };
 
 export default App;

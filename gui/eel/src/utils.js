@@ -33,7 +33,16 @@ export function updateNestedField(obj, path, index, field, value) {
         }
     }
 }
+function padz(n, places = 2) {
+    return String(n).padStart(places, '0');
+  }
 
+export function formatDate(date) {
+    let formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+    formattedDate += ` ${padz(date.getHours())}:${padz(date.getMinutes())}`;
+
+    return formattedDate
+  }
 
 // let obj = {
 //     a: {
