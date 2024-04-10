@@ -18,6 +18,20 @@ base_schema = {
     "required": []
 }
 
+class fileDetailsSchema():
+    schema = {
+    "type": "object",
+    "properties":  { "file_path": {"type": "string"}, "bpm": {"type": "number"},
+                      "bars": {"type": "number"},  "bars_per_template": {"type": "number"}, "beats_per_bar": {"type": "number"},
+                      "avee_custom_lenghts": {"type": "object"},
+                    },
+    
+    "required": ["file_path", "bpm", "bars", "bars_per_template", "beats_per_bar", "avee_custom_lenghts"], "additionalProperties": False 
+    }
+    def create(file_path, bpm, bars, bars_per_template, beats_per_bar, avee_custom_lenghts):  
+        obj =  { "file_path": file_path, "bpm": bpm,  "bars": bars, "bars_per_template": bars_per_template,  "beats_per_bar": beats_per_bar, "avee_custom_lenghts":avee_custom_lenghts   } 
+        validate(obj, fileDetailsSchema.schema)
+        return obj
 
 class uploadAttempt():
     schema = {
@@ -72,25 +86,25 @@ class uploadSites():
     
     
 class trackSchema():
-    _dict = {}
-    for i in upload_sites:
-        _dict[i] = uploadSite.schema
     schema = {
         "type": "object",
         "properties": {
             "track_title": {"type": "string"},
+            "op_number": {"type": "number"},
             "grade": {"type": "string"},
             "for_distrokid": {"type": "boolean"},
-            "file_name": {"type": "string"},
+            # "file_name": {"type": "string"},
             "entry_status": {"type": "string"},
              "upload_attempts": {"type": "array", "default": []},   #{ "type": "array", "items": uploadSite.schema}
+             "file_details": fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
             # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
             "_id": {"type": "string"},
         },
-        "required": ["track_title", "grade", "for_distrokid", "entry_status", "upload_attempts"], "additionalProperties": False 
+        "required": ["track_title", "op_number", "grade", "for_distrokid", "entry_status", "upload_attempts", "file_details"], "additionalProperties": False 
     }
-    def create(track_title, grade, for_distrokid, uploads, file_name, entry_status ):  
-        obj =  { "track_title": track_title,  "grade":grade, "for_distrokid": for_distrokid, "file_name": file_name, "entry_status": entry_status}#,  "uploads": uploads  } 
+    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts ):  
+        obj =  { "track_title": track_title, "op_number":op_number,  "grade":grade, "for_distrokid": for_distrokid, 
+                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts}#,  "uploads": uploads  } 
         validate(obj, trackSchema.schema)
         return obj
 
@@ -114,7 +128,8 @@ class uploadSession():
     
     
 if __name__ == "__main__":
-    
+    o = trackSchema.create("title", "b", False, fileDetailsSchema.create("c:\\path", 120, 15, 2, 4, []), "pending", [] )
+    print(o)
     example_track = {
         "track_title": "My Track",
         "grade": "A",

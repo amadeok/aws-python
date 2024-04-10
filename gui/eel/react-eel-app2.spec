@@ -5,11 +5,11 @@ block_cipher = None
 
 
 a = Analysis(
-    ['index.py', 'build'],
+    ['index.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[('C:\\Users\\amade\\appData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\eel\\eel.js', 'eel'), ('build', 'build')],
+    hiddenimports=['bottle_websocket'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='react-eel-app',
+    name='react-eel-app2',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -41,5 +41,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    manifest='eel',
 )

@@ -6,13 +6,15 @@ from bson.objectid import ObjectId
 from jsonschema import validate
 from dotenv import load_dotenv
 import os
+import pyautogui
+#import mongo_schema
 load_dotenv()
 
 
 
 class MongoDBClient:
     def __init__(self, connection_string, database_name, collection_schemas):
-        self.client = MongoClient(connection_string)
+        self.client = MongoClient('localhost', 27017) if 0 else MongoClient(connection_string)
         self.db = self.client[database_name]
         self.collection_names = {key for key, value in collection_schemas.items() }
         self.collections = {key: self.db[key] for key, value in collection_schemas.items() }
@@ -59,9 +61,17 @@ class MongoDBClient:
             print("Document validation failed. Not inserted.")
 
     def delete_all_in_collection(self, collection):
-        result = self.col(collection).delete_many({})
+        result = pyautogui.confirm(f'Are you sure you want to delete all entries in collection {collection}?', buttons=['OK', 'Cancel'])
 
-        print(result.deleted_count, "documents deleted.")
+        # Check the user's choice
+        if result == 'OK':
+            result = self.col(collection).delete_many({})
+            print(result.deleted_count, "documents deleted.")
+            print('OK clicked')
+        elif result == 'Cancel':
+            print('Cancel clicked')
+        
+
 
     def validate_document_for_upload(self, data, schema_  ):
         for elem in data:
@@ -76,7 +86,7 @@ class MongoDBClient:
         except Exception as e:
             print("Validation Error:", e)
             return False
-import mongo_schema
+
 
 # Example usage:
 if __name__ == "__main__":

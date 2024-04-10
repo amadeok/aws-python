@@ -192,7 +192,7 @@ class dav_handler():
 
         for ev in doc.events:
             fade_frames = 0.5 * s.clip_fps #seconds
-            
+            raise Exception("To do:   ev.start - s.ctx.td_start , wtf? ")
             start =   ev.start - s.ctx.td_start 
             start_secs = start.total_seconds()
             if start_secs < 0: start_secs = 0

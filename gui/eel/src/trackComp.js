@@ -12,30 +12,28 @@ import { compRef } from "./App";
 import { eel } from "./eel";
 import { AppContext } from './AppContext';
 import { useContext } from "react";
-import { formatDate } from "./utils";
+import { formatDate, getFileNameFromPath } from "./utils";
+import BarsChart from "./BarsInfoCharComp";
 
 const TrackComponent = ({ track, ctx }) => {
 
   const { } = useContext(AppContext);
   // console.log("theme", attemptShow)
-  const { _id, track_title, grade, for_distrokid, upload_attempts, entry_status } = track;
+  const { _id, track_title, grade, for_distrokid, upload_attempts, entry_status, file_details } = track;
+  const {attemptShow, showIds,  selectedTrack, selectedSession,   HL, setHL  } = ctx
+  const [showBarsChar, setShowBarsChar] = useState(false)
+  
 
-  const {attemptShow, showIds,  selectedTrack, selectedSession } = ctx
-
+  useEffect(() => {
+  }, [])
+  
   useEffect(() => {
       // console.log("------------------->", upload_attempts, upload_attempts.filter(obj => obj.site === "threads"))
   }, [track])
 
-  // Object.keys(uploads).map((platform) => (
-  //   console.log("----------->", uploads, uploads[platform].upload_attempts)
-  // ))
   const {upload_sites} = compRef.state
-  function setter(t) {
-    // compRef.setState({"track_title": t})
-    track.track_title = t
-    console.log("------------------->setter", track.track_title, track)
-  }
   const isInArray = (string, array) => array.includes(string);
+  const getPathBase = (path, field=null) => {return { "_id": _id, "path": path, "index": null, "field": field, "collection": "track_entries" }}
 
   const platformN = upload_sites.length
   const platformPerc = 100/platformN
@@ -44,26 +42,22 @@ const TrackComponent = ({ track, ctx }) => {
     <div className="text-[#bebebe] text-center">
       <div className="flex _grow   justify-evenly">
         <h2 className="_my-3 p-1 ">Track Details: </h2>
-        {/* <EditableText initialValue={"test"} ></EditableText> */}
-        <EditableText label={"Track Title:"} value={track_title} style={Styles}
-          path={{ "_id": _id, "path": "track_title", "index": null, "field": null , "collection": "track_entries" }}>
-        </EditableText>
-        <EditableText label={"Grade:"} value={grade} style={Styles}
-          path={{ "_id": _id, "path": "grade", "index": null, "field": null, "collection": "track_entries" }}>
-        </EditableText>
-        <CheckboxComponent label={"For DistroKid:"} value={for_distrokid} style={Styles}
-          path={{ "_id": _id, "path": "for_distrokid", "index": null, "field": null, "collection": "track_entries" }}
-        ></CheckboxComponent>
+         {showBarsChar&& <BarsChart _id={_id} isOpen={showBarsChar} setIsOpen={setShowBarsChar} file_details={file_details} ></BarsChart>}
 
-        <EditableText label={" Entry status:"} value={entry_status} style={`${Styles}  outline  font-semibold ${entry_status == "ready" ? " text-[#ffffff]  bg-green-800 outline-1  outline-[#00ff00] " : " text-[#000000] bg-yellow-200  outline-[#ff0000] " }`}  path={{ "_id": _id, "path": "entry_status", "index": null, "field": null, "collection": "track_entries" }} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return isInArray(text, arr) ? null : `${text} not in ${arr}` }}>
-        </EditableText>
-        {/* <p className={Styles}  >For DistroKid: {for_distrokid.toString()}</p> */}
+        <EditableText label={"Track Title:"} value={track_title} style={Styles}  path={getPathBase("track_title")}> </EditableText>
+        <EditableText label={"Grade:"} value={grade} style={Styles} path={getPathBase("grade")}>  </EditableText>
+        <CheckboxComponent label={"For DistroKid:"} value={for_distrokid} style={Styles}  path={getPathBase("for_distrokid")}></CheckboxComponent>
 
+        <button onClick={()=>    eel.open_file_select_window(_id)((ret)=> console.log(ret))} className={`${Styles}`}  onMouseEnter={()=>setHL(file_details.file_path)} onMouseLeave={()=> setHL(null)}>File: {getFileNameFromPath(file_details.file_path)} </button>
+        <button className="flex flex-1 border border-[#707070] rounded-xl px-1 items-center _text-[11px]" onClick={()=>setShowBarsChar(!showBarsChar )} >
+          Bpm: {file_details.bpm} &nbsp; Bars: {file_details.bars} &nbsp; B/T: {file_details.bars_per_template} &nbsp;  B/B: {file_details.beats_per_bar}  </button>
+
+        <EditableText label={" Entry status:"} value={entry_status} style={`${Styles}  outline  font-semibold ${entry_status == "ready" ? " text-[#ffffff]  bg-green-800 outline-1  outline-[#00ff00] " : " text-[#000000] bg-yellow-200  outline-[#ff0000] " }`}  
+        path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return isInArray(text, arr) ? null : `${text} not in ${arr}` }}> </EditableText>
       </div>
       { (attemptShow !== "None" && true) &&
       <div className="mt-3 border rounded-xl border-[#707070] p-2">
         <h3>Uploads</h3>
-        {/* Rendering upload details for each platform */}
         <ul className="_grid _grid-flow-col _auto-cols-max flex justify-start flex-wrap">
           {upload_sites.map((platform, i) => (
             // uploads[platform].upload_attempts.length || 1
@@ -75,17 +69,22 @@ const TrackComponent = ({ track, ctx }) => {
                   
                     {upload_attempts  && upload_attempts.filter(obj => obj.site === platform).map((attempt, i) => attempt.error.length ||  attemptShow === "All" ? 
                     (
-                       <div key={`${i}_platform`} className={`flex text-[#bebebe] text-left pl-2 _px-2 _py-1 my-[2px] border ${ attempt.error.length ? "border-[#ff0000] _border-[5px]" : "border-[#707070]"}  rounded-xl justify-between`}>
-                       <div  className="_grow">
-                          
-                         <DatePickerComponent label={"Date:"} value={attempt.date} style={""}
-                          path={{ "_id": attempt._id, "path": "date", "index": null, "field": null, "collection": "upload_attempts" }}>
-                         </DatePickerComponent>
-
-                         <EditableText label={"Error:"} value={attempt.error} style={""}
-                          path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText>
-                       </div>
-                       <div onClick={()=> eel.delete_entry({ "_id": attempt._id, "collection": "upload_attempts" } )} 
+                        <div key={`${i}_platform`} className={`flex text-[#bebebe] text-left pl-2 _px-2 _py-1 my-[2px] border ${attempt.error.length ? "border-[#ff0000] _border-[5px]" : "border-[#707070]"}  rounded-xl justify-between`}>
+                          <div className="_grow">
+                            <div className="flex items-center">
+                              <div className="grow">
+                                <DatePickerComponent label={"Date:"} value={attempt.date} style={""}
+                                  path={{ "_id": attempt._id, "path": "date", "index": null, "field": null, "collection": "upload_attempts" }}>
+                                </DatePickerComponent>
+                              </div>
+                              <div className="pl-[3px] w-[13px] text-[12px]">
+                                ({getSessionDate(attempt.session_entry_id, true)})
+                              </div>
+                            </div>
+                            <div onMouseEnter={()=>setHL(attempt.error)} onMouseLeave={()=> setHL(null)}>
+                            <EditableText label={"Error:"} value={attempt.error} style={""}  path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText></div>
+                          </div>
+                          <div onClick={() => eel.delete_entry({ "_id": attempt._id, "collection": "upload_attempts" })} 
                         className=" cursor-pointer bg-red-500 w-[7px] rounded-r-xl ml-2"></div>
 
                      </div>
@@ -111,9 +110,9 @@ const TrackComponent = ({ track, ctx }) => {
     </div>
   );
 
-  function getSessionDate(session_entry_id) {
-    const ret = compRef.state.upload_sessions.find(item => item._id === session_entry_id)
-    return ret ? formatDate(new Date(ret.date)) : "session not found";
+  function getSessionDate(session_entry_id, getIndex=false) {
+    const ret = getIndex ? compRef.state.upload_sessions.findIndex((item) =>  item._id === session_entry_id) : compRef.state.upload_sessions.find((item) =>  item._id === session_entry_id)
+    return  ret != null ? (getIndex? ret : formatDate(new Date(ret.date)) ) : "session not found";
   }
 
   function platformElem(platform) {

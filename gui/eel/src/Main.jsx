@@ -10,6 +10,7 @@ import CheckboxComponent from './CheckboxComponent';
 
 import _ from 'lodash';
 import { formatDate } from './utils';
+import BarsChart from './BarsInfoCharComp';
 
 
 
@@ -35,7 +36,8 @@ const Main = ({ compRef }) => {
    const [curScroll, setCurScroll] = useState(0)
    const [showIds, setShowIds] = useState(false)
    const [attemptShow, setAttemptShow] = useState('All'); //None, Error, All
-   const ctx = { attemptShow: attemptShow, showIds: showIds, selectedTrack: selectedTrack, selectedSession: selectedSession }
+   const [HL, setHL] = useState(null)
+   const ctx = { attemptShow: attemptShow, showIds: showIds, selectedTrack: selectedTrack, selectedSession: selectedSession, HL:HL, setHL:setHL }
 
 
    const handleScroll = (type) => {
@@ -160,12 +162,13 @@ const Main = ({ compRef }) => {
    const store = (name, obj) =>{
       if (localStorage)localStorage.setItem(name, obj)
    }
+   
    return (
 
       <div className="_App">
          <header id='fixed-menu' className="_App-header bg-[#222222] text-white _min-h-[100px] text-center _mx-auto items-center justify-center flex flex-col">
             <div className='flex items-center p-2'>
-               <div>{curScroll}</div>
+               {/* <div>{curScroll}</div> */}
 
                {pages.map((page, i) =>
                   <div key={i}>
@@ -179,23 +182,23 @@ const Main = ({ compRef }) => {
             <div className="flex bg-[#222222] text-white px-3 items-center">
                {showing === "Track monitor" ?
                   <div className='flex items-center'>
-                     <button onClick={() => eel.create_entry({ "track_title": "New track", "grade": "b", "for_distrokid": false, "entry_status": "pending", "upload_attempts": [], "collection": "track_entries" })}
-                        className="button1">New track</button>
-
+                     <button onClick={create_track_entry}
+                        className="button1 mx-2">New track</button>
+                     {sessionDropdown()}
                   </div>
 
                   :
                   <div className='flex items-center'>
-                     <div className='bg-[#222] px-3'> Show Ids <input type="checkbox" checked={showIds}
-                        onChange={(event) => { setShowIds(event.target.checked); store("showIds", event.target.checked); console.log("event.target.checked", event.target.checked) }} /></div>
+                     <button onClick={() => eel.create_entry({ "date": new Date(), "pre_upload_errors": [], "upload_attempts": [], "track_ids": [], "collection": "upload_sessions" })} 
+                     className="button1 mx-2">New upload session</button>
 
-                     <DropdownComponent label={"Current Session"} placeholder={getPlaceholderSession()} options={upload_sessions && upload_sessions.map((e) => ({ id_: e._id, label: formatDate(new Date(e.date)) }))}
-                        selectedOption={selectedSession} handleSelectChange={handleSelectChangeSession} ></DropdownComponent>
+                     {/* {sessionDropdown()} */}
 
                      <DropdownComponent label={"Current Track"} placeholder={getPlaceholder()} options={track_entries && track_entries.map((e) => ({ id_: e._id, label: e.track_title }))}
                         selectedOption={selectedTrack} handleSelectChange={handleSelectChange} ></DropdownComponent>
 
-                     <button onClick={() => eel.create_entry({ "date": new Date(), "pre_upload_errors": [], "upload_attempts": [], "track_ids": [], "collection": "upload_sessions" })} className="button1">New upload session</button>
+                     <div className='bg-[#222] px-3'> Show Ids <input type="checkbox" checked={showIds}
+                        onChange={(event) => { setShowIds(event.target.checked); store("showIds", event.target.checked); console.log("event.target.checked", event.target.checked) }} /></div>
                   </div>
                }
 
@@ -203,6 +206,8 @@ const Main = ({ compRef }) => {
                {/* </div> */}
             </div>
          </header>
+         {HL && <div className='absolute z-40 bg-slate-500 rounded-xl p-3 py-1'>{HL}</div>}
+         
          <div class="spacer">
             &nbsp;
          </div>
@@ -240,6 +245,19 @@ const Main = ({ compRef }) => {
       </div>
    )
 
+   function create_track_entry() {
+      const number = track_entries ? track_entries.length : 0
+      const file_details = {"file_path": "C:\\Users\\amade\\Documents\\dawd\\lofi1\\lofi\\Mixdown\\output\\None_00024v2_s\\__00024v2_s_joined.mp4", 
+      "bpm": 119,  "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {"0": {"dur":2}}}
+      eel.create_entry({ "track_title": `New track${number}`, "op_number": number, "grade": "b", "for_distrokid": false,  
+      "entry_status": "pending", "upload_attempts": [], "file_details":file_details, "collection": "track_entries" });
+   }
+
+   function sessionDropdown() {
+      return <DropdownComponent label={"Current Session"} placeholder={getPlaceholderSession()} options={upload_sessions && upload_sessions.map((e, i) => ({ id_: e._id, label:  `${formatDate(new Date(e.date))} (${i})` }))}
+         selectedOption={selectedSession} handleSelectChange={handleSelectChangeSession}></DropdownComponent>;
+   }
+
    function getPlaceholder() {
       let ph = track_entries && track_entries.find(item => item._id === selectedTrack)
       if (ph) return ph.track_title
@@ -248,8 +266,17 @@ const Main = ({ compRef }) => {
       }
    }
    function getPlaceholderSession() {
-      let ph = upload_sessions && upload_sessions.find(item => item._id === selectedSession)
-      if (ph) return formatDate(new Date(ph.date))
+      let ph = null
+      var i = 0
+      if (upload_sessions)
+      for (i = 0; i <  upload_sessions.length; i++){
+         if (upload_sessions[i]._id === selectedSession){
+            ph = upload_sessions[i]
+            break
+         }
+      }
+      //let ph = upload_sessions && upload_sessions.find(item => item._id === selectedSession)
+      if (ph) return `${formatDate(new Date(ph.date))} (${i})`
       else {   // setSelectedTrack("NOT_FOUND")
          return "NOT_FOUND"
       }

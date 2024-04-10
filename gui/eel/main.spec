@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['index.py', 'build'],
+    ['main.py', 'index.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -28,18 +28,17 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='react-eel-app',
+    name='main',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    manifest='eel',
 )

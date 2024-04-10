@@ -449,13 +449,13 @@ def handle_extra_frames(extra_fames, input_file, nb_tasks, black_f):
         os.system(cmd)
         os.remove(f2)
 
-def perform_avee_task(input_file, bpm, start, bars, bars_per_template, avee_fragments_info, extra_fames=0, beats_per_bar=4, fps=60):
+def perform_avee_task(input_file, bpm,  bars, bars_per_template, avee_fragments_info, extra_fames=0, beats_per_bar=4, fps=60):
 
     t1 = time.time()
 
     #first_start = start[0]*60+ start[1] + start[2]/1000
 
-    logging.info(f"- task: {input_file.input_path} |  {bpm}bpm | start 00:{start[0]}:{start[1]}.{start[2]} | bars per template: {bars_per_template}, beats per bar: {beats_per_bar} " )
+    logging.info(f"- task: {input_file.input_path} |  {bpm}bpm | custom_durs {[f'{e.dur:4.2f}' for e in avee_fragments_info]} | bars per template: {bars_per_template}, beats per bar: {beats_per_bar} " )
     time_per_beat = (fps/bpm)
     # dur = time_per_beat*beats_per_bar*bars_per_template
     # if dur > 110:

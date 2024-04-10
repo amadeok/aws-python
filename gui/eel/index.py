@@ -1,13 +1,16 @@
 # coding: utf-8
+import subprocess
 import sys, threading, time, os
 import uuid
 
 from bson import ObjectId
+import pyautogui
 from mongo import MongoDBClient
 import utils
 #sys.path.insert(1, r'F:\all\GitHub\Eel')
 import eel
 import mongo_schema
+import copy
 
 uri = os.getenv("MONGODB_URI")
 mongo = MongoDBClient(uri, 'social-media-helper',
@@ -41,6 +44,33 @@ def delete_entry(payload):
         print(f"""Deleted entry with id: {payload["_id"]} , {ret}""")
     else:
         print(f"""NO entry deleted with id: {payload["_id"]} , {ret}""")
+    
+    other_collection = ""; other_collection_entry_name = ""
+    if payload["collection"] == "track_entries":
+        other_collection = "upload_sessions"
+        other_collection_entry_name = "session_entry_id"
+        collection_entry_name = "track_entry_id"
+    elif  payload["collection"] == "upload_sessions":
+        other_collection = "track_entries"
+        other_collection_entry_name = "track_entry_id"
+        collection_entry_name = "session_entry_id"
+
+    if len(other_collection):    
+        attempts_filtered = [item for item in mongo.cd["upload_attempts"] if item.get(collection_entry_name) == payload["_id"]]
+        def check(attempt):
+#            for attempt in attempts_:
+            for item in mongo.cd[other_collection]:
+                if attempt[other_collection_entry_name] == item["_id"]:
+                    return True
+            return False
+        for attempt in attempts_filtered:
+            ret = check(attempt)
+            if not ret:
+                deleted = mongo.delete_entry({"_id": ObjectId(attempt["_id"])}, "upload_attempts")
+                print("--->deleting unreferenced upload attempt with id ", attempt["_id"], deleted.deleted_count if deleted else "delete fail")
+        
+        #utils.check_field_presence(mongo.cd["track_entries"], mongo.cd["upload_attempts"], "upload_attempts", "track_ids")
+        
     eel.setCompState(get_track_entries())
 
 @eel.expose
@@ -61,8 +91,26 @@ def update_task(payload, fun):
 
 @eel.expose
 def hello(x):
-    print('hello23123123123', x)
-import copy
+    print('Hello from python backend', x)
+    
+
+@eel.expose
+def open_file_select_window(_id):
+    print('Opening file dialog', _id)
+    ret = utils.open_file_dialog()
+    #def update_field(payload):
+    if  ret:
+        if not os.path.isfile(ret):
+            #result = pyautogui.confirm(f'File doesnt could not be found {ret}', buttons=['OK'])
+            process = subprocess.Popen(['python', 'file_not_found.py', ret if ret else "dummy"])
+            process.wait()
+        else:
+            payload = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "file_path", "value": ret}                
+            update_task(payload, lambda: utils.update_nested_field(utils.find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["index"], payload["field"], payload["value"]))
+
+    return ret
+
+
 @eel.expose
 def get_track_entries():
     payload = {}
@@ -106,9 +154,11 @@ def get_track_entries():
  
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--develop':
+    if  len(sys.argv)>1 and sys.argv[1] == '--develop':
         eel.init('src')
         eel.start({"port": 3000}, host="localhost", port=8888, mode="edge")
     else:
+        # eel.init('build')
+        # eel.start('index.html', host="localhost", port=8888, mode="edge")
         eel.init('build')
-        eel.start('index.html', host="localhost", port=8888, mode="edge")
+        eel.start({"port": 3000}, host="localhost", port=8888)

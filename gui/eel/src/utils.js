@@ -44,6 +44,16 @@ export function formatDate(date) {
     return formattedDate
   }
 
+  export function getFileNameFromPath(filePath) {
+    // Split the file path by the directory separator
+    var parts = filePath.split(/[\\/]/);
+    // Retrieve the last part which will be the file name
+    var fileName = parts.pop();
+    // If you want to handle cases where the filename has query params, remove them
+    fileName = fileName.split('?')[0];
+    return fileName;
+}
+
 // let obj = {
 //     a: {
 //         b: {

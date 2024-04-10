@@ -1,3 +1,9 @@
+import subprocess
+import threading
+import time
+import tkinter as tk
+from tkinter import filedialog
+
 def get_field_current(obj, path):
     keys = path.split('.')
     current = obj
@@ -71,6 +77,66 @@ def merge_arrays(arr1, arr2, arr1_field_name, arr2_field_name):
 
     return arr1
 
+
+def check_field_presence(dict1, dict2, field1, field2):
+    values_dict1 = set(dict1[field1])
+    values_dict2 = [item[field2] for item in dict2]
+
+    for value in values_dict1:
+        if value in values_dict2:
+            return True
+    return False
+
+
+import pygetwindow as gw
+import win32gui
+
+def open_file_dialog_old():
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    stop = False
+    h = 0
+    time.sleep(0.5)
+    def task():
+        sl = 0.1
+        while not stop:
+            time.sleep(sl)
+            wins = gw.getWindowsWithTitle("Open")
+            if len(wins):
+                try: 
+                    win32gui.SetForegroundWindow(wins[0]._hWnd)
+                except Exception as e: print(e)
+            sl = 1
+            
+    t = threading.Thread(target=task)
+    t.start()
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        print("Selected file:", file_path)
+    else:
+        print("No file selected.")
+    stop = True
+    t.join()
+    
+def open_file_dialog():
+
+    process = subprocess.Popen(['python', 'file_dialog.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+
+    if stdout:
+        ret = stdout.decode()
+        ret2 = ret.split("|")
+        if len(ret2) > 1:
+            file = ret2[1].replace("\n", "").replace("\r", "")
+            print("Selected file: ", file)
+            return file
+        else: return None
+        
+    if stderr:
+        print("Error:")
+        print(stderr.decode())
+
+
 # obj = {
 #     'a': {
 #         'b': {
@@ -92,3 +158,4 @@ def merge_arrays(arr1, arr2, arr1_field_name, arr2_field_name):
 # update_nested_field(obj, 'a.e', None, None, 'Updated crack')
 
 # print(obj)
+gw.getAllTitles

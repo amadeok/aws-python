@@ -29,15 +29,15 @@ class context():
         config.read(ini_file)
 
         s.bpm = config.getint('main', 'bpm')
-        s.s_m = config.getint('main', 's_m')
-        s.s_sec = config.getint('main', 's_sec')
-        s.s_ms = config.getint('main', 's_ms')
+        # s.s_m = config.getint('main', 's_m')
+        # s.s_sec = config.getint('main', 's_sec')
+        # s.s_ms = config.getint('main', 's_ms')
         s.bars = config.getint('main', 'bars')
         s.bars_per_template = config.getint('main', 'bars_per_template')
         s.beats_per_bar = config.getint('main', 'beats_per_bar')
         s.avee_custom_lenghts = json.loads(config.get('main', 'avee_custom_lenghts', fallback="{}"))
         
-        s.td_start = datetime.timedelta(minutes=s.s_m, seconds=s.s_sec, milliseconds=s.s_ms)
+        # s.td_start = datetime.timedelta(minutes=s.s_m, seconds=s.s_sec, milliseconds=s.s_ms)
         s.fps = 60 #59940/1000
         s.time_per_beat = (60/s.bpm)
         s.frames_per_beat = s.fps * s.time_per_beat
@@ -88,7 +88,7 @@ def avee_worker(rows, input_file, fr_l, add_lyrics=True):
         if os.path.isfile(ctx.input_f.dav_final_file) or os.path.isfile( os.path.isfile(ctx.input_f.avee_final_file)):
             logging.info("Dav or avee final files already exist, skipping avee task")
         else:
-            perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, extra_fames=fr_l[i],  beats_per_bar=ctx.beats_per_bar)
+            perform_avee_task(ctx.input_f, ctx.bpm, ctx.bars, ctx.bars_per_template, extra_fames=fr_l[i],  beats_per_bar=ctx.beats_per_bar) # to do fix
         logging.info(f"Avee worker FINISHED task for instance {ctx.instance_name}")
         dav_queue.put(ctx)
     dav_queue.put(-1)
@@ -151,7 +151,7 @@ def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
     ctx, do = init_task(instance, input_file, sql, extra_frames_)
     if not do: return
 
-    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar)
+    perform_avee_task(ctx.input_f, ctx.bpm, ctx.bars, ctx.bars_per_template, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar)
 
     davinci = dav.dav_handler(ctx)
     if do_aws:
@@ -170,7 +170,7 @@ def general_task(input_file, extra_frames_, add_text, upload=False):
     
     ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
 
-    perform_avee_task(ctx.input_f, ctx.bpm, (ctx.s_m, ctx.s_sec, ctx.s_ms), ctx.bars, ctx.bars_per_template, ctx.avee_fragments_info, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar, fps=ctx.fps)
+    perform_avee_task(ctx.input_f, ctx.bpm, ctx.bars, ctx.bars_per_template, ctx.avee_fragments_info, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar, fps=ctx.fps)
 
     davinci = dav.dav_handler(ctx)
     if upload:
