@@ -1,0 +1,59 @@
+2024-04-10 21:56:01,326 - INFO - ---init
+2024-04-10 21:56:41,123 - INFO - ---init
+2024-04-10 21:56:44,060 - INFO - 127.0.0.1 - - [2024-04-10 21:56:44] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 21:56:55,877 - INFO - ---create_entry
+2024-04-10 21:56:55,919 - INFO - Document inserted successfully.
+2024-04-10 21:56:55,920 - INFO - created entry with id: InsertOneResult(ObjectId('6616ef073bcea4122349b297'), acknowledged=True) 
+2024-04-10 21:57:12,761 - INFO - 127.0.0.1 - - [2024-04-10 21:57:12] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 21:59:38,782 - INFO - ---init
+2024-04-10 21:59:41,664 - INFO - 127.0.0.1 - - [2024-04-10 21:59:41] "GET /eel.js HTTP/1.1" 200 6140 0.001000
+2024-04-10 22:05:42,470 - INFO - ---init
+2024-04-10 22:05:43,188 - INFO - 127.0.0.1 - - [2024-04-10 22:05:43] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 22:06:11,312 - INFO - ---init
+2024-04-10 22:06:12,025 - INFO - 127.0.0.1 - - [2024-04-10 22:06:12] "GET /eel.js HTTP/1.1" 200 6140 0.001000
+2024-04-10 22:06:55,667 - INFO - ---init
+2024-04-10 22:06:56,373 - INFO - 127.0.0.1 - - [2024-04-10 22:06:56] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 22:07:10,251 - INFO - ---init
+2024-04-10 22:07:11,004 - INFO - 127.0.0.1 - - [2024-04-10 22:07:11] "GET /eel.js HTTP/1.1" 200 6140 0.001000
+2024-04-10 22:07:22,151 - INFO - ---init
+2024-04-10 22:07:22,856 - INFO - 127.0.0.1 - - [2024-04-10 22:07:22] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 22:07:56,831 - INFO - ---init
+2024-04-10 22:07:57,548 - INFO - 127.0.0.1 - - [2024-04-10 22:07:57] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 22:12:12,995 - INFO - ---init
+2024-04-10 22:12:23,379 - INFO - 127.0.0.1 - - [2024-04-10 22:12:23] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 22:49:31,863 - INFO - ---init
+2024-04-10 22:49:34,876 - INFO - 127.0.0.1 - - [2024-04-10 22:49:34] "GET /eel.js HTTP/1.1" 200 6140 0.001000
+2024-04-10 22:54:24,759 - INFO - ---init
+2024-04-10 22:54:27,762 - INFO - 127.0.0.1 - - [2024-04-10 22:54:27] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 22:57:24,895 - INFO - ---init
+2024-04-10 22:57:27,851 - INFO - 127.0.0.1 - - [2024-04-10 22:57:27] "GET /eel.js HTTP/1.1" 200 6140 0.000000
+2024-04-10 23:03:24,381 - INFO - ---init
+2024-04-10 23:03:27,359 - INFO - 127.0.0.1 - - [2024-04-10 23:03:27] "GET /eel.js HTTP/1.1" 200 6156 0.001000
+2024-04-10 23:03:37,278 - INFO - closing python
+2024-04-10 23:33:55,306 - INFO - ---init
+2024-04-10 23:33:58,277 - INFO - 127.0.0.1 - - [2024-04-10 23:33:58] "GET /eel.js HTTP/1.1" 200 6156 0.000000
+2024-04-10 23:34:01,055 - INFO - closing python
+2024-04-10 23:40:32,649 - INFO - ---init
+2024-04-10 23:40:43,823 - INFO - ---init
+2024-04-10 23:40:54,099 - INFO - 127.0.0.1 - - [2024-04-10 23:40:54] "GET /eel.js HTTP/1.1" 200 6156 0.001000
+2024-04-10 23:41:13,091 - INFO - closing python
+2024-04-10 23:41:27,513 - INFO - ---init
+2024-04-10 23:41:37,734 - INFO - 127.0.0.1 - - [2024-04-10 23:41:37] "GET /eel.js HTTP/1.1" 200 6156 0.001000
+2024-04-10 23:41:38,053 - INFO - Hello from python backend start
+2024-04-10 23:41:42,123 - INFO - closing python
+2024-04-10 23:43:44,432 - INFO - ---init
+2024-04-10 23:43:47,394 - INFO - 127.0.0.1 - - [2024-04-10 23:43:47] "GET /eel.js HTTP/1.1" 200 6156 0.001001
+2024-04-10 23:43:48,884 - INFO - closing python
+2024-04-10 23:44:34,304 - INFO - ---init
+2024-04-10 23:44:37,231 - INFO - 127.0.0.1 - - [2024-04-10 23:44:37] "GET /eel.js HTTP/1.1" 200 6156 0.000513
+2024-04-10 23:44:37,554 - INFO - Hello from python backend start
+2024-04-10 23:44:43,051 - INFO - closing python
+2024-04-10 23:44:58,324 - INFO - ---init
+2024-04-10 23:45:01,213 - INFO - 127.0.0.1 - - [2024-04-10 23:45:01] "GET /eel.js HTTP/1.1" 200 6156 0.000000
+2024-04-10 23:45:01,546 - INFO - Hello from python backend start
+2024-04-10 23:45:06,277 - INFO - Deleted entry with id: 6616e0d65df90d0cc2289d5b , DeleteResult({'n': 1, 'electionId': ObjectId('7fffffff000000000000027e'), 'opTime': {'ts': Timestamp(1712785507, 8), 't': 638}, 'ok': 1.0, '$clusterTime': {'clusterTime': Timestamp(1712785507, 8), 'signature': {'hash': b'\xa3\xe8\x04@\xefO\xf4\xeb\xe4W\x95~\x9f\xda\xba\xaaM\x1c\xe2\xac', 'keyId': 7308477403557265410}}, 'operationTime': Timestamp(1712785507, 8)}, acknowledged=True)
+2024-04-10 23:45:06,308 - INFO - --->deleting unreferenced upload attempt with id  6616e0df5df90d0cc2289d5c 1
+2024-04-10 23:45:10,454 - INFO - Deleted entry with id: 6616ef073bcea4122349b297 , DeleteResult({'n': 1, 'electionId': ObjectId('7fffffff000000000000027e'), 'opTime': {'ts': Timestamp(1712785511, 42), 't': 638}, 'ok': 1.0, '$clusterTime': {'clusterTime': Timestamp(1712785511, 43), 'signature': {'hash': b'\xbaD\x1a5ki\xfa\x84w\xeb2\xb3\xb3\xee\xa5\xaf\xb4en\xbc', 'keyId': 7308477403557265410}}, 'operationTime': Timestamp(1712785511, 42)}, acknowledged=True)
+2024-04-10 23:45:11,311 - INFO - Deleted entry with id: 6616ed68e31bce2460dab0de , DeleteResult({'n': 1, 'electionId': ObjectId('7fffffff000000000000027e'), 'opTime': {'ts': Timestamp(1712785512, 43), 't': 638}, 'ok': 1.0, '$clusterTime': {'clusterTime': Timestamp(1712785512, 45), 'signature': {'hash': b'\xb11\x0f\xe0!\xab\xf7I\xc4\xb3\xb4\xab\x8b\xfe\x93\x00\t\x7f(\xbb', 'keyId': 7308477403557265410}}, 'operationTime': Timestamp(1712785512, 43)}, acknowledged=True)
+2024-04-10 23:45:11,876 - INFO - Deleted entry with id: 6616ce1989c5b1f63870416a , DeleteResult({'n': 1, 'electionId': ObjectId('7fffffff000000000000027e'), 'opTime': {'ts': Timestamp(1712785512, 112), 't': 638}, 'ok': 1.0, '$clusterTime': {'clusterTime': Timestamp(1712785512, 112), 'signature': {'hash': b'\xb11\x0f\xe0!\xab\xf7I\xc4\xb3\xb4\xab\x8b\xfe\x93\x00\t\x7f(\xbb', 'keyId': 7308477403557265410}}, 'operationTime': Timestamp(1712785512, 112)}, acknowledged=True)
+2024-04-10 23:45:59,063 - INFO - closing python

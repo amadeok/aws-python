@@ -90,6 +90,8 @@ const Main = ({ compRef }) => {
 
       const bshowids = localStorage.getItem('bshowids');
       if (bshowids) setShowIds(bshowids);
+      
+      window.addEventListener("beforeunload", () => { eel.close_python()} );
 
       return () => { }
    }, [])

@@ -1,16 +1,17 @@
 # coding: utf-8
 import subprocess
-import sys, threading, time, os
+import sys, time, os
 import uuid
-
+#import threading
 from bson import ObjectId
-import pyautogui
+#import pyautogui
 from mongo import MongoDBClient
 import utils
 #sys.path.insert(1, r'F:\all\GitHub\Eel')
 import eel
 import mongo_schema
 import copy
+import logging
 
 uri = os.getenv("MONGODB_URI")
 mongo = MongoDBClient(uri, 'social-media-helper',
@@ -41,9 +42,9 @@ def delete_entry(payload):
     delete_query = {"_id": ObjectId(payload["_id"])}
     ret = mongo.delete_entry(delete_query, payload["collection"])
     if ret and ret.deleted_count:
-        print(f"""Deleted entry with id: {payload["_id"]} , {ret}""")
+        logging.info(f"""Deleted entry with id: {payload["_id"]} , {ret}""")
     else:
-        print(f"""NO entry deleted with id: {payload["_id"]} , {ret}""")
+        logging.info(f"""NO entry deleted with id: {payload["_id"]} , {ret}""")
     
     other_collection = ""; other_collection_entry_name = ""
     if payload["collection"] == "track_entries":
@@ -67,7 +68,7 @@ def delete_entry(payload):
             ret = check(attempt)
             if not ret:
                 deleted = mongo.delete_entry({"_id": ObjectId(attempt["_id"])}, "upload_attempts")
-                print("--->deleting unreferenced upload attempt with id ", attempt["_id"], deleted.deleted_count if deleted else "delete fail")
+                logging.info(f"--->deleting unreferenced upload attempt with id  {attempt['_id']} {deleted.deleted_count if deleted else 'delete fail'}")
         
         #utils.check_field_presence(mongo.cd["track_entries"], mongo.cd["upload_attempts"], "upload_attempts", "track_ids")
         
@@ -75,10 +76,12 @@ def delete_entry(payload):
 
 @eel.expose
 def create_entry(payload):
+    logging.info("---create_entry")
+
     collection = payload["collection"]
     del payload["collection"]
     new_entry_id = mongo.create_entry(payload, collection, mongo.schemas[collection])
-    print(f"""created entry with id: {new_entry_id} """)
+    logging.info(f"""created entry with id: {new_entry_id} """)
     eel.setCompState(get_track_entries())
 
 
@@ -86,17 +89,22 @@ def update_task(payload, fun):
     entry = utils.find_element_by_id(mongo.cd[payload["collection"]], payload["_id"])
     fun()
     update_result = mongo.update_entry({"_id": ObjectId(payload["_id"])}, entry, payload["collection"], mongo.schemas[payload["collection"]])
-    print("update_result", f"{update_result.modified_count} {  'op id:' + str(uuid.uuid1())  }" if update_result else 0)#'value: ' +  str(payload['value']) if payload['value'] else
+    logging.info(f"update_result {update_result.modified_count} {  'op id:' + str(uuid.uuid1())  }")#'value: ' +  str(payload['value']) if payload['value'] else
     eel.setCompState(get_track_entries())
 
 @eel.expose
 def hello(x):
-    print('Hello from python backend', x)
+    logging.info(f'Hello from python backend {x}')
     
+@eel.expose
+def close_python(*args):
+    logging.info('closing python')
+    utils.stop  = True
+    sys.exit()
 
 @eel.expose
 def open_file_select_window(_id):
-    print('Opening file dialog', _id)
+    logging.info(f'Opening file dialog {_id}')
     ret = utils.open_file_dialog()
     #def update_field(payload):
     if  ret:
@@ -160,5 +168,12 @@ if __name__ == '__main__':
     else:
         # eel.init('build')
         # eel.start('index.html', host="localhost", port=8888, mode="edge")
+        utils.start_node()
+        utils.set_file_logging()
+        logging.info("---init")
+
+
         eel.init('build')
         eel.start({"port": 3000}, host="localhost", port=8888)
+        
+        logging.info("---after eel start")

@@ -1,5 +1,6 @@
 
 #pymongo==3.11.0
+import logging
 from pymongo.mongo_client import MongoClient
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -47,18 +48,18 @@ class MongoDBClient:
             update_data_ = update_data.copy()
             del update_data_["_id"]
             return self.col(collection).update_one(query, {"$set": update_data_})
-            print("Document updated successfully.")
+            logging.info("Document updated successfully.")
         else:
-            print("Document validation failed. Not inserted.")
+            logging.info("Document validation failed. Not inserted.")
 
     def create_entry(self, document, collection, schema=None):
         if not schema or  self.validate_document(document, schema):
             ret = self.col(collection).insert_one(document)
             document["_id"] = str(document["_id"])
-            print("Document inserted successfully.")
+            logging.info("Document inserted successfully.")
             return ret
         else:
-            print("Document validation failed. Not inserted.")
+            logging.info("Document validation failed. Not inserted.")
 
     def delete_all_in_collection(self, collection):
         result = pyautogui.confirm(f'Are you sure you want to delete all entries in collection {collection}?', buttons=['OK', 'Cancel'])
@@ -66,10 +67,10 @@ class MongoDBClient:
         # Check the user's choice
         if result == 'OK':
             result = self.col(collection).delete_many({})
-            print(result.deleted_count, "documents deleted.")
-            print('OK clicked')
+            logging.info(f"{result.deleted_count} documents deleted.")
+            logging.info('OK clicked')
         elif result == 'Cancel':
-            print('Cancel clicked')
+            logging.info('Cancel clicked')
         
 
 
@@ -84,7 +85,7 @@ class MongoDBClient:
             validate(instance=document, schema=schema_)
             return True
         except Exception as e:
-            print("Validation Error:", e)
+            logging.info("Validation Error:", e)
             return False
 
 
@@ -110,7 +111,7 @@ if __name__ == "__main__":
     exit()
     # Fetch entries
     entries = mongo_client.fetch_entries()
-    print("Existing entries:", entries)
+    logging.info("Existing entries:", entries)
 
     example_document = {
         "name": "John Doe123",
@@ -123,29 +124,29 @@ if __name__ == "__main__":
 
     new_entry = {"name": "Alice", "age": 25, "email": "alice@example.com"}
     new_entry_id = mongo_client.create_entry(new_entry)
-    print("New entry ID:", new_entry_id)
+    logging.info("New entry ID:", new_entry_id)
 
     entries_after_insertion = mongo_client.fetch_entries()
-    print("Entries after insertion:", entries_after_insertion)
+    logging.info("Entries after insertion:", entries_after_insertion)
 
     update_query = {"name": "Alice"}
     update_data = {"age": 26, "name": "rose"}
     update_result = mongo_client.update_entry(update_query, update_data, schema)
     if update_result:
-        print("Update result:", update_result.modified_count)
+        logging.info("Update result:", update_result.modified_count)
 
     # Fetch entries after update
     entries_after_update = mongo_client.fetch_entries()
-    print("Entries after update:", entries_after_update)
+    logging.info("Entries after update:", entries_after_update)
 
     # Delete entry
     delete_query = {"_id": ObjectId("65fc32319baf6eeae3d8e352")}
     delete_result = mongo_client.delete_entry(delete_query)
-    print("Delete result:", delete_result.deleted_count)
+    logging.info("Delete result:", delete_result.deleted_count)
 
     # Fetch entries after deletion
     entries_after_deletion = mongo_client.fetch_entries()
-    print("Entries after deletion:", entries_after_deletion)
+    logging.info("Entries after deletion:", entries_after_deletion)
     
     # Close connection
     mongo_client.client.close()
@@ -165,15 +166,15 @@ if __name__ == "__main__":
 # # Insert the document into the collection
 # inserted_document_id = collection.insert_one(document).inserted_id
 
-# print("Inserted document ID:", inserted_document_id)
+# logging.info("Inserted document ID:", inserted_document_id)
 # cursor = collection.find({})
 
-# # Print the documents
+# # logging.info the documents
 # for document in cursor:
-#     print(document)
+#     logging.info(document)
 # # Send a ping to confirm a successful connection
 # try:
 #     client.admin.command('ping')
-#     print("Pinged your deployment. You successfully connected to MongoDB!")
+#     logging.info("Pinged your deployment. You successfully connected to MongoDB!")
 # except Exception as e:
-#     print(e)
+#     logging.info(e)
