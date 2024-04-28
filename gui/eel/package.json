@@ -13,7 +13,7 @@
     "start:js": "react-scripts start",
     "build:js": "react-scripts build",
     "start:eel": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310\\python index.py --develop",
-    "build:eel": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310\\python -m eel index.py build --onefile --name react-eel-app -w ",
+    "build:eel": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310\\python -m eel index.py build  --onefile --name react-eel-app -w --exclude-module=torch --exclude-module=cv2  ",
     "clean:build": "rm -rf build dist",
     "start": "npm-run-all -p start:*",
     "build": "npm-run-all clean:build build:*",

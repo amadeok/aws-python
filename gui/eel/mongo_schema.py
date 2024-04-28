@@ -24,9 +24,10 @@ class fileDetailsSchema():
     "properties":  { "file_path": {"type": "string"}, "bpm": {"type": "number"},
                       "bars": {"type": "number"},  "bars_per_template": {"type": "number"}, "beats_per_bar": {"type": "number"},
                       "avee_custom_lenghts": {"type": "object"},
+                      "drive_id": {"type": "string"}
                     },
     
-    "required": ["file_path", "bpm", "bars", "bars_per_template", "beats_per_bar", "avee_custom_lenghts"], "additionalProperties": False 
+    "required": ["file_path", "bpm", "bars", "bars_per_template", "beats_per_bar", "avee_custom_lenghts", "drive_id"], "additionalProperties": False 
     }
     def create(file_path, bpm, bars, bars_per_template, beats_per_bar, avee_custom_lenghts):  
         obj =  { "file_path": file_path, "bpm": bpm,  "bars": bars, "bars_per_template": bars_per_template,  "beats_per_bar": beats_per_bar, "avee_custom_lenghts":avee_custom_lenghts   } 
@@ -97,14 +98,15 @@ class trackSchema():
             "entry_status": {"type": "string"},
              "upload_attempts": {"type": "array", "default": []},   #{ "type": "array", "items": uploadSite.schema}
              "file_details": fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
+             "insertion_date": {"type": "string"},
             # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
             "_id": {"type": "string"},
         },
-        "required": ["track_title", "op_number", "grade", "for_distrokid", "entry_status", "upload_attempts", "file_details"], "additionalProperties": False 
+        "required": ["track_title", "op_number", "grade", "for_distrokid", "entry_status", "upload_attempts", "file_details", "insertion_date"], "additionalProperties": False 
     }
-    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts ):  
+    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts, insertion_date ):  
         obj =  { "track_title": track_title, "op_number":op_number,  "grade":grade, "for_distrokid": for_distrokid, 
-                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts}#,  "uploads": uploads  } 
+                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts, "insertion_date": insertion_date}#,  "uploads": uploads  } 
         validate(obj, trackSchema.schema)
         return obj
 

@@ -4,7 +4,40 @@ import threading
 import time
 import tkinter as tk
 from tkinter import filedialog
-import os
+import os, sys, eel
+
+if __name__ == '__main__':
+    if  len(sys.argv)>1 and sys.argv[1] == '--develop':
+
+        eel.init('src')
+        eel.start({"port": 3000}, host="localhost", port=8888, mode="edge")
+    elif 0:
+        # eel.init('build')
+        # eel.start('index.html', host="localhost", port=8888, mode="edge")
+        utils.start_node()
+        utils.set_file_logging()
+        logging.info("---init")
+
+        eel.init('build')
+        eel.start({"port": 3000}, host="localhost", port=8888)
+        
+        logging.info("---after eel start")
+    else:
+        eel.init('build', ['.tsx', '.ts', '.jsx', '.js', '.html'])
+        eel_kwargs = dict(
+        host='localhost',
+        port=8888,
+        size=(1280, 800),
+    )   
+        def test(a, b):
+            print("------------CLOSED", a, b)
+            # sys.exit()
+        eel.start('index.html',  **eel_kwargs, mode= 'edge',  close_callback=test )
+
+        #eel.start('index.html', block=True, options={'port': 80, 'host': '0.0.0.0', 'close_callback': lambda: print("------------CLOSE"), 'mode': False})
+        logging.info("---after eel start")
+
+
 
 def get_field_current(obj, path):
     keys = path.split('.')
@@ -38,22 +71,22 @@ def update_nested_field(obj, path, index, field, value):
             current[last_key][index][field] = value
 
 def add_to_field(obj, path, field, value):
-    current = get_field_current(obj, path)
-    check_type(current)
+    current, last_key = get_field_current(obj, path)
+    check_type(current[last_key])
 
     if field is None:
-        current.append(value)
+        current[last_key].append(value)
     else:
-        current[field].append( value)
+        current[last_key][field].append( value)
     
 def delete_field(obj, path, field, index):
-    current = get_field_current(obj, path)
-    check_type(current)
+    current, last_key = get_field_current(obj, path)
+    check_type(current[last_key])
 
     if field is None:
-        del current[index]
+        del current[last_key][index]
     else:
-        del current[field][index]
+        del current[last_key][field][index]
 
     
 def find_element_by_id(array, target_id):
@@ -91,61 +124,61 @@ def check_field_presence(dict1, dict2, field1, field2):
 
 
 import pygetwindow as gw
-import win32gui
+# import win32gui
 
-def open_file_dialog_old():
-    root = tk.Tk()
-    root.withdraw()  # Hide the main window
-    stop = False
-    h = 0
-    time.sleep(0.5)
-    def task():
-        sl = 0.1
-        while not stop:
-            time.sleep(sl)
-            wins = gw.getWindowsWithTitle("Open")
-            if len(wins):
-                try: 
-                    win32gui.SetForegroundWindow(wins[0]._hWnd)
-                except Exception as e: logging.info(e)
-            sl = 1
+# def open_file_dialog_old():
+#     root = tk.Tk()
+#     root.withdraw()  # Hide the main window
+#     stop = False
+#     h = 0
+#     time.sleep(0.5)
+#     def task():
+#         sl = 0.1
+#         while not stop:
+#             time.sleep(sl)
+#             wins = gw.getWindowsWithTitle("Open")
+#             if len(wins):
+#                 try: 
+#                     win32gui.SetForegroundWindow(wins[0]._hWnd)
+#                 except Exception as e: logging.info(e)
+#             sl = 1
             
-    t = threading.Thread(target=task)
-    t.start()
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        logging.info(f"Selected file: {file_path}")
-    else:
-        logging.info("No file selected.")
-    stop = True
-    t.join()
+#     t = threading.Thread(target=task)
+#     t.start()
+#     file_path = filedialog.askopenfilename()
+#     if file_path:
+#         logging.info(f"Selected file: {file_path}")
+#     else:
+#         logging.info("No file selected.")
+#     stop = True
+#     t.join()
 #p = None
 def kill_node():
     #
    p.kill()
-stop = False
+p = None# = False
 
 def start_node():
     
     #global p
     #os.system("start node %AppData%\\npm\\node_modules\\serve\\build\\main.js -s build") #putting this exact line in index.py cause huge pyinstaller file
     p = subprocess.Popen(["node", r"C:\Users\amade\AppData\Roaming\npm\node_modules\serve\build\main.js", "-s", "build" ]) 
-    def task():
-        #global stop
-        sl = 0.1
-        while not stop:
-            time.sleep(sl)
+    # def task():
+    #     #global stop
+    #     sl = 0.1
+    #     while not stop:
+    #         time.sleep(sl)
 
-            sl = 1
-        p.kill()
+    #         sl = 1
+    #     p.kill()
             
-    t = threading.Thread(target=task)
-    t.start()
+    # t = threading.Thread(target=task)
+    # t.start()
     #return p
 
 
 def set_file_logging():
-    logging.basicConfig(filename='python_.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='python_.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
     
 def open_file_dialog():

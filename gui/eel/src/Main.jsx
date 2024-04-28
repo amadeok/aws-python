@@ -90,8 +90,8 @@ const Main = ({ compRef }) => {
 
       const bshowids = localStorage.getItem('bshowids');
       if (bshowids) setShowIds(bshowids);
-      
-      window.addEventListener("beforeunload", () => { eel.close_python()} );
+
+      // window.addEventListener("beforeunload", () => { eel.close_python()} );
 
       return () => { }
    }, [])
@@ -171,17 +171,20 @@ const Main = ({ compRef }) => {
          <header id='fixed-menu' className="_App-header bg-[#222222] text-white _min-h-[100px] text-center _mx-auto items-center justify-center flex flex-col">
             <div className='flex items-center p-2'>
                {/* <div>{curScroll}</div> */}
-
+         
                {pages.map((page, i) =>
                   <div key={i}>
                      <button onClick={() => handlePageSwitch(page)}
                         className={` _cursor-pointer text-xl _App-title p-2 m-2 rounded-xl ${page === showing ? " border bg-[#333] " : ""}`}  >{page}   </button>
-                     {scrollPosState[page]}
+
                   </div>
 
                )}
             </div>
             <div className="flex bg-[#222222] text-white px-3 items-center">
+               <button onClick={() => eel.trigger_provision(false)} className="button1 mx-2">Trigger provision</button>
+               <button onClick={() => eel.trigger_provision(true)} className="button1 mx-2">Trigger dummy provision</button>
+
                {showing === "Track monitor" ?
                   <div className='flex items-center'>
                      <button onClick={create_track_entry}
@@ -191,8 +194,8 @@ const Main = ({ compRef }) => {
 
                   :
                   <div className='flex items-center'>
-                     <button onClick={() => eel.create_entry({ "date": new Date(), "pre_upload_errors": [], "upload_attempts": [], "track_ids": [], "collection": "upload_sessions" })} 
-                     className="button1 mx-2">New upload session</button>
+                     <button onClick={() => eel.create_entry({ "date": new Date(), "pre_upload_errors": [], "upload_attempts": [], "track_ids": [], "collection": "upload_sessions" })}
+                        className="button1 mx-2">New upload session</button>
 
                      {/* {sessionDropdown()} */}
 
@@ -250,9 +253,9 @@ const Main = ({ compRef }) => {
    function create_track_entry() {
       const number = track_entries ? track_entries.length : 0
       const file_details = {"file_path": "C:\\Users\\amade\\Documents\\dawd\\lofi1\\lofi\\Mixdown\\output\\None_00024v2_s\\__00024v2_s_joined.mp4", 
-      "bpm": 119,  "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {"0": {"dur":2}}}
+      "bpm": 119,  "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {"0": {"dur":2}}, "drive_id": ""}
       eel.create_entry({ "track_title": `New track${number}`, "op_number": number, "grade": "b", "for_distrokid": false,  
-      "entry_status": "pending", "upload_attempts": [], "file_details":file_details, "collection": "track_entries" });
+      "entry_status": "pending", "upload_attempts": [], "file_details":file_details, "insertion_date": new Date(), "collection": "track_entries" });
    }
 
    function sessionDropdown() {

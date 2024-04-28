@@ -17,10 +17,11 @@
             "request": "launch",
             "program": "index.py",
             "args": [
-                "--develop"
+                "--develop", "1"
             ],
             "console": "integratedTerminal",
             "justMyCode": false
+            
         }
     ]
 }

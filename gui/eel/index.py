@@ -12,6 +12,10 @@ import eel
 import mongo_schema
 import copy
 import logging
+import gdrive
+
+sys.path.append('../../')  # Adds the parent directory to the Python path
+import provision
 
 uri = os.getenv("MONGODB_URI")
 mongo = MongoDBClient(uri, 'social-media-helper',
@@ -39,12 +43,17 @@ def delete_field(payload):
 
 @eel.expose
 def delete_entry(payload):
+    if payload["collection"] == "track_entries":
+        entry = utils.find_element_by_id(mongo.cd[payload["collection"]], payload["_id"])
+        if len(entry["file_details"]["drive_id"]):
+            gdrive.delete_file(entry["file_details"]["drive_id"])
+        
     delete_query = {"_id": ObjectId(payload["_id"])}
     ret = mongo.delete_entry(delete_query, payload["collection"])
     if ret and ret.deleted_count:
-        logging.info(f"""Deleted entry with id: {payload["_id"]} , {ret}""")
+        logging.info(f"""Deleted entry with id: {payload["_id"]} , {ret.deleted_count  if ret else 0}""")
     else:
-        logging.info(f"""NO entry deleted with id: {payload["_id"]} , {ret}""")
+        logging.info(f"""NO entry deleted with id: {payload["_id"]} , {ret.deleted_count  if ret else 0}""")
     
     other_collection = ""; other_collection_entry_name = ""
     if payload["collection"] == "track_entries":
@@ -71,7 +80,8 @@ def delete_entry(payload):
                 logging.info(f"--->deleting unreferenced upload attempt with id  {attempt['_id']} {deleted.deleted_count if deleted else 'delete fail'}")
         
         #utils.check_field_presence(mongo.cd["track_entries"], mongo.cd["upload_attempts"], "upload_attempts", "track_ids")
-        
+
+
     eel.setCompState(get_track_entries())
 
 @eel.expose
@@ -85,22 +95,31 @@ def create_entry(payload):
     eel.setCompState(get_track_entries())
 
 
+
 def update_task(payload, fun):
     entry = utils.find_element_by_id(mongo.cd[payload["collection"]], payload["_id"])
-    fun()
+    if not type(fun) == list:
+        fun = [fun]
+    for f in fun:
+        f()
     update_result = mongo.update_entry({"_id": ObjectId(payload["_id"])}, entry, payload["collection"], mongo.schemas[payload["collection"]])
-    logging.info(f"update_result {update_result.modified_count} {  'op id:' + str(uuid.uuid1())  }")#'value: ' +  str(payload['value']) if payload['value'] else
+    logging.info(f"update_result { update_result.modified_count if update_result else 'Nothing updated'} {  'op id:' + str(uuid.uuid1())  }")#'value: ' +  str(payload['value']) if payload['value'] else
     eel.setCompState(get_track_entries())
 
 @eel.expose
 def hello(x):
     logging.info(f'Hello from python backend {x}')
-    
+
 @eel.expose
-def close_python(*args):
-    logging.info('closing python')
-    utils.stop  = True
-    sys.exit()
+def trigger_provision(dummy):
+    provision.provision(dummy)
+    logging.info(f'Provision {"dummy" if dummy else "" }')
+    
+# @eel.expose
+# def close_python(*args):
+#     logging.info('closing python')
+#     utils.stop  = True
+#     sys.exit()
 
 @eel.expose
 def open_file_select_window(_id):
@@ -113,8 +132,17 @@ def open_file_select_window(_id):
             process = subprocess.Popen(['python', 'file_not_found.py', ret if ret else "dummy"])
             process.wait()
         else:
-            payload = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "file_path", "value": ret}                
-            update_task(payload, lambda: utils.update_nested_field(utils.find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["index"], payload["field"], payload["value"]))
+            entry = utils.find_element_by_id(mongo.cd["track_entries"], _id)
+            if len(entry["file_details"]["drive_id"]):
+                gdrive.delete_file(entry["file_details"]["drive_id"])
+            uploaded_id = gdrive.create_file(ret, os.path.basename(ret))
+            p1 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "file_path", "value": ret}          
+            p2 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "drive_id", "value": uploaded_id} 
+            funs = [
+                lambda: utils.update_nested_field(utils.find_element_by_id(mongo.cd[p1["collection"]], p1["_id"]), p1["path"], p1["index"], p1["field"], p1["value"]),
+                lambda: utils.update_nested_field(utils.find_element_by_id(mongo.cd[p2["collection"]], p2["_id"]), p2["path"], p2["index"], p2["field"], p2["value"])
+            ]
+            update_task(p1, funs )
 
     return ret
 
@@ -162,18 +190,40 @@ def get_track_entries():
  
 
 if __name__ == '__main__':
-    if  len(sys.argv)>1 and sys.argv[1] == '--develop':
-        eel.init('src')
-        eel.start({"port": 3000}, host="localhost", port=8888, mode="edge")
-    else:
-        # eel.init('build')
-        # eel.start('index.html', host="localhost", port=8888, mode="edge")
-        utils.start_node()
-        utils.set_file_logging()
-        logging.info("---init")
+    try:
+        if  len(sys.argv)>1 and sys.argv[1] == '--develop':
+            logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+            eel.init('src')
+            eel.start({"port": 3000}, host="localhost", port=8888, mode="edge")
+        elif 0:
+            # eel.init('build')
+            # eel.start('index.html', host="localhost", port=8888, mode="edge")
+            utils.start_node()
+            utils.set_file_logging()
+            logging.info("---init")
+
+            eel.init('build')
+            eel.start({"port": 3000}, host="localhost", port=8888)
+            
+            logging.info("---after eel start")
+        else:
+            eel.init('build', ['.tsx', '.ts', '.jsx', '.js', '.html'])
+            eel_kwargs = dict(
+            host='localhost',
+            port=8888,
+            size=(1280, 800),
+            )   
+            utils.set_file_logging()
+
+            def test(a, b):
+                logging.info(f"------------CLOSED {a}, {b}")
+                # sys.exit()
+            eel.start('index.html',  **eel_kwargs,  close_callback=test ) #mode= 'edge',
+
+            #eel.start('index.html', block=True, options={'port': 80, 'host': '0.0.0.0', 'close_callback': lambda: print("------------CLOSE"), 'mode': False})
+            logging.info("---after eel start")
+    except Exception as e:
+        logging.error(f"exception at index main function of index.py: {e}")
 
 
-        eel.init('build')
-        eel.start({"port": 3000}, host="localhost", port=8888)
-        
-        logging.info("---after eel start")
+

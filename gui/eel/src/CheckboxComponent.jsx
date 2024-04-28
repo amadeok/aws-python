@@ -13,17 +13,18 @@ function CheckboxComponent({value, label, style, path}) {
   };
 
   return (
-    <div className={style}>
-      <label>
-        <span className='pr-2'>
-      {label}
-      </span>
-        <input
-          type="checkbox"
-          checked={isChecked}
-          onChange={handleCheckboxChange}
-        />
-      </label>
+    <div className={`${style} flex`}>
+      {/* <label> */}
+        <div className='pr-2 w-fit'>
+          {label}
+        </div>
+
+      {/* </label> */}
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={handleCheckboxChange}
+      />
     </div>
   );
 }

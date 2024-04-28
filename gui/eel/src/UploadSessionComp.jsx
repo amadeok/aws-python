@@ -12,20 +12,19 @@ import { compRef } from "./App";
 import { eel } from "./eel";
 import { AppContext } from './AppContext';
 import { useContext } from "react";
-import { formatDate } from "./utils";
+import { formatDate, lorem_ipsum } from "./utils";
 
 const UploadSessionComponent = ({ uploadSession, ctx }) => {
 
   const {  } = useContext(AppContext);
   
-  const { _id, date, pre_upload_errors, upload_attempts, track_ids , selectedSession} = uploadSession;
-   const {attemptShow, showIds,  selectedTrack } = ctx
+  const { _id, date, pre_upload_errors, upload_attempts, track_ids} = uploadSession;
+   const {attemptShow, showIds,  selectedTrack,selectedSession,HL, setHL } = ctx
 
-  setTimeout(() => {
-    console.log("UploadSessionComponent", uploadSession, selectedTrack, "|", showIds)  
-  }, 200);
+  // setTimeout(() => {
+  //   console.log("UploadSessionComponent", uploadSession, selectedTrack, "|", showIds)  
+  // }, 200);
   
-
   const {upload_sites} = compRef.state
 
   const isInArray = (string, array) => array.includes(string);
@@ -48,6 +47,22 @@ const UploadSessionComponent = ({ uploadSession, ctx }) => {
               <div>  {compRef.state.track_entries.find(item => item._id === id)?.track_title}   {showIds && <div className="text-[11px]"> {`${id}`}</div>} </div>
             </div>)}
         </div>
+
+        <div className="flex grow  _py-1 items-center border rounded-xl px-2 h-fit border-[#707070] ml-2 ">
+          <span className="pr-2">P.U. errors: </span> 
+          <div    onClick={() => eel.add_field({ "_id": _id, "path": `pre_upload_errors`, "field": null, "value": {"error": `new error${pre_upload_errors.length} ${lorem_ipsum}`, "session_entry_id": _id }, "collection": "upload_sessions" })}
+           className=" text-center mr-[6px] w-[22px] h-[23px] cursor-pointer pt-[0px] border rounded-xl">+ </div>
+
+          {pre_upload_errors && pre_upload_errors.map((error_item, i) =>
+            <div key={i} className="flex _flex-col text-[14px] _border _rounded-xl border-[#707070] px-2 h-fit border-l items-center">
+              <div onMouseEnter={()=> setHL(error_item.error) }  onMouseLeave={()=> setHL(null)}>  {error_item.error.substring(0, 30)}...    </div>
+              <button onClick={()=> {eel.delete_field({ "_id": _id, "path": `pre_upload_errors`, "field": null, "index": i,  "collection": "upload_sessions" }) }}
+              className="w-[10px] h-[10px] rounded-lg bg-red-500">  </button>
+
+            </div>)}
+        </div>
+
+        
         {/* <EditableText label={"Grade:"} value={grade} style={Styles}
           path={{ "_id": _id, "path": "grade", "index": null, "field": null, "collection": "track_entries" }}>
         </EditableText>
@@ -80,7 +95,7 @@ const UploadSessionComponent = ({ uploadSession, ctx }) => {
                           <span className="text-[11px]">{getTrackTitle(attempt.track_entry_id)}</span>
                          {showIds && <span className="text-[11px]">{` (${attempt.track_entry_id})`}</span>}
 
-                          <DatePickerComponent label={"Date:"} value={attempt.date} style={""}
+                          <DatePickerComponent label={"Date:"} value={attempt.date} style={null}
                            path={{ "_id": attempt._id, "path": "date", "index": null, "field": null, "collection": "upload_attempts" }}>
                           </DatePickerComponent>
 

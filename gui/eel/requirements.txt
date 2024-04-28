@@ -1,0 +1,1 @@
+pip install eel pymongo[srv] jsonschema python-dotenv pyautogui tk PyInstaller  google-api-python-client

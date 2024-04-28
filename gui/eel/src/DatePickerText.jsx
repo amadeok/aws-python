@@ -22,10 +22,6 @@ const DatePickerComponent = ({ label, value, style, path }) => {
     return () => {   document.removeEventListener('mousedown', handleClickOutside);   }
   }, [])
   
-
-
-
-
   //console.log(date.toISOString());
 
   const handleChange = (e) => {
@@ -68,9 +64,9 @@ const DatePickerComponent = ({ label, value, style, path }) => {
 
 
   return (
-    <div>
-        <div className={` flex ${false ? "flex-col" : ""}`}>
-          <div className='grow-[0] pr-2 _w-[100px] '>    {label}    </div>
+    <div className={style ? style :  `flex ${false ? "flex-col" : ""}`}>
+        <div className={" _bg-slate-400 flex"}>
+          <div className='  _grow-[0] pr-2 w-fit '>    {label}    </div>
         <button
           className="" onClick={handleClick}>
           {formatDate(selectedDate)}

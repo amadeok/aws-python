@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { eel } from "./eel.js";
 
-function EditableText({ label, value, style, path, validator = null }) {
+function EditableText({ label, value, style, path, validator = null, isNumber=false }) {
   const [isEditing, setIsEditing] = useState(0);
   const [text, setText] = useState(value);
   const [lastGoodtext, setLastGoodtext] = useState(value);
@@ -18,8 +18,11 @@ function EditableText({ label, value, style, path, validator = null }) {
     setIsEditing(true);
   };
 
+  function getn(val) {
+    return isNumber ? Number(val) : val;
+  }
   const handleChange = (e) => {
-    setText(e.target.value);
+    setText( e.target.value);
   };
 
   function submit() {
@@ -33,10 +36,10 @@ function EditableText({ label, value, style, path, validator = null }) {
       }
       else {
         setLastGoodtext(text);
-        eel.update_field({ ...path, value: text });
+        eel.update_field({ ...path, value: getn(text) });
       }
     } else
-      eel.update_field({ ...path, value: text });
+      eel.update_field({ ...path, value: getn(text) });
 
   }
 
@@ -59,7 +62,7 @@ function EditableText({ label, value, style, path, validator = null }) {
       {isEditing ? (
         <input
           className='ml-2 inline _grow _shrink-[2] _min-w-0 _w-0 bg-[#303030] '
-          type="text"
+          type={isNumber? "number" : "text"}
           value={text}
           onChange={handleChange}
           onBlur={handleBlur}

@@ -19,7 +19,7 @@ const TrackComponent = ({ track, ctx }) => {
 
   const { } = useContext(AppContext);
   // console.log("theme", attemptShow)
-  const { _id, track_title, grade, for_distrokid, upload_attempts, entry_status, file_details } = track;
+  const { _id, track_title, op_number,  grade, for_distrokid, upload_attempts, entry_status, file_details, insertion_date } = track;
   const {attemptShow, showIds,  selectedTrack, selectedSession,   HL, setHL  } = ctx
   const [showBarsChar, setShowBarsChar] = useState(false)
   
@@ -37,7 +37,7 @@ const TrackComponent = ({ track, ctx }) => {
 
   const platformN = upload_sites.length
   const platformPerc = 100/platformN
-  const Styles = "_grow _w-[20%] flex-1 text-left border rounded-xl mx-2 p-2 py-1 border-[#707070] " 
+  const Styles = "_grow _w-[20%] flex-1 text-left border rounded-xl mx-2 p-2 py-1 border-[#707070] items-center _h-fit " 
   return (
     <div className="text-[#bebebe] text-center">
       <div className="flex _grow   justify-evenly">
@@ -45,12 +45,16 @@ const TrackComponent = ({ track, ctx }) => {
          {showBarsChar&& <BarsChart _id={_id} isOpen={showBarsChar} setIsOpen={setShowBarsChar} file_details={file_details} ></BarsChart>}
 
         <EditableText label={"Track Title:"} value={track_title} style={Styles}  path={getPathBase("track_title")}> </EditableText>
+        <EditableText label={"Op No.:"} value={op_number} style={Styles}  path={getPathBase("op_number")} isNumber={true}> </EditableText>
+
         <EditableText label={"Grade:"} value={grade} style={Styles} path={getPathBase("grade")}>  </EditableText>
         <CheckboxComponent label={"For DistroKid:"} value={for_distrokid} style={Styles}  path={getPathBase("for_distrokid")}></CheckboxComponent>
 
         <button onClick={()=>    eel.open_file_select_window(_id)((ret)=> console.log(ret))} className={`${Styles}`}  onMouseEnter={()=>setHL(file_details.file_path)} onMouseLeave={()=> setHL(null)}>File: {getFileNameFromPath(file_details.file_path)} </button>
-        <button className="flex flex-1 border border-[#707070] rounded-xl px-1 items-center _text-[11px]" onClick={()=>setShowBarsChar(!showBarsChar )} >
+        <button className="flex flex-1 border border-[#707070] rounded-xl px-1 items-center text-[14px]" onClick={()=>setShowBarsChar(!showBarsChar )} >
           Bpm: {file_details.bpm} &nbsp; Bars: {file_details.bars} &nbsp; B/T: {file_details.bars_per_template} &nbsp;  B/B: {file_details.beats_per_bar}  </button>
+
+          <DatePickerComponent label={"Ins. date:"} value={insertion_date} style={Styles}   path={getPathBase("insertion_date")}>   </DatePickerComponent>
 
         <EditableText label={" Entry status:"} value={entry_status} style={`${Styles}  outline  font-semibold ${entry_status == "ready" ? " text-[#ffffff]  bg-green-800 outline-1  outline-[#00ff00] " : " text-[#000000] bg-yellow-200  outline-[#ff0000] " }`}  
         path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return isInArray(text, arr) ? null : `${text} not in ${arr}` }}> </EditableText>
@@ -73,9 +77,8 @@ const TrackComponent = ({ track, ctx }) => {
                           <div className="_grow">
                             <div className="flex items-center">
                               <div className="grow">
-                                <DatePickerComponent label={"Date:"} value={attempt.date} style={""}
-                                  path={{ "_id": attempt._id, "path": "date", "index": null, "field": null, "collection": "upload_attempts" }}>
-                                </DatePickerComponent>
+                                <DatePickerComponent label={"Date:"} value={attempt.date} style={null}
+                                  path={{ "_id": attempt._id, "path": "date", "index": null, "field": null, "collection": "upload_attempts" }}>  </DatePickerComponent>
                               </div>
                               <div className="pl-[3px] w-[13px] text-[12px]">
                                 ({getSessionDate(attempt.session_entry_id, true)})

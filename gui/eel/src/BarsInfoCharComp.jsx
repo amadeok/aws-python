@@ -116,9 +116,12 @@ function BarsChart({_id, isOpen, setIsOpen, file_details}) {
   };
 
   const handleCustomDurChange = (event, i) => {
-    console.log("handle dur change",  i,  " | ",customDursObj, " | ", event.target.value)
+    console.log("handle dur change",  i,  " | ",customDursObj, " | ", event && event.target.value)
     let obj = _.cloneDeep(customDursObj)
-    obj[i] = {"dur": Number(event.target.value)}
+    if (event)
+      obj[i] = {"dur": Number(event.target.value)}
+    else 
+      delete obj[i]
      setCustomDursObj(obj)
   }
 
@@ -162,7 +165,7 @@ function BarsChart({_id, isOpen, setIsOpen, file_details}) {
         </div>
         <div className='flex mx-5 mt-5'>
         {elements.map((element, i) => (
-          <div className={`${(i+1) % barsPerTemplate == 0 ? "border-r-4 border-r-[#ff0000]" : " border-l "} border-2 ${i != 0 && "border-l-0"} border-[#303030] overflow-hidden text-left`}
+          <div className={`${(i+1) % barsPerTemplate == 0 ? "border-r-4 border-r-[#ff0000]" : " border-l "} border-2 ${i != 0 && "border-l-0"} border-[#303030] _overflow-hidden text-left`}
             key={i}
             style={{
               width: element.width,
@@ -180,7 +183,10 @@ function BarsChart({_id, isOpen, setIsOpen, file_details}) {
                 onChange={(event)=> handleCustomDurChange(event, i)}
                 placeholder={Math.floor(customDurs[i] * 1000) / 1000}
               />
-              <p>{Math.floor(barPositions[i] * 1000) / 1000}s</p>
+              <div>
+              <p className=' cursor-pointer' onClick={(event)=> handleCustomDurChange(null, i)}>{Math.floor(barPositions[i] * 1000) / 1000}s</p>
+              {/* <div className='h-[7px] z-50 bg-yellow-400 w-full'></div> */}
+              </div>
             {/* </div> */}
           {/* <div className='ml-1'> {Math.floor(barPositions[i] * 1000) / 1000}s</div> */}
           {/* i*(bpmToSeconds(bpm)*beatsPerBar) */}
