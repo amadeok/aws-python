@@ -39,6 +39,18 @@
             }
         },
         {
+            "name": "Python Debugger: gui",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "gui/eel/index.py",
+            "args": [
+                "--develop", "1"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+            
+        },
+        {
             "name": "Python not just my code",
             "type": "debugpy",
             "request": "launch",

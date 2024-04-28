@@ -45,7 +45,7 @@ def procHash(title_hashs, add_short):
     title_hashs = " ".join(title_hashs_)
     return title_hashs
 
-def insta_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+def instagram_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
     procHash(title_hashs, True)
 
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_insta_avee")
@@ -238,7 +238,7 @@ async def operate_file_popup( file_path, do_until_fun, do_until_fun_args=[]):
     logging.info("file_name_edge is gone...")
     #network.send_string("YT_SUCCESS", conn)
 
-async def yt_task(title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg",  b_start_browser=True, edge_profile:str="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
+async def youtube_task(title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg",  b_start_browser=True, edge_profile:str="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, True)
           
@@ -270,7 +270,7 @@ async def yt_task(title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvT
 
 
 
-async def tt_task(title_hashs = "#piano #originalmusic", channel_id= "", b_start_browser=True, edge_profile="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
+async def tiktok_tasktask(title_hashs = "#piano #originalmusic", channel_id= "", b_start_browser=True, edge_profile="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, False)
 
@@ -373,7 +373,7 @@ async def twitter_task(title_hashs = "#piano #originalmusic", channel_id="", b_s
     #/div/div/div/div[1]/span "your post was sent"
 
 
-async def fb_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+async def facebook_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, False)
     
@@ -520,14 +520,17 @@ async def monitor_task():
 #https://www.reddit.com/r/Songwriting/comments/1bo43ow/weekly_self_promotion_thread/f
 
 
+
 class taskPayload():
-    def __init__(self, title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch") -> None:
+    def __init__(self, title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch", hashtag_map = None) -> None:
         self.title_hashs = title_hashs
         self.channel_id=channel_id
         self.b_start_browser=b_start_browser
         self.upload_file = upload_file
         self.edge_profile=edge_profile
         self.track_title=track_title
+        self.hashtag_map = hashtag_map
+        
     def __str__(self) -> str:
         return " ".join([f'{key}: {value}' for key, value in vars(self).items() if not key.startswith('__')])
     def __repr__(self) -> str:
@@ -573,7 +576,7 @@ async def check_timeout(timeout):
         await terminate_all()
         logging.info(f"-----> timeout NOT reached: {timeout}")
 
-all_tasks = [yt_task, tt_task, insta_task, threads_task, twitter_task, fb_task,  tumblr_task]#, soundcloud_task]
+all_tasks = [youtube_task, tiktok_tasktask, instagram_task, threads_task, twitter_task, facebook_task,  tumblr_task]#, soundcloud_task]
 
 
 def is_async_function(func):
@@ -608,9 +611,9 @@ def perform_upload_tasks(payload:taskPayload, tasks = all_tasks):
 
 if __name__ == "__main__":
     task_payload = taskPayload()
-    #insta_task()
+    #instagram_task()
 
-    #ac.start([lambda: perform_task(task_payload, fb_task)])
+    #ac.start([lambda: perform_task(task_payload, facebook_task)])
 
     #ac.start([lambda: monitor_task()])
     #perform_upload_tasks(None, [soundcloud_task, soundcloud_task])
