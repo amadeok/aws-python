@@ -57,7 +57,7 @@ const TrackComponent = ({ track, ctx }) => {
           <DatePickerComponent label={"Ins. date:"} value={insertion_date} style={Styles}   path={getPathBase("insertion_date")}>   </DatePickerComponent>
 
         <EditableText label={" Entry status:"} value={entry_status} style={`${Styles}  outline  font-semibold ${entry_status == "ready" ? " text-[#ffffff]  bg-green-800 outline-1  outline-[#00ff00] " : " text-[#000000] bg-yellow-200  outline-[#ff0000] " }`}  
-        path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return isInArray(text, arr) ? null : `${text} not in ${arr}` }}> </EditableText>
+        path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return (text != "ready" || file_details.drive_id.length) && isInArray(text, arr) ? null : `${text} not in ${arr} or no file uploaded` }}> </EditableText>
       </div>
       { (attemptShow !== "None" && true) &&
       <div className="mt-3 border rounded-xl border-[#707070] p-2">

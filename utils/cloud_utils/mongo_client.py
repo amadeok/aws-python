@@ -20,7 +20,7 @@ class MongoDBClient:
         if False:
             self.client = MongoClient('localhost', 27017) 
         else:
-            self.client = MongoClient(connection_string)
+            self.client = MongoClient(connection_string) #changing dns to 8.8.4.4 fixed it once
         
         self.db = self.client[database_name]
         self.collection_names = {key for key, value in collection_schemas.items() }

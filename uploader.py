@@ -270,7 +270,7 @@ async def youtube_task(title_hashs = "#piano #originalmusic", channel_id:str="UC
 
 
 
-async def tiktok_tasktask(title_hashs = "#piano #originalmusic", channel_id= "", b_start_browser=True, edge_profile="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
+async def tiktok_task(title_hashs = "#piano #originalmusic", channel_id= "", b_start_browser=True, edge_profile="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, False)
 
@@ -576,7 +576,7 @@ async def check_timeout(timeout):
         await terminate_all()
         logging.info(f"-----> timeout NOT reached: {timeout}")
 
-all_tasks = [youtube_task, tiktok_tasktask, instagram_task, threads_task, twitter_task, facebook_task,  tumblr_task]#, soundcloud_task]
+all_tasks = [youtube_task, tiktok_task, instagram_task, threads_task, twitter_task, facebook_task,  tumblr_task]#, soundcloud_task]
 
 
 def is_async_function(func):

@@ -15,7 +15,7 @@ import utils.cloud_utils.mongo_schema as mongo_schema
 import utils.cloud_utils.gdrive as gdrive
 from utils.eel_utils import setMongoInstance, set_file_logging
 
-import provision
+#import provision
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -37,17 +37,18 @@ if __name__ == '__main__':
     setMongoInstance(mongo)
 
     try:
+        react_port = 3560
         if  len(sys.argv)>1 and sys.argv[1] == '--develop':
             logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
             fld = "src" if os.path.isdir("src") else r"gui\eel\src"
             eel.init(fld)
-            eel.start({"port": 3000}, host="localhost", port=8888, mode="edge")
+            eel.start({"port": react_port}, host="localhost", port=8888, mode="edge")
         elif 0:
             # eel.init('build')
             # eel.start('index.html', host="localhost", port=8888, mode="edge")
             logging.info("---init")
             eel.init('build')
-            eel.start({"port": 3000}, host="localhost", port=8888)          
+            eel.start({"port": react_port}, host="localhost", port=8888)          
             logging.info("---after eel start")
         else:
             eel.init('build', ['.tsx', '.ts', '.jsx', '.js', '.html'])
