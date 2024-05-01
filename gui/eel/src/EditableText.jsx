@@ -57,8 +57,8 @@ function EditableText({ label, value, style, path, validator = null, isNumber=fa
   };
   const max = 40
   return (
-    <div className={`${style} flex ${text && text.length > max ? "flex-col" : ""}`}>
-      <div className='grow-[0] _w-[100px] '>    {label}    </div>
+    <div className={`${style} flex ${text && text.length > max && 0 ? "flex-col" : ""}`}>
+      <div className='grow-[0] _w-[100px] pr-1 '>    {label}    </div>
       {isEditing ? (
         <input
           className='ml-2 inline _grow _shrink-[2] _min-w-0 _w-0 bg-[#303030] '

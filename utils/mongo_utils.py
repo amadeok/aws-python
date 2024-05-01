@@ -257,10 +257,12 @@ def get_track_entries_(mongo):
     tracks = copy.deepcopy(mongo.cd["track_entries"])
     attempts =copy.deepcopy( mongo.cd["upload_attempts"])
     sessions =copy.deepcopy( mongo.cd["upload_sessions"] )
-    
+    settings =copy.deepcopy( mongo.cd["settings"] )
+
     payload["track_entries"] = tracks
     payload["upload_attempts"] = attempts
     payload["upload_sessions"] = sessions
+    payload["settings"] = settings
 
     attempts_ = attempts.copy()
     s = len(attempts_)-1

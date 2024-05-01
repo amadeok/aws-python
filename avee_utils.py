@@ -148,10 +148,13 @@ class avee_context():
             win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
 
         windows = pyautogui.getAllWindows()
-
+    
         for window in windows:
             if window.left < s.ld_win.width and window._hWnd != s.hwnd:
-                window.moveTo(window.left + s.ld_win.width, window.top)
+                try:
+                    window.moveTo(window.left + s.ld_win.width, window.top)
+                except Exception as e:
+                    logging.error(f"error moving window {e}")
 
         s.prefix = prefix
         s.rg = (s.ld_win.topleft.x, s.ld_win.topleft.y, s.wid, s.hei)

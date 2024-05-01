@@ -85,7 +85,7 @@ const TrackComponent = ({ track, ctx }) => {
                               </div>
                             </div>
                             <div onMouseEnter={()=>setHL(attempt.error)} onMouseLeave={()=> setHL(null)}>
-                            <EditableText label={"Error:"} value={attempt.error} style={""}  path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText></div>
+                            <EditableText label={"Error:"} value={attempt.error} style={"max-h-[70px] overflow-hidden"}  path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText></div>
                           </div>
                           <div onClick={() => eel.delete_entry({ "_id": attempt._id, "collection": "upload_attempts" })} 
                         className=" cursor-pointer bg-red-500 w-[7px] rounded-r-xl ml-2"></div>
@@ -105,9 +105,9 @@ const TrackComponent = ({ track, ctx }) => {
         </ul>
         </div>
       }
-      <div className="flex justify-center mt-3">
-        {_id}
+      <div className="flex justify-start mt-2 text-[12px]">
         <button onClick={()=> eel.delete_entry({ "_id": _id,"collection": "track_entries"} ) } className="mx-5 px-3 border rounded-xl">Delete track entry</button>
+        <div className=" text-center">{_id}</div>
       </div>
       
     </div>

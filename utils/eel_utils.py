@@ -240,6 +240,7 @@ def open_file_select_window(_id):
             if len(entry["file_details"]["drive_id"]):
                 gdrive.delete_file(entry["file_details"]["drive_id"])
             uploaded_id = gdrive.create_file(ret, os.path.basename(ret))
+            eel.pythonAlert("File uploaded to drive")
             p1 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "file_path", "value": ret}          
             p2 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "drive_id", "value": uploaded_id} 
             funs = [

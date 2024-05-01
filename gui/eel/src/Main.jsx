@@ -7,6 +7,7 @@ import { AppContext } from './AppContext';
 import DropdownComponent from './DropdownComp';
 import UploadSessionComponent from './UploadSessionComp';
 import CheckboxComponent from './CheckboxComponent';
+import EditableText from './EditableText';
 
 import _ from 'lodash';
 import { formatDate } from './utils';
@@ -25,7 +26,8 @@ const Main = ({ compRef }) => {
    // const showingRef = useRef(showing)
    const showingDisable = useRef(false)
    const {showingRef, prevShowingRef } = useContext(AppContext);
-   const { track_entries, upload_sessions, count } = compRef.state
+   const { track_entries, upload_sessions, settings,  count } = compRef.state
+
    const sessionRef = useRef()
    const tracksRef = useRef()
    const prevT = useRef(null)
@@ -208,12 +210,14 @@ const Main = ({ compRef }) => {
                }
 
                <div className='px-2'> <RadioComponent label={"Display attemps:"} style={'flex flex items-start '} selectedOption={attemptShow} setSelectedOption={(e) => { store("attemptShow", e.target.value); console.log(e.target.value); setAttemptShow(e.target.value) }} values={["None", "Error", "All"]}></RadioComponent></div>
+               <EditableText label={"Upload freq:"} value={settings && settings[0].upload_frequency} style={" bordered w-[150px] px-2"}  path={{ "_id": settings && settings[0]._id, "path": "upload_frequency", "index": null, "field": null, "collection": "settings" }} isNumber={true}> </EditableText>
+
                {/* </div> */}
             </div>
          </header>
-         {HL && <div className='absolute z-40 bg-slate-500 rounded-xl p-3 py-1'>{HL}</div>}
+         {HL && <div className='fixed z-40 bg-slate-500 rounded-xl p-3 py-1'>{HL}</div>}
          
-         <div class="spacer">
+         <div className="spacer">
             &nbsp;
          </div>
          {/* <div className='fixed-menu'>FIXED</div> */}

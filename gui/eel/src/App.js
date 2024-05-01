@@ -34,9 +34,14 @@ class App extends Component {
       console.log("setCompState error", error);
     }
   }
+  pythonAlert(message){
+    alert(message)
+  }
   
   componentDidMount() {
     window.eel.expose( this.setCompState, 'setCompState' )
+    window.eel.expose( this.pythonAlert, 'pythonAlert' )
+
     eel.get_track_entries()(( payload )  => this.setState( payload ) ) //{track_entries : payload["track_entries"], platforms: payload["upload_sites"] }
     // setTimeout(() => {
     //   console.log("------------- >", this.state)

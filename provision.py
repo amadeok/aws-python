@@ -1,4 +1,5 @@
 from itertools import groupby
+import math
 import os
 import time
 from dotenv import load_dotenv
@@ -8,6 +9,7 @@ from utils.cloud_utils.gdrive import download_file
 from utils.eel_utils import get_track_entries, initMongoInstance
 import utils.cloud_utils.mongo_schema as mongo_schema
 import uploader,datetime, dateutil
+
 
 def provision(dummy=False, payload=None):
     print(f"provision {dummy}")
@@ -29,7 +31,7 @@ def provision(dummy=False, payload=None):
     upload_sites = payload["upload_sites"]
     upload_sessions = payload["upload_sessions"]
     upload_attempts = payload["upload_attempts"]
-    
+    upload_frequency = payload["settings"][0]["upload_frequency"]
     for u in upload_attempts:
         u["date"] = dateutil.parser.parse(u["date"]) 
     for t in track_entries:
@@ -79,7 +81,8 @@ def provision(dummy=False, payload=None):
     logging.info(f"Number of tracks without upload attempts and not ready {len(entries_with_no_upload_attempts_and_not_ready)}" )
     logging.info(f"Number of tracks with missing attempts {len(tracks_missing_attempts)}" )
     logging.info(f"Number of tracks with unresolved errors in upload attempts {len(tracks_with_unresolved_errors)}" )
-    
+    logging.info(f"" )
+
     most_recent_upload_times = {key:  datetime.timedelta(days=365) for key in upload_sites}#datetime.datetime.now() -
 
     upload_attempts.sort(key=lambda x: x['site'])
@@ -107,31 +110,79 @@ def provision(dummy=False, payload=None):
     for us in upload_sites:
         if not us in upload_attempts_grouped_by_site.keys():
             logging.info(f"->{(us):<10} has no recorded upload attempts")
+    logging.info(f"" )
 
-    minimum_upload_time_gap = datetime.timedelta(hours=5)
-    for k, e in most_recent_upload_times.items():
-        print(k, e> minimum_upload_time_gap)
-    
-    sites_available_for_upload = [ k for k, e in most_recent_upload_times.items() if e > minimum_upload_time_gap]
+    upload_frequency_d = datetime.timedelta(hours=math.floor(upload_frequency), minutes=(upload_frequency*60)% 60 )
+    logging.info(f"""Upload frequency {gs(upload_frequency_d.days, "d")}{gs(upload_frequency_d.seconds // 3600, "h")}{gs((upload_frequency_d.seconds // 60) %60, "m")} """)
+    logging.info(f"" )
+
+    sites_available_for_upload = [ k for k, e in most_recent_upload_times.items() if e > upload_frequency_d]
         
     tracks_need_to_upload = tracks_missing_attempts + tracks_with_unresolved_errors
     
-    tracks_need_to_upload_sorted = sorted(tracks_need_to_upload, key=lambda x: x["track_entry"]["_id"])
-    
-    for t in tracks_need_to_upload_sorted:
-        for s in t["sites"]:
+    for t in tracks_need_to_upload:
+        for s in reversed(t["sites"]):
             if not s in sites_available_for_upload:
                 logging.info(f"""Discarding task({t["reason"]}) of track "{t["track_entry"]["track_title"]}" because site {s} is too soon to upload""")
                 t["sites"].remove(s)
+                
     
-    tracks_to_be_uploaded = []
-
+    tracks_need_to_upload_sorted_by_date = sorted(tracks_need_to_upload, key=lambda x: x["track_entry"]["insertion_date"])
+    
+    sites_already_set = []
+    #[print(t["track_entry"]["insertion_date"]) for t in tracks_need_to_upload_sorted_by_date]
+    for t in tracks_need_to_upload_sorted_by_date:
+        #print(t["track_entry"]["insertion_date"])
+        for s in reversed(t["sites"]):
+            if not s in sites_already_set:
+                sites_already_set.append(s)
+            else:
+                logging.info(f"""Discarding task({t["reason"]}) of track "{t["track_entry"]["track_title"]}" because there's already a task  for site {s} in this session""")
+                t["sites"].remove(s)
+           
+    if not len(tracks_need_to_upload_sorted_by_date):
+        logging.info("##### No tasks ####\n")
+        return 
+    
     upload_tasks_n = 0
-    for t in tracks_need_to_upload_sorted: upload_tasks_n+= len(t["sites"])
-    logging.info(f"{upload_tasks_n} available tasks " )
+    for t in tracks_need_to_upload_sorted_by_date: upload_tasks_n+= len(t["sites"])
+    
 
-    with open('data\hashtag_map.json', 'r') as file:
-        hashtag_map = json.load(file)
+    logging.info(f"##### {len(tracks_need_to_upload_sorted_by_date)} task group(s), {upload_tasks_n} available task(s) #####\n")
+    #tasks = [uploadTaskGroup(uploader.taskPayload(track_title=t["track_entry"]["track_title"], upload_file=f'tmp/{os.path.basename(t["track_entry"]["file_details"]["file_path"])}', hashtag_map=hashtag_map), t["reason"], t["track_entry"], t["site"]) for t in tracks_need_to_upload_sorted]
+    for t in tracks_need_to_upload_sorted_by_date:
+        t["payload"]= uploader.taskPayload(track_title=t["track_entry"]["track_title"], upload_file=f'tmp/{os.path.basename(t["track_entry"]["file_details"]["file_path"])}')
+    for i, t in enumerate(tracks_need_to_upload_sorted_by_date):
+        print_task_group(t, i)
+#        print(t) 
+        
+    logging.info(f"##### #### #####")
+    logging.info("")
+    
+    payload =  mongo_schema.uploadSession.create( datetime.datetime.now(datetime.timezone.utc).isoformat(), [], [], [])
+    new_session_res = mongo.create_entry(payload, "upload_sessions", mongo.schemas["upload_sessions"])
+    logging.info(f"""Created upload session entry with id  {new_session_res.inserted_id}""")
+
+    logging.info("Starting tasks..")
+
+    for i, t in enumerate(tracks_need_to_upload_sorted_by_date):
+        print_task_group(t, i)
+        file = f'tmp/{os.path.basename(t["track_entry"]["file_details"]["file_path"])}'
+        if not download_file(t["track_entry"]["file_details"]["drive_id"], file):
+            logging.error("Failed to download file from drive, skipping")
+            continue
+        assert(os.path.isfile(file))
+        mongo_context = {"client": mongo, "session_id": new_session_res.inserted_id, "track_id": t["track_entry"]["_id"]}
+        uploader.perform_upload_tasks(t["payload"], t["sites"], mongo_context )
+        
+    logging.info("All tasks returned")
+
+
+def print_task_group(t, i):
+    #json_string = json.dumps(t, indent=4, sort_keys=True, default=str)
+    entry = t["track_entry"]
+    logging.info(f"""Task group {i} | track title: {entry["track_title"]} | _id: {entry["_id"]} | reason: {(t["reason"]):<20} | ins. date: {entry["insertion_date"].astimezone().strftime("%d-%m-%Y %H:%M")}""" )#| sites: {t["sites"]}
+    logging.info(f"""Task group {i} | sites {t["sites"]}\n""" )
 
     #tasks = [uploader.taskPayload(track_title=t["track_entry"]["track_title"], upload_file=f'tmp/{os.path.basename(t["file_details"]["file_path"])}', hashtag_map=hashtag_map) for t in tracks_need_to_upload_sorted]
 
@@ -152,14 +203,24 @@ if __name__ == '__main__':
     load_dotenv(dotenv_path=r"gui/eel/.env")    
     uri = os.getenv("MONGODB_URI")
     
-
-    
+    # with open('data\hashtag_map.json', 'r') as file:
+    #     hashtag_map = json.load(file)
 
     mongo =  initMongoInstance(uri, 'social-media-helper',
                              {'track_entries': mongo_schema.trackSchema.schema, 
                               "upload_attempts": mongo_schema.uploadAttempt.schema,
-                              "upload_sessions": mongo_schema.uploadSession.schema} )
+                              "upload_sessions": mongo_schema.uploadSession.schema, 
+                              "settings" : None} )
     #time.sleep(5)
     provision()
 
     
+
+# class uploadTaskGroup():
+#     def __init__(self, p, r, t, s) -> None:
+#         self.payload = p
+#         self.reason= r
+#         self.track_entry = t
+#         self.sites = s
+#     def __str__(self) -> str:
+#         pass

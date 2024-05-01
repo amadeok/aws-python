@@ -26,14 +26,14 @@ if __name__ == '__main__':
     mongo = MongoDBClient(uri, 'social-media-helper',
                              {'track_entries': mongo_schema.trackSchema.schema, 
                               "upload_attempts": mongo_schema.uploadAttempt.schema,
-                              "upload_sessions": mongo_schema.uploadSession.schema} )
+                              "upload_sessions": mongo_schema.uploadSession.schema,
+                              "settings": None} )
 
     if hasattr(sys, "_MEIPASS"): # if the script is started from an executable file
         with open("logs.txt", "a") as f_logs:
             sys.stdout = f_logs
             sys.stderr = f_logs
             
-    
     setMongoInstance(mongo)
 
     try:

@@ -15,12 +15,13 @@
             "name": "Python Debugger: gui",
             "type": "debugpy",
             "request": "launch",
-            "program": "index.py",
+            "program": "gui/eel/index.py",
             "args": [
                 "--develop", "1"
             ],
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "cwd": "F:/all/GitHub/aws-python/"
             
         }
     ]

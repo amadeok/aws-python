@@ -1,8 +1,12 @@
+import datetime
+import json
 import shlex
 import time
 import autoChromePy
 import autopyBot
 import random
+
+from bson import ObjectId
 from avee_utils import avee_context
 
 import hashlib
@@ -37,6 +41,9 @@ import app_logging, logging
 
 #ap = autopyBot.autopy.autopy()
 
+with open('data\hashtag_map.json', 'r') as file:
+    hashtag_map = json.load(file)
+        
 def procHash(title_hashs, add_short):
     title_hashs_ = title_hashs.split(" ")
     if add_short:
@@ -45,16 +52,17 @@ def procHash(title_hashs, add_short):
     title_hashs = " ".join(title_hashs_)
     return title_hashs
 
-def instagram_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
     procHash(title_hashs, True)
 
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_insta_avee")
+    
     at: autopyBot.autopy.autopy = actx.a
 
     actx.start_adb_server()
     #actx.hwnd, actx.ld_win= actx.restart_ld_player()
     actx.wait_for_device()
-
+    
     adb = actx.adb
     
     adb(" am force-stop com.instagram.android")
@@ -215,8 +223,8 @@ def start_browser_sync(url, profile):
     print("Browser started successfully.")
     
     
-def procHash(title_hashs, add_short):
-    title_hashs_ = title_hashs.split(" ")
+def procHash(title_hashs_, add_short):
+    #title_hashs_ = title_hashs.split(" ")
     if add_short:
         title_hashs_.append("#shorts")
     random.shuffle(title_hashs_)
@@ -238,7 +246,7 @@ async def operate_file_popup( file_path, do_until_fun, do_until_fun_args=[]):
     logging.info("file_name_edge is gone...")
     #network.send_string("YT_SUCCESS", conn)
 
-async def youtube_task(title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg",  b_start_browser=True, edge_profile:str="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
+async def youtube_task(title_hashs = ["#piano, #originalmusic"], channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg",  b_start_browser=True, edge_profile:str="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, True)
           
@@ -270,7 +278,7 @@ async def youtube_task(title_hashs = "#piano #originalmusic", channel_id:str="UC
 
 
 
-async def tiktok_task(title_hashs = "#piano #originalmusic", channel_id= "", b_start_browser=True, edge_profile="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
+async def tiktok_task(title_hashs = ["#piano, #originalmusic"], channel_id= "", b_start_browser=True, edge_profile="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, False)
 
@@ -339,7 +347,7 @@ async def threads_task( title_hashs, channel_id, b_start_browser=True,  upload_f
     logging.info("THREADS_SUCCESS")
 
 
-async def twitter_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+async def twitter_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, False)
     
@@ -373,7 +381,7 @@ async def twitter_task(title_hashs = "#piano #originalmusic", channel_id="", b_s
     #/div/div/div/div[1]/span "your post was sent"
 
 
-async def facebook_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+async def facebook_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, False)
     
@@ -433,13 +441,13 @@ async def facebook_task(title_hashs = "#piano #originalmusic", channel_id="", b_
     print()
 
 
-async def tumblr_task(title_hashs = "#piano #originalmusic", channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+async def tumblr_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
     
     #title_hashs =  title_hashs.replace("#", "").split(" ")
     title_hashs = procHash(title_hashs, False)
     
     args = ["https://www.tumblr.com/new/video", f'--profile-directory={edge_profile}']
-    
+
     if b_start_browser:  await start_browser(args)
     
     put_anything:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div/div[4]/div/div/div/div/div/div/div[2]/div/div[1]/div[2]/div/div[3]/div[2]/div/div/div[1]/p/span", "xpath", ac, label="put_anything"),  loop=2,timeout=80, timeout_exception="tumblr page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
@@ -478,7 +486,7 @@ async def tumblr_task(title_hashs = "#piano #originalmusic", channel_id="", b_st
     logging.info("TUMBLR_SUCCESS")
     
 
-async def soundcloud_task(title_hashs = "#piano #originalmusic", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+async def soundcloud_task(title_hashs = ["#piano, #originalmusic"], b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
     
     args = ["https://soundcloud.com/upload", f'--profile-directory={edge_profile}']
     
@@ -522,14 +530,14 @@ async def monitor_task():
 
 
 class taskPayload():
-    def __init__(self, title_hashs = "#piano #originalmusic", channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch", hashtag_map = None) -> None:
+    def __init__(self, title_hashs = ["#piano", "#originalmusic"], channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch", hashtag_map = None) -> None:
         self.title_hashs = title_hashs
         self.channel_id=channel_id
         self.b_start_browser=b_start_browser
         self.upload_file = upload_file
         self.edge_profile=edge_profile
         self.track_title=track_title
-        self.hashtag_map = hashtag_map
+        #self.hashtag_map = hashtag_map
         
     def __str__(self) -> str:
         return " ".join([f'{key}: {value}' for key, value in vars(self).items() if not key.startswith('__')])
@@ -576,37 +584,74 @@ async def check_timeout(timeout):
         await terminate_all()
         logging.info(f"-----> timeout NOT reached: {timeout}")
 
-all_tasks = [youtube_task, tiktok_task, instagram_task, threads_task, twitter_task, facebook_task,  tumblr_task]#, soundcloud_task]
+#all_tasks = [youtube_task, tiktok_task, instagram_task, threads_task, twitter_task, facebook_task,  tumblr_task]#, soundcloud_task]
 
+all_tasks = {
+  "youtube": youtube_task,
+  "tiktok": tiktok_task,
+  "instagram": instagram_task,
+  "threads": threads_task,
+  "twitter": twitter_task,
+  "facebook": facebook_task,
+  "tumblr": tumblr_task
+}
 
 def is_async_function(func):
     return inspect.iscoroutinefunction(func)
 
-def perform_upload_tasks(payload:taskPayload, tasks = all_tasks):
+import utils.cloud_utils.mongo_schema as mongo_schema
+
+def perform_upload_tasks(payload:taskPayload, tasks = all_tasks.values(), mongo_context=None):
 
     t1 = time.time()
     
     logging.info(f"-------> task payload: {payload} " )
 
+    mongo = mongo_context["client"] if mongo_context else None
+
     for task  in tasks:
+        if type(task) == str: payload.title_hashs = hashtag_map[task]   
+        task_fun =  all_tasks[task] if type(task) == str else task
+        
         for attempt_n in range(3):
 
-            logging.info(f"----> starting task {task.__name__} | attempt: {attempt_n} " )
-            if is_async_function(task):
-                ret =  ac.start([lambda: perform_task(payload, task)])#, lambda: check_timeout(1500)
+            upload_attempt_pl, new_entry_id = create_attempt_entry(mongo_context,  task)
+
+            logging.info(f"----> starting task {task_fun.__name__} | attempt: {attempt_n} " )
+            if is_async_function(task_fun):
+                ret =  ac.start([lambda: perform_task(payload, task_fun)])#, lambda: check_timeout(1500)
                 if ret: 
-                    logging.info(f"""Post execution error log during async task  {task.__name__}, id: {ret["id"]}, exception: "{ret["exception"]}", traceback:\n {ret["traceback"]}""")
+                    logging.info(f"""Post execution error log during async task  {task_fun.__name__}, id: {ret["id"]}, exception: "{ret["exception"]}", traceback:\n {ret["traceback"]}""")
+                    update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), ret["traceback"])
                     time.sleep(1)
                 else:
                     break
             else:
                 try:
                     pl = payload
-                    task(title_hashs=pl.title_hashs, channel_id=pl.channel_id, b_start_browser=pl.b_start_browser, upload_file=pl.upload_file, edge_profile=pl.edge_profile, track_title=pl.track_title)
+                    task_fun(title_hashs=pl.title_hashs, channel_id=pl.channel_id, b_start_browser=pl.b_start_browser, upload_file=pl.upload_file, edge_profile=pl.edge_profile, track_title=pl.track_title)
                     break
                 except Exception as e:
-                    logging.info(f"Error during sync task  {task.__name__} ,  exception: {e},  traceback:\n {traceback.format_exc()}")
+                    logging.info(f"Error during sync task  {task_fun.__name__} ,  exception: {e},  traceback:\n {traceback.format_exc()}")
+                    update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), str(traceback.format_exc()))
                     time.sleep(1)
+
+def update_with_error(mongo_context, upload_attempt_pl, new_entry_id, error):
+    if mongo_context:
+        mongo =  mongo_context["client"]
+        upload_attempt_pl["error"] = error
+        update_result = mongo.update_entry({"_id": ObjectId(new_entry_id)}, upload_attempt_pl, "upload_attempts", mongo.schemas["upload_attempts"])
+        logging.info(f"Updated upload attempt with error { update_result.modified_count if update_result else 'Nothing updated'} {  'op id:' + str(uuid.uuid1())  }")
+
+def create_attempt_entry(mongo_context, task):
+    upload_attempt= None
+    new_entry_id= None
+    if mongo_context:
+        mongo =  mongo_context["client"]
+        upload_attempt =  mongo_schema.uploadAttempt.create(mongo_context["track_id"], str(mongo_context["session_id"]), task, datetime.datetime.now(datetime.timezone.utc).isoformat(), "" )
+        new_entry_id = mongo.create_entry(upload_attempt, "upload_attempts", mongo.schemas["upload_attempts"])
+        logging.info(f"Created upload attempt entry with id: {new_entry_id.inserted_id} " )
+    return upload_attempt,new_entry_id
 
 
 if __name__ == "__main__":
@@ -617,7 +662,7 @@ if __name__ == "__main__":
 
     #ac.start([lambda: monitor_task()])
     #perform_upload_tasks(None, [soundcloud_task, soundcloud_task])
-    perform_upload_tasks(task_payload,all_tasks)
+    perform_upload_tasks(task_payload,all_tasks.values())
 
 
     time.sleep(2)

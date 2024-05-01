@@ -123,8 +123,8 @@ class uploadSession():
         },
         "required": ["date", "pre_upload_errors", "upload_attempts", "track_ids" ],"additionalProperties": False 
     }
-    def create( date): 
-        obj = { "date":date } 
+    def create( date, pre_upload_errors, upload_attempts, track_ids): 
+        obj = { "date":date, "pre_upload_errors": pre_upload_errors, "upload_attempts":upload_attempts, "track_ids": track_ids  } 
         validate(obj, uploadSession.schema)
         return obj
     

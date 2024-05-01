@@ -99,11 +99,12 @@ const UploadSessionComponent = ({ uploadSession, ctx }) => {
                            path={{ "_id": attempt._id, "path": "date", "index": null, "field": null, "collection": "upload_attempts" }}>
                           </DatePickerComponent>
 
-                          <EditableText label={"Error:"} value={attempt.error} style={""}
-                           path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText>
+                          <div className="" onMouseEnter={()=>setHL(attempt.error)} onMouseLeave={()=> setHL(null)}>
+                          <EditableText label={"Error:"} value={attempt.error} style={" max-h-[70px] overflow-hidden"}    path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText></div>
+
                         </div>
                         <div onClick={()=> eel.delete_entry({ "_id": attempt._id, "collection": "upload_attempts" } )} 
-                         className=" cursor-pointer bg-red-500 w-[7px] rounded-r-xl ml-2"></div>
+                         className="  cursor-pointer bg-red-500 _w-[7px] rounded-r-xl pl-1 ml-1"></div>
 
                       </div>
                       // <AttemptUploadComponent key={`${i}`} attempt={attempt}></AttemptUploadComponent>

@@ -62,6 +62,8 @@ def download_file( file_id, file_name):
             f.write(downloader.getvalue())
 
         logging.info(f'File downloaded successfully: {file_name}')
+        return True
 
     except Exception as e:
         logging.error(f'An error occurred: {e}')
+        return False
