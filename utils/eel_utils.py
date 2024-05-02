@@ -47,7 +47,7 @@ def add_to_field(obj, path, field, value):
     else:
         current[last_key][field].append( value)
     
-def delete_field(obj, path, field, index):
+def delete_field_(obj, path, field, index):
     current, last_key = get_field_current(obj, path)
     check_type(current[last_key])
 
@@ -120,7 +120,7 @@ def add_field(payload):
 
 @eel.expose
 def delete_field(payload):
-    update_task(payload, lambda: delete_field(find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["field"], payload["index"]))
+    update_task(payload, lambda: delete_field_(find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["field"], payload["index"]))
 
 @eel.expose
 def delete_entry(payload):

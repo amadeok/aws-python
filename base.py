@@ -19,23 +19,29 @@ class avee_fragment():
 
 
 class context():
-    def __init__(s, instance_name, input_file, extra_frames) -> None:
+    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None) -> None:
         s.instance_name = instance_name
         s.extra_frames = extra_frames
         s.out_fld = f"{app_env.output_folder}"
         s.input_f = name_storage(input_file,  s.out_fld, s.instance_name)
-        config = ConfigParser()
-        ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
-        config.read(ini_file)
-
-        s.bpm = config.getint('main', 'bpm')
-        # s.s_m = config.getint('main', 's_m')
-        # s.s_sec = config.getint('main', 's_sec')
-        # s.s_ms = config.getint('main', 's_ms')
-        s.bars = config.getint('main', 'bars')
-        s.bars_per_template = config.getint('main', 'bars_per_template')
-        s.beats_per_bar = config.getint('main', 'beats_per_bar')
-        s.avee_custom_lenghts = json.loads(config.get('main', 'avee_custom_lenghts', fallback="{}"))
+        if cloud_file_details == None:
+            config = ConfigParser()
+            ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
+            config.read(ini_file)
+            s.bpm = config.getint('main', 'bpm')
+            # s.s_m = config.getint('main', 's_m')
+            # s.s_sec = config.getint('main', 's_sec')
+            # s.s_ms = config.getint('main', 's_ms')
+            s.bars = config.getint('main', 'bars')
+            s.bars_per_template = config.getint('main', 'bars_per_template')
+            s.beats_per_bar = config.getint('main', 'beats_per_bar')
+            s.avee_custom_lenghts = json.loads(config.get('main', 'avee_custom_lenghts', fallback="{}"))
+        else:
+            s.bpm = cloud_file_details['bpm']
+            s.bars =cloud_file_details['bars']
+            s.bars_per_template = cloud_file_details['bars_per_template']
+            s.beats_per_bar = cloud_file_details['beats_per_bar']
+            s.avee_custom_lenghts = cloud_file_details['avee_custom_lenghts']
         
         # s.td_start = datetime.timedelta(minutes=s.s_m, seconds=s.s_sec, milliseconds=s.s_ms)
         s.fps = 60 #59940/1000
@@ -162,12 +168,12 @@ def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
 
-def general_task(input_file, extra_frames_, add_text, upload=False):
+def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None):
 
     t0 = time.time()
 
-    ctx = context(None, input_file, extra_frames_)
-    
+    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details)
+
     ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
 
     perform_avee_task(ctx.input_f, ctx.bpm, ctx.bars, ctx.bars_per_template, ctx.avee_fragments_info, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar, fps=ctx.fps)
@@ -181,3 +187,4 @@ def general_task(input_file, extra_frames_, add_text, upload=False):
     t4 = time.time()
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
+    return ctx

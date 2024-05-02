@@ -23,7 +23,7 @@ import win32gui
 import win32process
 import pyautogui
 import re, psutil
-import inspect
+import inspect, copy
 
 ab = autopyBot.autopy.autopy("uploader_imgs")
 ab.find_fun_timeout = 30
@@ -45,15 +45,18 @@ with open('data\hashtag_map.json', 'r') as file:
     hashtag_map = json.load(file)
         
 def procHash(title_hashs, add_short):
-    title_hashs_ = title_hashs.split(" ")
-    if add_short:
-        title_hashs_.append("#shorts")
+    # title_hashs_ = title_hashs.split(" ")
+    # if add_short:
+    #     title_hashs_.append("#shorts")
+    title_hashs_ = copy.deepcopy(title_hashs)
     random.shuffle(title_hashs_)
-    title_hashs = " ".join(title_hashs_)
-    return title_hashs
+    title_hashs_ = " ".join(title_hashs_)
+    return title_hashs_
+
+
 
 def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
-    procHash(title_hashs, True)
+    title_hashs = procHash(title_hashs, True)
 
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_insta_avee")
     
@@ -223,13 +226,7 @@ def start_browser_sync(url, profile):
     print("Browser started successfully.")
     
     
-def procHash(title_hashs_, add_short):
-    #title_hashs_ = title_hashs.split(" ")
-    if add_short:
-        title_hashs_.append("#shorts")
-    random.shuffle(title_hashs_)
-    title_hashs = " ".join(title_hashs_)
-    return title_hashs
+
 
 def notified_key_press(key):
     logging.info(f"----> pressing key {key}")        
@@ -292,18 +289,19 @@ async def tiktok_task(title_hashs = ["#piano, #originalmusic"], channel_id= "", 
     
     await operate_file_popup( upload_file, select_file.clickCursor)
 
-    caption = await ac.find(htmlE("""[aria-label="Caption"]""", "querySelector", ac), loop=2, do_until=adel_(pg.press, ["enter"], 2, True ), click=1)
+    caption = await ac.find(htmlE("""[aria-autocomplete="list"]""", "querySelector", ac), loop=2, do_until=adel_(pg.press, ["enter"], 2, True ), click=1)
     
     ab._workaround_write(track_title + " "  + title_hashs)
 
-    edit_video_btn = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[1]/div[1]/div[2]/button", "xpath", ac, label="edit_video_btn"), loop=2,timeout=900, click=0)
+#    edit_video_btn = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[2]/div/div[1]/div/div[3]/button", "xpath", ac, label="edit_video_btn"), loop=2,timeout=900, click=0)
+    # uploaded_msg = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[1]/div[1]/div[3]/div/span", "xpath", ac, label="uploaded_msg"), loop=2,timeout=900, click=0)
 
     for x in range(50):
         pg.scroll(-10)
         
-    post_btn = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/div[7]/div[2]/button", "xpath", ac, label="post_btn"), loop=2, click=1)
+    post_btn = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[2]/div/div[2]/div[7]/div[2]/button", "xpath", ac, label="post_btn"), loop=2, click=1)
     
-    manage_posts = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/div[8]/div/div[2]/div[2]", "xpath", ac, label="manage_posts"), do_until=adel_(post_btn.clickCursor, [], 2, True ), loop=2)
+    manage_posts = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[2]/div/div[2]/div[8]/div/div[2]/div[2]", "xpath", ac, label="manage_posts"), do_until=adel_(post_btn.clickCursor, [], 2, True ), loop=2, timeout=900)
         
     res = await ac.close_browser()
 
@@ -359,6 +357,8 @@ async def twitter_task(title_hashs = ["#piano, #originalmusic"], channel_id="", 
 
     attach_media = await ac.find(htmlE("""[aria-label="Add photos or video"]""", "querySelector", ac, label="attach_media"), loop=2,timeout=80, timeout_exception="twitter page didn't open", do_until=adel_(start_browser, [args], 30 ), click=0)
     
+    what_is_happening = await ac.find(htmlE("""/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]""", "xpath", ac, label="what_is_happening"), loop=2,timeout=80, click=1)
+
     ab._workaround_write(track_title  + " " + title_hashs ); await asyncio.sleep(0.5)
     
     attach_media.clickCursor()
@@ -622,7 +622,8 @@ def perform_upload_tasks(payload:taskPayload, tasks = all_tasks.values(), mongo_
                 ret =  ac.start([lambda: perform_task(payload, task_fun)])#, lambda: check_timeout(1500)
                 if ret: 
                     logging.info(f"""Post execution error log during async task  {task_fun.__name__}, id: {ret["id"]}, exception: "{ret["exception"]}", traceback:\n {ret["traceback"]}""")
-                    update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), ret["traceback"])
+                    if mongo_context:
+                        update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), ret["traceback"])
                     time.sleep(1)
                 else:
                     break
@@ -633,15 +634,15 @@ def perform_upload_tasks(payload:taskPayload, tasks = all_tasks.values(), mongo_
                     break
                 except Exception as e:
                     logging.info(f"Error during sync task  {task_fun.__name__} ,  exception: {e},  traceback:\n {traceback.format_exc()}")
-                    update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), str(traceback.format_exc()))
+                    if mongo_context:
+                        update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), str(traceback.format_exc()))
                     time.sleep(1)
 
 def update_with_error(mongo_context, upload_attempt_pl, new_entry_id, error):
-    if mongo_context:
-        mongo =  mongo_context["client"]
-        upload_attempt_pl["error"] = error
-        update_result = mongo.update_entry({"_id": ObjectId(new_entry_id)}, upload_attempt_pl, "upload_attempts", mongo.schemas["upload_attempts"])
-        logging.info(f"Updated upload attempt with error { update_result.modified_count if update_result else 'Nothing updated'} {  'op id:' + str(uuid.uuid1())  }")
+    mongo =  mongo_context["client"]
+    upload_attempt_pl["error"] = error
+    update_result = mongo.update_entry({"_id": ObjectId(new_entry_id)}, upload_attempt_pl, "upload_attempts", mongo.schemas["upload_attempts"])
+    logging.info(f"Update operation for upload attempt with error { update_result.modified_count if update_result else 'Nothing updated'} {  'op id:' + str(uuid.uuid1())  }")
 
 def create_attempt_entry(mongo_context, task):
     upload_attempt= None
@@ -661,8 +662,8 @@ if __name__ == "__main__":
     #ac.start([lambda: perform_task(task_payload, facebook_task)])
 
     #ac.start([lambda: monitor_task()])
-    #perform_upload_tasks(None, [soundcloud_task, soundcloud_task])
-    perform_upload_tasks(task_payload,all_tasks.values())
+    perform_upload_tasks(task_payload, [twitter_task])
+    #perform_upload_tasks(task_payload,all_tasks.values())
 
 
     time.sleep(2)

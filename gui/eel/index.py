@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 uri = os.getenv("MONGODB_URI")
-
+assert(uri)
 if __name__ == '__main__':
     mongo = MongoDBClient(uri, 'social-media-helper',
                              {'track_entries': mongo_schema.trackSchema.schema, 

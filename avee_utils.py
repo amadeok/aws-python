@@ -24,6 +24,9 @@ import pywinauto, ctypes,win32process
 from urllib.parse import quote
 from collections import namedtuple
 import app_env
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_frame_count(file_path):
     # result = sp.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-count_frames', '-show_entries', 'stream=nb_frames', '-of', 'default=nokey=1:noprint_wrappers=1', file_path], stdout=sp.PIPE, stderr=sp.PIPE, universal_newlines=True)
@@ -140,21 +143,23 @@ class avee_context():
         s.wid = wid
         s.hei = hei
         s.hwnd, s.ld_win= s.restart_ld_player(hwnd = None )
-        print(s.ld_win.width,s.ld_win.height )
-        win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
-        print(s.ld_win.width,s.ld_win.height )
-        resolve_handles = get_window_handles_with_title(["DaVinci", "resolve", "project manager"])
-        for w in resolve_handles:
-            win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
+        move_wins = int(os.getenv("MOVE_WINDOWS_FOR_LD"))
+        if move_wins:
+            print(s.ld_win.width,s.ld_win.height )
+            win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
+            print(s.ld_win.width,s.ld_win.height )
+            resolve_handles = get_window_handles_with_title(["DaVinci", "resolve", "project manager"])
+            for w in resolve_handles:
+                win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
 
-        windows = pyautogui.getAllWindows()
-    
-        for window in windows:
-            if window.left < s.ld_win.width and window._hWnd != s.hwnd:
-                try:
-                    window.moveTo(window.left + s.ld_win.width, window.top)
-                except Exception as e:
-                    logging.error(f"error moving window {e}")
+            windows = pyautogui.getAllWindows()
+        
+            for window in windows:
+                if window.left < s.ld_win.width and window._hWnd != s.hwnd:
+                    try:
+                        window.moveTo(window.left + s.ld_win.width, window.top)
+                    except Exception as e:
+                        logging.error(f"error moving window {e}")
 
         s.prefix = prefix
         s.rg = (s.ld_win.topleft.x, s.ld_win.topleft.y, s.wid, s.hei)

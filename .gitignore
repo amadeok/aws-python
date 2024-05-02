@@ -10,6 +10,7 @@ sct-715x2638_1080x1920.png
 test.png
 accs.txt
 tmp/
+audio_input_tmp/
 ad1.png
 ad1.png
 spline.py - collegamento.lnk
@@ -23,7 +24,6 @@ file.mp4
 ooo
 
 vis/
-
 __pycache__/
 new 8.txt
 exiftool/
@@ -36,3 +36,4 @@ __pycache__/boto3_utils.cpython-310.pyc
 .env
 gui/eel/social-media-helper-417814-22917349ca42.json
 social-media-helper-417814-22917349ca42.json
+app.log

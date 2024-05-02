@@ -88,7 +88,7 @@ const TrackComponent = ({ track, ctx }) => {
                             <EditableText label={"Error:"} value={attempt.error} style={"max-h-[70px] overflow-hidden"}  path={{ "_id": attempt._id, "path": "error", "index": null, "field": null, "collection": "upload_attempts" }}> </EditableText></div>
                           </div>
                           <div onClick={() => eel.delete_entry({ "_id": attempt._id, "collection": "upload_attempts" })} 
-                        className=" cursor-pointer bg-red-500 w-[7px] rounded-r-xl ml-2"></div>
+                        className=" cursor-pointer bg-red-500 max-w-5 rounded-r-xl ml-1 pl-1"></div>
 
                      </div>
                     //  <div key={`${i}_platform`}>
