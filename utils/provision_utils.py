@@ -51,3 +51,13 @@ def break_down_delta(delta):
     minutes = (delta.seconds % 3600) // 60
     string = f'{gs(years, "y")}{gs(months, "mo")}{gs(days, "d")}{gs(hours, "h")}{gs(minutes, "m")}'
     return years,months,days,hours,minutes, string
+
+
+def break_down_time_settings(database):
+    upload_frequency_hours = database["settings"][0]["minimum_upload_frequency_h"]
+    uploads_per_day = database["settings"][0]
+    ["uploads_per_day"]
+    upload_time_offset = database["settings"][0]["upload_time_offset"] +0
+    upload_frequency = (24/uploads_per_day) 
+    minimum_upload_frequency_h = upload_frequency / 2
+    return uploads_per_day,upload_time_offset,upload_frequency,minimum_upload_frequency_h

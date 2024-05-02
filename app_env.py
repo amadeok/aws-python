@@ -1,5 +1,6 @@
-from dotenv import dotenv_values
-config = dotenv_values(".env")
-ld_shared_folder =  config["LD_SHARED_FOLDER"]
-audio_folder = config["AUDIO_FOLDER"]
-output_folder = config["OUTPUT_FOLDER"]
+from dotenv import dotenv_values, load_dotenv
+import os
+load_dotenv()
+ld_shared_folder =   os.getenv("LD_SHARED_FOLDER")
+audio_folder =  os.getenv("AUDIO_FOLDER")
+output_folder =  os.getenv("OUTPUT_FOLDER")
