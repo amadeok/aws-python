@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     ac = connect_arduino(arduino_port)
 
-    start_processes()
+    #start_processes()
 
     time.sleep(2)
 

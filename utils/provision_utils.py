@@ -55,8 +55,7 @@ def break_down_delta(delta):
 
 def break_down_time_settings(database):
     upload_frequency_hours = database["settings"][0]["minimum_upload_frequency_h"]
-    uploads_per_day = database["settings"][0]
-    ["uploads_per_day"]
+    uploads_per_day = database["settings"][0]["uploads_per_day"]
     upload_time_offset = database["settings"][0]["upload_time_offset"] +0
     upload_frequency = (24/uploads_per_day) 
     minimum_upload_frequency_h = upload_frequency / 2

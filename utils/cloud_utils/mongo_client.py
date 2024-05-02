@@ -9,6 +9,7 @@ from jsonschema import validate
 from dotenv import load_dotenv
 import os
 import pyautogui
+import certifi
 
 load_dotenv()
 
@@ -16,11 +17,13 @@ load_dotenv()
 
 class MongoDBClient:
     def __init__(self, connection_string, database_name, collection_schemas):
+        ca = certifi.where()
+
         logging.info(f"initailizing monbodb client with string {connection_string}")
         if False:
-            self.client = MongoClient('localhost', 27017) 
+            self.client = MongoClient('localhost', 27017, tlsCAFile=ca) 
         else:
-            self.client = MongoClient(connection_string) #changing dns to 8.8.4.4 fixed it once
+            self.client = MongoClient(connection_string,  tlsCAFile=ca) #changing dns to 8.8.4.4 fixed it once
         
         self.db = self.client[database_name]
         self.collection_names = {key for key, value in collection_schemas.items() }
