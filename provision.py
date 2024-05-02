@@ -192,8 +192,9 @@ def provision(dummy=False, payload=None):
             update_result = mongo.update_entry({"_id": ObjectId(new_session_res.inserted_id)}, uploadSessionObj, "upload_sessions", mongo.schemas["upload_sessions"])
             logging.info(f"Update operation for upload session with pre-upload error { update_result.modified_count if update_result else 'Nothing updated'}")
             continue
-        
-        t["payload"]= uploader.taskPayload(track_title=t["track_entry"]["track_title"], upload_file=os.path.normpath(ctx.input_f.dav_final_file) )
+        main_yt_id = "UCdeGgQuczwgU8H-GaMrdLzw"
+
+        t["payload"]= uploader.taskPayload(channel_id=main_yt_id, track_title=t["track_entry"]["track_title"], upload_file=os.path.normpath(ctx.input_f.dav_final_file) )
         mongo_context = {"client": mongo, "session_id": new_session_res.inserted_id, "track_id": t["track_entry"]["_id"]}
         uploader.perform_upload_tasks(t["payload"], t["sites"], mongo_context )
         

@@ -34,6 +34,7 @@ del_ = autopyBot.autopy.fun_delegate
 
 #test_file =  r"C:\Users\amade\Videos\002_sky pm 12 30.mkv"
 test_file =  r"C:\Users\amade\Videos\20240318_170455.mp4"
+test_yt_id = "UCRFWvTVdgkejtxqh0jSlXBg" # ak@g
 
 ac = autoChromePy("")
 _del = autopyBot.autopy.fun_delegate
@@ -243,7 +244,7 @@ async def operate_file_popup( file_path, do_until_fun, do_until_fun_args=[]):
     logging.info("file_name_edge is gone...")
     #network.send_string("YT_SUCCESS", conn)
 
-async def youtube_task(title_hashs = ["#piano, #originalmusic"], channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg",  b_start_browser=True, edge_profile:str="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
+async def youtube_task(title_hashs = ["#piano, #originalmusic"], channel_id:str=test_yt_id,  b_start_browser=True, edge_profile:str="Default", upload_file= test_file, track_title="Op. 42 - Cristian Kusch"):
 
     title_hashs = procHash(title_hashs, True)
           
@@ -530,7 +531,7 @@ async def monitor_task():
 
 
 class taskPayload():
-    def __init__(self, title_hashs = ["#piano", "#originalmusic"], channel_id:str="UCRFWvTVdgkejtxqh0jSlXBg", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch", hashtag_map = None) -> None:
+    def __init__(self, title_hashs = ["#piano", "#originalmusic"], channel_id:str=test_yt_id, b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch", hashtag_map = None) -> None:
         self.title_hashs = title_hashs
         self.channel_id=channel_id
         self.b_start_browser=b_start_browser
