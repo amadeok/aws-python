@@ -1,8 +1,11 @@
 
 
 
-import time, random, subprocess, psutil, os
+import sys, os
 import dotenv
+dotenv.load_dotenv()
+sys.path.insert(0, os.getenv("RESOLVE_PYTHON_PATH") )
+import time, random, subprocess, psutil
 import provision
 import ArdClick
 import arduino.turn.arduino_helper as arduino_helper
@@ -11,8 +14,8 @@ import logging
 from datetime import datetime, timedelta
 from utils.provision_utils import gs, round_time, calculate_times_per_day, print_debug_setup_times, print_time_setup, break_down_delta, break_down_time_settings
 
-dotenv.load_dotenv()
 
+    
 def close_if_running(process_name):
     for proc in psutil.process_iter():
         if proc.name() == process_name:
@@ -72,6 +75,7 @@ def wait_for_processes():
 
 
 if __name__ == "__main__":
+
     arduino_port = os.getenv("ARDUINO_PORT")
 
     ac = connect_arduino(arduino_port)
