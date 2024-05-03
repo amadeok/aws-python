@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-import logging
+import pygetwindow as gw, win32gui
+import logging, psutil, subprocess, os, time
 
 def gs(n, s): return f"{n}{s} " if n else ""
 
@@ -60,3 +61,42 @@ def break_down_time_settings(database):
     upload_frequency = (24/uploads_per_day) 
     minimum_upload_frequency_h = upload_frequency / 2
     return uploads_per_day,upload_time_offset,upload_frequency,minimum_upload_frequency_h
+
+def close_if_running(process_name):
+    for proc in psutil.process_iter():
+        if proc.name() == process_name:
+            proc.kill()
+            while  any(proc.name() == process_name for proc in psutil.process_iter()):
+                logging.info(f"waiting {process_name} to close..")
+                time.sleep(0.3)
+
+def start_processes():
+    resolve_bin = os.getenv("RESOLVE_BIN") #r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
+    ld_player_bin = os.getenv("LD_BIN") #r"C:\LDPlayer\LDPlayer9\dnplayer.exe"
+
+    close_if_running("Resolve.exe")
+
+    close_if_running("dnplayer.exe")
+
+    resolve_running = any(proc.name() == "Resolve.exe" for proc in psutil.process_iter())
+
+    ld_player_running = any(proc.name() == "dnplayer.exe" for proc in psutil.process_iter())
+
+    if not resolve_running:
+        logging.info("Starting resolve ....")
+        resolve = subprocess.Popen(resolve_bin)
+        for x in range(5*60):
+            project_manager_win = gw.getWindowsWithTitle("Project Manager")
+            time.sleep(1)
+            if len(project_manager_win):
+                break
+        else:
+            logging.info("resolve failed to start after 5 min ? project manager window not found ")
+
+
+
+    if not ld_player_running:
+        logging.info("Starting ldplayer....")
+        ld  = subprocess.Popen(ld_player_bin)
+
+    return resolve_running, ld_player_running, resolve, ld

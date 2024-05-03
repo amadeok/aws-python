@@ -13,7 +13,7 @@ import utils.cloud_utils.mongo_schema as mongo_schema
 import uploader, base
 from datetime import timedelta, datetime
 import datetime as datetime_parent
-from utils.provision_utils import gs, break_down_delta, round_time, calculate_times_per_day, print_debug_setup_times, break_down_time_settings
+from utils.provision_utils import gs, break_down_delta, round_time, calculate_times_per_day, print_debug_setup_times, break_down_time_settings, start_processes
 
 def provision(dummy=False, payload=None):
     print(f"provision {dummy}")
@@ -151,8 +151,10 @@ def provision(dummy=False, payload=None):
            
     if not len(tracks_need_to_upload_sorted_by_date):
         logging.info("##### No tasks ####\n")
-        return  payload
+        return  payload, None
     
+    processes = start_processes()
+
     upload_tasks_n = 0
     for t in tracks_need_to_upload_sorted_by_date: upload_tasks_n+= len(t["sites"])
     
@@ -171,7 +173,7 @@ def provision(dummy=False, payload=None):
     logging.info(f"##### #### #####")
     logging.info("")
     
-    uploadSessionObj =  mongo_schema.uploadSession.create( datetime.now(datetime.timezone.utc).isoformat(), [], [], [])
+    uploadSessionObj =  mongo_schema.uploadSession.create( datetime.now(datetime_parent.timezone.utc).isoformat(), [], [], [])
     new_session_res = mongo.create_entry(uploadSessionObj, "upload_sessions", mongo.schemas["upload_sessions"])
     logging.info(f"""Created upload session entry with id  {new_session_res.inserted_id}""")
 
@@ -200,7 +202,7 @@ def provision(dummy=False, payload=None):
         
     logging.info("All tasks returned")
     
-    return payload
+    return payload, processes
 
 
 

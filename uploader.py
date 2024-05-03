@@ -46,10 +46,10 @@ with open('data\hashtag_map.json', 'r') as file:
     hashtag_map = json.load(file)
         
 def procHash(title_hashs, add_short):
-    # title_hashs_ = title_hashs.split(" ")
-    # if add_short:
-    #     title_hashs_.append("#shorts")
     title_hashs_ = copy.deepcopy(title_hashs)
+    #title_hashs_ = title_hashs.split(" ")
+    if add_short:
+        title_hashs_.append("#shorts")
     random.shuffle(title_hashs_)
     title_hashs_ = " ".join(title_hashs_)
     return title_hashs_
@@ -57,12 +57,14 @@ def procHash(title_hashs, add_short):
 
 
 def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
-    title_hashs = procHash(title_hashs, True)
+    title_hashs = procHash(title_hashs, False)
 
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_insta_avee")
-    
-    at: autopyBot.autopy.autopy = actx.a
+    if actx.move_wins:
+        actx.move_windows_out_the_way()
 
+    at: autopyBot.autopy.autopy = actx.a
+    at.find_fun_timeout = 40
     actx.start_adb_server()
     #actx.hwnd, actx.ld_win= actx.restart_ld_player()
     actx.wait_for_device()
@@ -118,10 +120,23 @@ def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_st
 
     ret = at.find([at.i.share], loop=2, confidence=0.95, click_function=actx.tap)
 
-    actx.adb("input swipe 200 20 220 500")    
-    ret = at.find([at.i.battery], loop=2, confidence=0.95)
-    
-    ret = at.find([at.i.reel_uploaded], loop=2, timeout=600, confidence=0.95)
+    # actx.adb("input swipe 200 20 220 500")    
+    # ret = at.find([at.i.battery], loop=2, confidence=0.95)
+    t0 = time.time()
+    while 1:
+        ret = at.find([at.i.reel_uploaded], confidence=0.95)
+        if ret: 
+            break
+        if time.time() - t0 > 800: 
+            logging.info("insta task uploaded image search breakout because of timeout 800 seconds")
+            break
+        time.sleep(1)
+        ret = at.find([at.i.battery], confidence=0.95)
+        if not ret:
+            logging.info("insta task swiping")
+            actx.adb("input swipe 200 20 220 500")    
+        time.sleep(1)
+
     
     if ret: logging.info("INSTA_SUCCESS")
 
@@ -211,11 +226,15 @@ async def start_browser(args):# url, profile):
     edge_process = sp.Popen(cmd)
 
     title_to_search = "Edge Canary"
-    handles = get_window_handles_with_title(title_to_search)
+    for x in range(60):
+        handles = get_window_handles_with_title(title_to_search)
+        if len(handles):break
+        await asyncio.sleep(1)
+    else: logging.info("failed to get edge window handle after 60 seconds")
     logging.info(f"Window handles with title containing '{title_to_search}' : {handles}")
     
     for h in handles:
-        win32gui.MoveWindow(h, 0, 0, 1920, 1080, True)
+        win32gui.MoveWindow(h, 0, 0, 1920, 1040, True)
     await asyncio.sleep(2)
     print("Browser started successfully.")
 
@@ -286,7 +305,7 @@ async def tiktok_task(title_hashs = ["#piano, #originalmusic"], channel_id= "", 
 
     await ac.wait_for_websocket(100)
 
-    select_file = await ac.find(htmlE("""[aria-label="Select file"]""", "querySelector", ac), loop=2,timeout=80, timeout_exception="yt page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
+    select_file = await ac.find([htmlE("""[aria-label="Select file"]""", "querySelector", ac), htmlE("""[aria-live="polite"]""", "querySelector", ac)], loop=2,timeout=80, timeout_exception="yt page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     
     await operate_file_popup( upload_file, select_file.clickCursor)
 
@@ -663,7 +682,7 @@ if __name__ == "__main__":
     #ac.start([lambda: perform_task(task_payload, facebook_task)])
 
     #ac.start([lambda: monitor_task()])
-    perform_upload_tasks(task_payload, [twitter_task])
+    perform_upload_tasks(task_payload, [instagram_task])
     #perform_upload_tasks(task_payload,all_tasks.values())
 
 

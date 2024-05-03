@@ -46,7 +46,7 @@ class arduinoHelper():
             print(f"{str(labels[x]).ljust(20)} {integer_value}")
             
 if __name__ == "__main__":
-    ac = arduinoHelper(False, "COM7")
+    ac = arduinoHelper(False, "COM9")
     n= 0
     ac.ar.init()
     ac.set_turn_on_interval(300)

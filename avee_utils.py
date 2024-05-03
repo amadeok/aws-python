@@ -143,23 +143,9 @@ class avee_context():
         s.wid = wid
         s.hei = hei
         s.hwnd, s.ld_win= s.restart_ld_player(hwnd = None )
-        move_wins = int(os.getenv("MOVE_WINDOWS_FOR_LD"))
-        if move_wins:
-            print(s.ld_win.width,s.ld_win.height )
-            win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
-            print(s.ld_win.width,s.ld_win.height )
-            resolve_handles = get_window_handles_with_title(["DaVinci", "resolve", "project manager"])
-            for w in resolve_handles:
-                win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
-
-            windows = pyautogui.getAllWindows()
-        
-            for window in windows:
-                if window.left < s.ld_win.width and window._hWnd != s.hwnd:
-                    try:
-                        window.moveTo(window.left + s.ld_win.width, window.top)
-                    except Exception as e:
-                        logging.error(f"error moving window {e}")
+        s.move_wins = int(os.getenv("MOVE_WINDOWS_FOR_LD"))
+        if s.move_wins:
+            s.move_windows_out_the_way()
 
         s.prefix = prefix
         s.rg = (s.ld_win.topleft.x, s.ld_win.topleft.y, s.wid, s.hei)
@@ -168,12 +154,29 @@ class avee_context():
         s.a.default_region = s.rg
         
         s.device = "emulator-5554"
-        s.adb_binary =  app_env.config["ADB_BINARY"]
+        s.adb_binary =  os.getenv("ADB_BINARY")
         assert(os.path.isfile(s.adb_binary))
         assert(is_ffmpeg_installed())
         s.base = f"{s.adb_binary}  -s {s.device} shell "
 
         s.sleep_t = 0.1
+
+    def move_windows_out_the_way(s):
+        print(s.ld_win.width,s.ld_win.height )
+        win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
+        print(s.ld_win.width,s.ld_win.height )
+        resolve_handles = get_window_handles_with_title(["DaVinci", "resolve", "project manager"])
+        for w in resolve_handles:
+            win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
+
+        windows = pyautogui.getAllWindows()
+        
+        for window in windows:
+            if window.left < s.ld_win.width and window._hWnd != s.hwnd:
+                try:
+                    window.moveTo(window.left + s.ld_win.width, window.top)
+                except Exception as e:
+                    logging.error(f"error moving window {e}")
 
 
     def xcoor(s, x):
@@ -333,7 +336,8 @@ def avee_task(target_file, template_file, start, dur, suffix):
     
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_avee")
     adb_binary, sub_output, base, wait_for_device, adb, device, reset_settings, check_avee_running, tab_scroll, a, is_avee_running = actx.get_vars()
-
+    if actx.move_wins:
+        actx.move_windows_out_the_way()
     
     os.system(f"{adb_binary} start-server ")
     os.system(f"{adb_binary} start-server ")
