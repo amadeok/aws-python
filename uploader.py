@@ -33,7 +33,8 @@ del_ = autopyBot.autopy.fun_delegate
 #htmlE = autoChrome.htmlE
 
 #test_file =  r"C:\Users\amade\Videos\002_sky pm 12 30.mkv"
-test_file =  r"C:\Users\amade\Videos\20240318_170455.mp4"
+test_file =  r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\None_00022v2_s\00022v2_s_dav.mp4"
+#test_file = r"C:\Users\amade\Videos\20240318_170455.mp4"
 test_yt_id = "UCRFWvTVdgkejtxqh0jSlXBg" # ak@g
 
 ac = autoChromePy("")
@@ -66,8 +67,9 @@ def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_st
 
     at: autopyBot.autopy.autopy = actx.a
     at.find_fun_timeout = 40
+
     actx.start_adb_server()
-    #actx.hwnd, actx.ld_win= actx.restart_ld_player()
+    #actx.hwnd, actx.ld_win= actx.get_ld_player_handle()
     actx.wait_for_device()
     
     adb = actx.adb
@@ -77,14 +79,24 @@ def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_st
     
     adb("rm /mnt/shared/Pictures/ainsta/*")
     time.sleep(0.5)
+    actx.update_file_system()
+    time.sleep(0.5)
+    # adb("am start -a android.intent.action.VIEW -n com.instagram.android/.activity.MainTabActivity")
+    # time.sleep(0.5)
+
     name = ''.join(random.choices(string.ascii_letters + string.digits + "_-.", k=5))
     adb(f"""push  "{upload_file}" /mnt/shared/Pictures/ainsta/{name}.mp4""", False)
     time.sleep(0.5)
     actx.update_file_system()
-    time.sleep(1)
-    adb("am start -a android.intent.action.VIEW -n com.instagram.android/.activity.MainTabActivity")
-    
-    ret = at.find([at.i.plus, at.i.plus_black], loop=2, click_function= actx.tap, confidence=0.95)
+    actx.restart_ld_player()
+    actx.wait_for_device()
+    #actx.check_app_running("com.instagram.android", f"{actx.base} am start -a android.intent.action.VIEW -n com.instagram.android/.activity.MainTabActivity", [at.i.plus, at.i.plus_black])
+    for x in range(60):
+        adb("am start -a android.intent.action.VIEW -n com.instagram.android/.activity.MainTabActivity")
+        ret = at.find([at.i.plus, at.i.plus_black], click_function= actx.tap, confidence=0.95)
+        if ret: break
+        time.sleep(1)
+    else: raise Exception("failed to open insta?")
         
     ret = at.find([at.i.menu_reel, at.i.menu_reel_bold], loop=2, confidence=0.95)
     if ret == at.i.menu_reel: actx.tap(ret.found)
@@ -142,7 +154,6 @@ def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_st
             logging.info("insta task swiping")
             actx.adb("input swipe 200 20 220 500")    
         time.sleep(1)
-
     
     if ret: logging.info("INSTA_SUCCESS")
 
@@ -226,6 +237,9 @@ async def start_browser(args):# url, profile):
     await asyncio.sleep(0.5)
     binary = r"C:\Users\amade\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe"
     terminate_processes_by_exe(binary)
+    for x in range(2):
+        await asyncio.sleep(1)
+        logging.info("closed browser...")
 
     cmd = [binary]# url,  f'--profile-directory={profile}']
     cmd+=args
@@ -243,6 +257,8 @@ async def start_browser(args):# url, profile):
         win32gui.MoveWindow(h, 0, 0, 1920, 1040, True)
     await asyncio.sleep(2)
     print("Browser started successfully.")
+    await ac.wait_for_websocket(100)
+
 
 def start_browser_sync(url, profile):
     time.sleep(0.5)
@@ -277,7 +293,7 @@ async def youtube_task(title_hashs = ["#piano, #originalmusic"], channel_id:str=
     
     if b_start_browser:   await start_browser(args)
 
-    await ac.wait_for_websocket(100)
+    #await ac.wait_for_websocket(100)
     
     upload_arrow = await ac.find(htmlE('burst', "id", ac), loop=2,timeout=80, timeout_exception="yt page didn't open", do_until=adel_(start_browser, [args], 30 ), click=True)
         
@@ -309,7 +325,7 @@ async def tiktok_task(title_hashs = ["#piano, #originalmusic"], channel_id= "", 
     
     if b_start_browser:  await start_browser(args)
 
-    await ac.wait_for_websocket(100)
+    #await ac.wait_for_websocket(100)
 
     select_file = await ac.find([htmlE("""[aria-label="Select file"]""", "querySelector", ac), htmlE("""[aria-live="polite"]""", "querySelector", ac)], loop=2,timeout=80, timeout_exception="yt page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     
@@ -339,7 +355,7 @@ async def threads_task( title_hashs, channel_id, b_start_browser=True,  upload_f
     
     if b_start_browser:   await start_browser(args)
 
-    await ac.wait_for_websocket(100)
+    #await ac.wait_for_websocket(100)
 
     start_a_thread = await ac.find(htmlE("/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[1]/div/div[1]", "xpath", ac, label="start_a_thread"), loop=2,timeout=80, timeout_exception="threads page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     
@@ -379,7 +395,7 @@ async def twitter_task(title_hashs = ["#piano, #originalmusic"], channel_id="", 
     
     if b_start_browser:  await start_browser(args)
 
-    await ac.wait_for_websocket(100)
+    #await ac.wait_for_websocket(100)
 
     attach_media = await ac.find(htmlE("""[aria-label="Add photos or video"]""", "querySelector", ac, label="attach_media"), loop=2,timeout=80, timeout_exception="twitter page didn't open", do_until=adel_(start_browser, [args], 30 ), click=0)
     
@@ -415,7 +431,7 @@ async def facebook_task(title_hashs = ["#piano, #originalmusic"], channel_id="",
     
     if b_start_browser:  await start_browser(args)
 
-    await ac.wait_for_websocket(100)
+    #await ac.wait_for_websocket(100)
 
     add_video:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/form/div/div/div[1]/div/div[2]/div[1]/div[2]/div/div", "xpath", ac, label="add_video"),  loop=2,timeout=80, timeout_exception="fb page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     
@@ -686,9 +702,11 @@ if __name__ == "__main__":
     #instagram_task()
 
     #ac.start([lambda: perform_task(task_payload, facebook_task)])
-
+ 
+    # import subprocess
+    # ld  = subprocess.Popen(os.getenv("LD_BIN"))
     #ac.start([lambda: monitor_task()])
-    perform_upload_tasks(task_payload, [instagram_task])
+    perform_upload_tasks(task_payload, [tumblr_task])
     #perform_upload_tasks(task_payload,all_tasks.values())
 
 

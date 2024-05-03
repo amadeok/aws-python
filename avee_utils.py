@@ -11,7 +11,7 @@ os.environ['PATH'] = os.path.dirname('C:\Program Files\MediaInfo') + ';' + os.en
 import MediaInfo
 from pymediainfo import MediaInfo
 
-import win32gui
+import win32gui, psutil
 import win32ui
 import random
 import autopyBot
@@ -25,6 +25,7 @@ from urllib.parse import quote
 from collections import namedtuple
 import app_env
 from dotenv import load_dotenv
+from utils.provision_utils import close_if_running
 
 load_dotenv()
 
@@ -113,7 +114,7 @@ class name_storage():
 # command = ['schtasks', '/run', '/tn', exe]
 # sp.Popen(["cmd.exe", '/c', 'start']+command)
 
-#hwnd, ld_win= restart_ld_player(hwnd = None )
+#hwnd, ld_win= get_ld_player_handle(hwnd = None )
 nt = namedtuple("name_storage", "android_name win_name basename dirpath")
 
 def is_ffmpeg_installed():
@@ -135,6 +136,21 @@ def get_window_handles_with_title(titles):
         win32gui.EnumWindows(callback, handles)
     return handles
     
+def get_pid_from_handle(handle):
+    handle = ctypes.c_ulong(handle).value
+    
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            handles = proc.open_files() + proc.connections()
+            for obj in handles:
+                if hasattr(obj, 'fd'):
+                    if obj.fd == handle:
+                        return proc.pid
+        except psutil.AccessDenied:
+            pass
+    return None
+
+
 class avee_context():
     template_fld = f"{app_env.ld_shared_folder}\\AveeTemplate_normal"
     template_list = [nt(shlex.quote(elem), elem, elem.split(".")[0], os.path.dirname(elem) ) for elem in os.listdir(template_fld) if ".viz" in elem]
@@ -142,7 +158,7 @@ class avee_context():
     def __init__(s, wid, hei, prefix, autopyFld) -> None:
         s.wid = wid
         s.hei = hei
-        s.hwnd, s.ld_win= s.restart_ld_player(hwnd = None )
+        s.hwnd, s.ld_win= s.get_ld_player_handle(hwnd = None )
         s.move_wins = int(os.getenv("MOVE_WINDOWS_FOR_LD"))
         if s.move_wins:
             s.move_windows_out_the_way()
@@ -162,9 +178,9 @@ class avee_context():
         s.sleep_t = 0.1
 
     def move_windows_out_the_way(s):
-        print(s.ld_win.width,s.ld_win.height )
+        #print(s.ld_win.width,s.ld_win.height )
         win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
-        print(s.ld_win.width,s.ld_win.height )
+        #print(s.ld_win.width,s.ld_win.height )
         resolve_handles = get_window_handles_with_title(["DaVinci", "resolve", "project manager"])
         for w in resolve_handles:
             win32gui.MoveWindow(w._hWnd, s.ld_win.width, 0, w.width, w.height, True)
@@ -206,7 +222,17 @@ class avee_context():
         os.system(f"{s.adb_binary} start-server ")
         os.system(f"{s.adb_binary} start-server ")
 
-    def restart_ld_player(s, hwnd=None):
+    def restart_ld_player(s):
+        # close_if_running("dnplayer.exe")
+        # time.sleep(0.5)
+        # process = sp.Popen(os.getenv("LD_BIN"))
+        s.adb("reboot -p")
+        s.wait_for_device()
+        s.hwnd, s.ld_win = s.get_ld_player_handle()
+        win32gui.MoveWindow(s.hwnd, 0, 0, s.ld_win.width, s.ld_win.height, True)
+
+
+    def get_ld_player_handle(s, hwnd=None):
         # if hwnd:
         #     threadid,pid = win32process.GetWindowThreadProcessId(hwnd)
         #     os.system(f"taskkill /PID {pid}")
@@ -244,20 +270,35 @@ class avee_context():
         return out if len(out) else err
 
     def is_avee_running(s):
-        ret =  s.adb_output(f"pidof com.daaw.avee")
+        return s.is_app_running("com.daaw.avee")
+        # ret =  s.adb_output(f"pidof com.daaw.avee")
+        # if ret != b'':
+        #     return True
+        # return False
+    def is_app_running(s, app):
+        ret =  s.adb_output(f"pidof {app}")
         if ret != b'':
             return True
         return False
-        
-    def check_avee_running(s):
-        
-        if not s.is_avee_running():
-            logging.debug("Avee not running, starting")
-            os.system(f"{s.base} am start -a android.intent.action.VIEW -n com.daaw.avee/.MainActivity")
-            ret = s.a.find(s.a.i.speaker, timeout=40, loop=3, region=s.rg, check_avee_running=False)
-            time.sleep(4)
+    
+    def check_app_running(s, app, start_command, image):
+        if not s.is_app_running(app):
+            logging.debug(f"App  {app} not running, starting")
+            os.system(start_command)
+            ret = s.a.find(image, timeout=40, loop=3, region=s.rg, check_avee_running=False)
+            time.sleep(2)
         else:
-            logging.debug("Avee running")
+            logging.debug(f"App  {app}  running")
+
+    def check_avee_running(s):
+        s.check_app_running("com.daaw.avee", f"{s.base} am start -a android.intent.action.VIEW -n com.daaw.avee/.MainActivity", s.a.i.speaker)
+        # if not s.is_avee_running():
+        #     logging.debug("Avee not running, starting")
+        #     os.system(f"{s.base} am start -a android.intent.action.VIEW -n com.daaw.avee/.MainActivity")
+        #     ret = s.a.find(s.a.i.speaker, timeout=40, loop=3, region=s.rg, check_avee_running=False)
+        #     time.sleep(4)
+        # else:
+        #     logging.debug("Avee running")
 
     def reset_settings(s):
         settings_f = f"{app_env.ld_shared_folder}\\shared_prefs"
@@ -372,7 +413,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
     #print("####->", cmd)
     os.system(cmd)
 
-    # actx.hwnd, actx.ld_win= actx.restart_ld_player()
+    # actx.hwnd, actx.ld_win= actx.get_ld_player_handle()
     wait_for_device()
     #actx.a.ext_src = actx.hwnd
 
