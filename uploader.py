@@ -54,7 +54,8 @@ def procHash(title_hashs, add_short):
     title_hashs_ = " ".join(title_hashs_)
     return title_hashs_
 
-
+import string
+import random
 
 def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
     title_hashs = procHash(title_hashs, False)
@@ -71,8 +72,13 @@ def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_st
     
     adb = actx.adb
     
+
     adb(" am force-stop com.instagram.android")
-    adb(f"""push  "{upload_file}" /mnt/shared/Pictures/ainsta/1234.mp4""", False)
+    
+    adb("rm /mnt/shared/Pictures/ainsta/*")
+    time.sleep(0.5)
+    name = ''.join(random.choices(string.ascii_letters + string.digits + "_-.", k=5))
+    adb(f"""push  "{upload_file}" /mnt/shared/Pictures/ainsta/{name}.mp4""", False)
     time.sleep(0.5)
     actx.update_file_system()
     time.sleep(1)
