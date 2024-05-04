@@ -668,17 +668,22 @@ def perform_upload_tasks(payload:taskPayload, tasks = all_tasks.values(), mongo_
                         update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), ret["traceback"])
                     time.sleep(1)
                 else:
+                    if mongo_context:
+                        update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), "")
                     break
             else:
                 try:
                     pl = payload
                     task_fun(title_hashs=pl.title_hashs, channel_id=pl.channel_id, b_start_browser=pl.b_start_browser, upload_file=pl.upload_file, edge_profile=pl.edge_profile, track_title=pl.track_title)
+                    if mongo_context:
+                        update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), "")
                     break
                 except Exception as e:
                     logging.info(f"Error during sync task  {task_fun.__name__} ,  exception: {e},  traceback:\n {traceback.format_exc()}")
                     if mongo_context:
                         update_with_error(mongo_context, upload_attempt_pl, str(new_entry_id.inserted_id), str(traceback.format_exc()))
                     time.sleep(1)
+            
 
 def update_with_error(mongo_context, upload_attempt_pl, new_entry_id, error):
     mongo =  mongo_context["client"]
@@ -691,7 +696,7 @@ def create_attempt_entry(mongo_context, task):
     new_entry_id= None
     if mongo_context:
         mongo =  mongo_context["client"]
-        upload_attempt =  mongo_schema.uploadAttempt.create(mongo_context["track_id"], str(mongo_context["session_id"]), task, datetime.datetime.now(datetime.timezone.utc).isoformat(), "" )
+        upload_attempt =  mongo_schema.uploadAttempt.create(mongo_context["track_id"], str(mongo_context["session_id"]), task, datetime.datetime.now(datetime.timezone.utc).isoformat(), "task didn't reach end of function" )
         new_entry_id = mongo.create_entry(upload_attempt, "upload_attempts", mongo.schemas["upload_attempts"])
         logging.info(f"Created upload attempt entry with id: {new_entry_id.inserted_id} " )
     return upload_attempt,new_entry_id

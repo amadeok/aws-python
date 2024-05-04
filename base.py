@@ -4,6 +4,7 @@ from avee_utils import *
 import queue, app_logging, logging, shutil, sql_utils, aws_python, dav
 import json
 import app_env
+import utils.process_videos as pv, math, tempfile
 
 class avee_fragment():
     def __init__(self, ctx, audio_start, audio_end) -> None:
@@ -19,7 +20,7 @@ class avee_fragment():
 
 
 class context():
-    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None) -> None:
+    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="") -> None:
         s.instance_name = instance_name
         s.extra_frames = extra_frames
         s.out_fld = f"{app_env.output_folder}"
@@ -42,10 +43,12 @@ class context():
             s.bars_per_template = cloud_file_details['bars_per_template']
             s.beats_per_bar = cloud_file_details['beats_per_bar']
             s.avee_custom_lenghts = cloud_file_details['avee_custom_lenghts']
-        
+            
+        s.custom_video = custom_video
+        s.custom_video_info = pv.get_video_info_cv(custom_video) if custom_video != "" else None
         # s.td_start = datetime.timedelta(minutes=s.s_m, seconds=s.s_sec, milliseconds=s.s_ms)
-        s.fps = 60 #59940/1000
-        s.time_per_beat = (60/s.bpm)
+        s.fps = s.custom_video_info[3] if custom_video != "" else 60 #59940/1000
+        s.time_per_beat = (60/s.bpm) #its 60 not fps
         s.frames_per_beat = s.fps * s.time_per_beat
         s.frames_per_bar = s.frames_per_beat * s.beats_per_bar
         s.transition_delta = s.frames_per_bar * s.bars_per_template
@@ -167,17 +170,40 @@ def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
     t4 = time.time()
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
-
-def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None):
+    
+def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video=""):
 
     t0 = time.time()
 
-    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details)
+    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video)
 
     ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
 
-    perform_avee_task(ctx.input_f, ctx.bpm, ctx.bars, ctx.bars_per_template, ctx.avee_fragments_info, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar, fps=ctx.fps)
-
+    if not len(ctx.custom_video):
+        perform_avee_task(ctx.input_f, ctx.bpm, ctx.bars, ctx.bars_per_template, ctx.avee_fragments_info, ctx.extra_frames,  beats_per_bar=ctx.beats_per_bar, fps=ctx.fps)
+    else:
+        logging.info(f"Using custom video {ctx.custom_video}")
+        if not os.path.isfile(ctx.input_f.custom_video_final_file):
+            info = pv.get_video_info_cv(ctx.custom_video)
+            #info2 = pv.get_video_info_ffmpeg(ctx.custom_video)
+            dur = pv.get_video_duration_ffmpeg(ctx.input_f.input_path, "audio")  
+            
+            pre_file = ctx.custom_video
+            if dur > info[0]:
+                
+                pre_file = os.path.join(tempfile.gettempdir(), "0output.mp4")
+                times = math.ceil(dur/info[0])
+                logging.info(f"Custom video has shorter length than input audio, looping with reverse {dur} {info[0]}")
+                cmd = f"""ffmpeg -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]},setpts=N/{info[3]}/TB" {pre_file}   -y""" #os.path.dirname(custom_vi) #
+                logging.info(f"loop reverse cmd {cmd}")
+                os.system(cmd)
+            
+            cmd = f"""ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest {ctx.input_f.custom_video_final_file} -y"""
+            logging.info(f"Adding audio cmd {cmd}")
+            os.system(cmd)
+        else:
+            logging.info(f"Custom video final file already exists, skipping ")
+            
     davinci = dav.dav_handler(ctx)
     if upload:
         pass #TO DO

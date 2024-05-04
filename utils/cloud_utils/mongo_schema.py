@@ -22,15 +22,18 @@ class fileDetailsSchema():
     schema = {
     "type": "object",
     "properties":  { "file_path": {"type": "string"}, "bpm": {"type": "number"},
-                      "bars": {"type": "number"},  "bars_per_template": {"type": "number"}, "beats_per_bar": {"type": "number"},
+                      "bars": {"type": "number"},  
+                      "bars_per_template": {"type": "number"},
+                      "beats_per_bar": {"type": "number"},
                       "avee_custom_lenghts": {"type": "object"},
-                      "drive_id": {"type": "string"}
+                      "drive_id": {"type": "string"},
+                      "custom_video":  {"type": "string"}
                     },
     
     "required": ["file_path", "bpm", "bars", "bars_per_template", "beats_per_bar", "avee_custom_lenghts", "drive_id"], "additionalProperties": False 
     }
-    def create(file_path, bpm, bars, bars_per_template, beats_per_bar, avee_custom_lenghts):  
-        obj =  { "file_path": file_path, "bpm": bpm,  "bars": bars, "bars_per_template": bars_per_template,  "beats_per_bar": beats_per_bar, "avee_custom_lenghts":avee_custom_lenghts   } 
+    def create(file_path, bpm, bars, bars_per_template, beats_per_bar, avee_custom_lenghts, custom_video=None):  
+        obj =  { "file_path": file_path, "bpm": bpm,  "bars": bars, "bars_per_template": bars_per_template,  "beats_per_bar": beats_per_bar, "avee_custom_lenghts":avee_custom_lenghts, custom_video: custom_video   } 
         validate(obj, fileDetailsSchema.schema)
         return obj
 

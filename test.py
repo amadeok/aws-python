@@ -15,30 +15,34 @@ import dns.update
 import dns.query
 import dns.reversename
 import dns.rdatatype
+import sys, os
+import dotenv
+dotenv.load_dotenv()
+sys.path.insert(0, os.getenv("RESOLVE_PYTHON_PATH") )
+
+# def create_dns_record():
+#     ### Create A Record
+#     dns_domain = "%s." % (domain) # Set the domain name with a trailing dot (to stop auto substitution of zone)
+#     update = dns.update.Update(dns_domain) # Prepare the payload for DNS record update in the given zone/domain (dns_domain)
+#     update.replace(new_hostname, TTL, 'A', new_ipaddress) # Inject the record details into the dns.update.Update class
+#     response = dns.query.tcp(update, dns.rdatatype.PRIMARY_DNS_SERVER_IP, timeout=5) # Submit the new record to the DNS server to apply the update
+#     ### Create reverse entry (PTR)
+#     reventry = dns.reversename.from_address(new_ipaddress) # Neat function to generate a reverse entry
+#     revzone = ''
+#     revzone = '.'.join(dns.name.from_text(str(reventry)).labels[3:]) # Specify the reverse lookup zone based on the reverse IP address.
+#     # The labels[X:] property allows you to specify which octet to use.
+#     # e.g. 3: will apply the record to the 10.in-addr.arpa zone, whereas 1: will apply it to the 72.23.10.in-addr.arpa zone
+#     raction = dns.update.Update(revzone) # Prepare the payload for the DNS record update
+#     new_host_fqdn = "%s.%s." % (new_hostname, dns_domain) # Although we are updating the reverse lookup zone, the record needs to point back to the ‘test.example.com’ domain, not the 10.in-addr.arpa domain
+#     raction.replace(reventry, TTL, dns.rdatatype.PTR, new_host_fqdn) # Inject the updated record details into the the class, preparing for submission to the DNS server
+#     response = dns.query.tcp(raction, dns.rdatatype.PRIMARY_DNS_SERVER_IP, timeout=5) # submit the new record to the DNS server to apply the update
  
-def create_dns_record():
-    ### Create A Record
-    dns_domain = "%s." % (domain) # Set the domain name with a trailing dot (to stop auto substitution of zone)
-    update = dns.update.Update(dns_domain) # Prepare the payload for DNS record update in the given zone/domain (dns_domain)
-    update.replace(new_hostname, TTL, 'A', new_ipaddress) # Inject the record details into the dns.update.Update class
-    response = dns.query.tcp(update, dns.rdatatype.PRIMARY_DNS_SERVER_IP, timeout=5) # Submit the new record to the DNS server to apply the update
-    ### Create reverse entry (PTR)
-    reventry = dns.reversename.from_address(new_ipaddress) # Neat function to generate a reverse entry
-    revzone = ''
-    revzone = '.'.join(dns.name.from_text(str(reventry)).labels[3:]) # Specify the reverse lookup zone based on the reverse IP address.
-    # The labels[X:] property allows you to specify which octet to use.
-    # e.g. 3: will apply the record to the 10.in-addr.arpa zone, whereas 1: will apply it to the 72.23.10.in-addr.arpa zone
-    raction = dns.update.Update(revzone) # Prepare the payload for the DNS record update
-    new_host_fqdn = "%s.%s." % (new_hostname, dns_domain) # Although we are updating the reverse lookup zone, the record needs to point back to the ‘test.example.com’ domain, not the 10.in-addr.arpa domain
-    raction.replace(reventry, TTL, dns.rdatatype.PTR, new_host_fqdn) # Inject the updated record details into the the class, preparing for submission to the DNS server
-    response = dns.query.tcp(raction, dns.rdatatype.PRIMARY_DNS_SERVER_IP, timeout=5) # submit the new record to the DNS server to apply the update
- 
-domain = "ayurveda.sytes.net"
-new_ipaddress = "176.201.144.175"
-new_hostname = "server01"
-PRIMARY_DNS_SERVER = "8.8.8.8"
-TTL = "1200"
-create_dns_record()
+# domain = "ayurveda.sytes.net"
+# new_ipaddress = "176.201.144.175"
+# new_hostname = "server01"
+# PRIMARY_DNS_SERVER = "8.8.8.8"
+# TTL = "1200"
+# create_dns_record()
 
 
 
@@ -164,7 +168,7 @@ def get_color_name(hex_code="", rgb=None, norm=False):
         return xx, color_name, hex
         
     except Exception as e:
-        print(e)
+        #print(e)
         return xx, "", hex
     
 import math
@@ -194,6 +198,10 @@ fusion = resolve.Fusion()
 projectManager = resolve.GetProjectManager()
 project = projectManager.GetCurrentProject()
 comp = fusion.GetCurrentComp()
+while not comp:
+    comp = fusion.GetCurrentComp()
+#s.comp.SetActiveTool(media_in_tool)
+
 textp = comp.ActiveTool()
 
 inputs = textp.GetInputList().values()
@@ -207,12 +215,12 @@ for inp in inputs:
             print("###### ", key.ljust(30), " ", val)
 
 ff = []
-while 1:
-    angle_l = [iii for iii in range(random.randint(1,3))]
-    print(angle_l)
+# while 1:
+#     angle_l = [iii for iii in range(random.randint(1,3))]
+#     print(angle_l)
 
 
-def get_random_text_style(operator, min_contrast, font_list):
+def get_random_text_style_(operator, min_contrast, font_list):
     pastel_palette = sns.color_palette("pastel", 100)
     dark_palette = sns.color_palette("dark", 100)
 
@@ -231,6 +239,30 @@ def get_random_text_style(operator, min_contrast, font_list):
     operator.ElementShape2 = random.randint(1,2)
     print(operator.GetInput("Style"))
 
+def get_random_text_style(operator, min_contrast, font_list, _):
+    font__ = font_list[_] #random.choice(font_list)
+    pastel_palette = sns.color_palette("pastel", 100)
+    dark_palette = sns.color_palette("dark", 100)
+    while 1: 
+        p_cc = random.choice(pastel_palette)
+        d_cc = random.choice(dark_palette)
+        c = contrast([e*255 for e in p_cc]  , [e*255 for e in d_cc])
+        if c > min_contrast:
+            break
+    rgb_tuple1, color_name, hex1 = get_color_name(rgb=p_cc, norm=True)
+    operator.Red1, operator.Green1, operator.Blue1 =  p_cc
+    rgb_tuple2, color_name, hex2 = get_color_name(rgb=d_cc, norm=True)
+    operator.Red2, operator.Green2, operator.Blue2 =  d_cc
+    operator.Thickness2 = 0.2
+    operator.ElementShape2 = random.randint(1,2)
+    operator.Level2 = 1# {1: 'Text', 2: 'Line', 3: 'Word', 4: 'Character'}
+    operator.Round2 = 0.23
+    time.sleep(1)
+
+    operator.Font =  font__ 
+    operator.Style = "Regular"
+
+    print(f"n {_} name {operator.Name},  font {font__}, {operator.GetInput('Font')}, c1 {hex1} c2 {hex2} , Shape: {operator.GetInput('ElementShape2')}")
 
 import numpy as np
 point = np.array([0.5,0.855])
@@ -239,33 +271,41 @@ disp = 1
 
 dirs_l = [(1,0), (-1, 0), (0, 1), (0, -1), (1,1), (-1,-1), (-1,1), (1,-1) ]
 
-def point_displacement(point, vec, disp):
-    nn = np.linalg.norm(vec)
-    unit_vec = vec / nn
-    return point + disp * unit_vec
+# def point_displacement(point, vec, disp):
+#     nn = np.linalg.norm(vec)
+#     unit_vec = vec / nn
+#     return point + disp * unit_vec
 
-print(point_displacement(point, vec, disp))
-x1 = [0 for elem in dirs_l]# np.linspace(0, 10, 30)
-y1 = [0 for elem in dirs_l]#np.linspace(0, 10, 30)
-for i, dir in enumerate(dirs_l):
-    d = dir[0:2]
-    p = point_displacement(point, d, 1)
-    x1[i] = p[0]
-    y1[i] = p[1]
-x1 += [point[0]]
-y1 += [point[1]]
+# print(point_displacement(point, vec, disp))
+# x1 = [0 for elem in dirs_l]# np.linspace(0, 10, 30)
+# y1 = [0 for elem in dirs_l]#np.linspace(0, 10, 30)
+# for i, dir in enumerate(dirs_l):
+#     d = dir[0:2]
+#     p = point_displacement(point, d, 1)
+#     x1[i] = p[0]
+#     y1[i] = p[1]
+# x1 += [point[0]]
+# y1 += [point[1]]
 
-plt.plot(x1, y1, 'o', color='black');
-plt.show()
+# plt.plot(x1, y1, 'o', color='black');
+# plt.show()
+
+fonts =  fusion.FontManager.GetFontList()
+fonts = list(fonts.keys())
+black_list = ["AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3"]
+black_list_n = [2, 13, 17, 49, 66, 68, 76, 86, 92, 94, 96, 111, 124, 131, 134, 136, 146, 150, 153, 156, 166, 168, 169, 184, 186, 199, 200, 202, 203, 204]
+
 for _ in range(5000):
-    new_y = np.sin(x-0.5*_)
+    #new_y = np.sin(x-0.5*_)
  #   line1.set_xdata(x)
  #   line1.set_ydata(new_y)
     
 
 
     print()
-    get_random_text_style(textp, 6, fonts)
+    if _ in black_list_n:
+        continue
+    get_random_text_style(textp, 6, fonts, _)
 
 
     # ax[0].set_title('Random Dark Color')
@@ -278,7 +318,7 @@ for _ in range(5000):
     # #figure.canvas.flush_events()
     # fig.canvas.flush_events()
     time.sleep(0.1)
-
+    n = 0
     # generate a random dark color
     
 # ```

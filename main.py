@@ -1,3 +1,4 @@
+import tempfile
 import win32con,win32file,win32pipe,win32api, numpy, threading
 import pygetwindow as gw
 import time, subprocess as sp, mss, os
@@ -35,6 +36,7 @@ f = "00024v2_s.wav"
 input_file_ = audio_fld + "//" + f
 #input_file_ = r"C:\Users\amade\Documents\dawd\Exported\00034\Mixdown\s_00034(5).wav"
 #input_file_ = f"{app_env.ld_shared_folder}\v2\00028v2.wav"
+import utils.process_videos as pv
 
 if not os.path.isfile(input_file_) or not os.path.isfile(input_file_.split(".")[0] + ".ini"):
     raise Exception("input files not found")
@@ -71,6 +73,9 @@ def main_aws(do_aws=1):
             general_task_aws(row[3], input_file_, sql, fr_l[i], do_aws)
 
 def main(upload=False):
-    general_task(input_file_,  fr_l[0], add_text=True)
+    custom_vi = os.path.expanduser('~') + r"\Videos\social_media_videos\horizontal\ai_rain__4088192-hd_1920_1080_25fps.mp4"
+    custom_vi = r"C:\Users\amade\Videos\social_media_videos\horizontal\202004\ai_restaurant_cafe__202004-916894674.mp4"#r"C:\Users\amade\Videos\social_media_videos\vertical\sakura_trees_pink_stairs__156010-811683620.mp4"
+    custom_vi = r"C:\Users\amade\Videos\social_media_videos\vertical\mountains_forest__198802-908900247.mp4"
+    general_task(input_file_,  fr_l[0], add_text=True, custom_video=custom_vi)
 
 main(upload=0)

@@ -8,12 +8,20 @@ from bson import ObjectId
 #import pyautogui
 sys.path.append('../../')  # Adds the parent directory to the Python path
 #sys.path.insert(1, r'F:\all\GitHub\Eel')
+#import app_logging
 import eel, copy, logging
 
 from utils.cloud_utils.mongo_client import MongoDBClient
 import utils.cloud_utils.mongo_schema as mongo_schema
 import utils.cloud_utils.gdrive as gdrive
 from utils.eel_utils import setMongoInstance, set_file_logging
+
+
+formatter = '%(asctime)s - %(message)s' #- %(name)s - %(levelname)s 
+handlers = []
+#handlers.append(logging.FileHandler('app.log'))
+handlers.append(logging.StreamHandler())
+logging.basicConfig(    level=logging.INFO,    format=formatter,    handlers=handlers)
 
 #import provision
 

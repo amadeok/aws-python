@@ -53,6 +53,7 @@ const TrackComponent = ({ track, ctx }) => {
         <button onClick={()=>    eel.open_file_select_window(_id)((ret)=> console.log(ret))} className={`${Styles}`}  onMouseEnter={()=>setHL(file_details.file_path)} onMouseLeave={()=> setHL(null)}>File: {getFileNameFromPath(file_details.file_path)} </button>
         <button className="flex flex-1 border border-[#707070] rounded-xl px-1 items-center text-[14px]" onClick={()=>setShowBarsChar(!showBarsChar )} >
           Bpm: {file_details.bpm} &nbsp; Bars: {file_details.bars} &nbsp; B/T: {file_details.bars_per_template} &nbsp;  B/B: {file_details.beats_per_bar}  </button>
+          <EditableText label={"Custom video:"} value={file_details.custom_video || "disabled"} style={Styles} path={{ "_id": _id, "path": "file_details", "index": null, "field": "custom_video", "collection": "track_entries" }}>  </EditableText>
 
           <DatePickerComponent label={"Ins. date:"} value={insertion_date} style={Styles}   path={getPathBase("insertion_date")}>   </DatePickerComponent>
 

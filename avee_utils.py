@@ -95,6 +95,7 @@ class name_storage():
         self.dirpath = os.path.dirname(input_path)
         self.out_fld = f"{out}\\{instance_name}_{self.basename}\\".replace("\\\\", "\\")
         self.avee_final_file = f"{self.out_fld}\\{self.basename}_joined.mp4".replace("\\\\", "\\")
+        self.custom_video_final_file = f"{self.out_fld}\\{self.basename}_custom.mp4".replace("\\\\", "\\")
         self.avee_tmp_file = f"{self.out_fld}\\{self.basename}_tmp.mp4".replace("\\\\", "\\")
 
         self.dav_final_file = self.out_fld + "\\" +  f"{self.basename}_dav.mp4"
@@ -569,9 +570,6 @@ def perform_avee_task(input_file, bpm,  bars, bars_per_template, avee_fragments_
     #                 ff.write("file " +  pp + "\n")
     #     os.system(f"ffmpeg  -f concat -safe 0 -segment_time_metadata 1 -i {input_file.out_fld}\\file_list.txt  -ss {first_start} -t {dur*bars} -i {input_file.input_path}   -c:v copy -map 0:v -map 1:a -c:a aac -b:a 128k {input_file.avee_final_file} -y")
 
-
-
-    
 
     t2 = time.time()
     logging.info(f"Time: avee= {str(datetime.timedelta(seconds=t2 -t1))}")

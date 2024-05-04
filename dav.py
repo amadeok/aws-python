@@ -98,7 +98,9 @@ class dav_handler():
         if os.path.isfile(ctx.input_f.dav_final_file) and not overwrite:
             logging.info("Dav file already exists, returning")
             return 
-        assert(os.path.isfile(ctx.input_f.avee_final_file))
+        s.input_video = ctx.input_f.avee_final_file if not len(ctx.custom_video) else ctx.input_f.custom_video_final_file
+        
+        assert(os.path.isfile(s.input_video))
 
         assert(codec == "H264" or codec== "H264_NVIDIA")
 
@@ -290,7 +292,7 @@ class dav_handler():
     def AddMediaItem(s):
         clips = []
         for x in range(10): 
-            added = s.MediaStorage.AddItemListToMediaPool(s.ctx.input_f.avee_final_file)
+            added = s.MediaStorage.AddItemListToMediaPool(s.input_video)
             # added2 = s.MediaStorage.AddItemListToMediaPool(s.ctx.black_f)
             # assert(len(added2))
             clips = s.folder.GetClipList()
@@ -317,7 +319,8 @@ class dav_handler():
         s.clip = clips[0]	
         logging.info(f"clip name: {s.clip.GetName()}")
         clip_properties = s.clip.GetProperty()
-        ret = s.clip.SetProperty("ZoomX", 2.35) #2.35 if source is 1080p, 1.4-1.5 if 1920x1920
+        s.ctx.custom_video_info
+        ret = s.clip.SetProperty("ZoomX", 3.15 if s.ctx.custom_video_info[1] > s.ctx.custom_video_info[2] else 1) #2.35 if source is 1080p, 1.4-1.5 if 1920x1920 # 3.15 fills the whole screen for 16/9 ratio
 
     def get_clip_info(s):
         raw_clips = s.folder.GetClipList()
@@ -500,7 +503,7 @@ class dav_handler():
         #dir = random.choice([(0,0),(1,0),(1,1),(0,1)])
         t_center = ((r(0.4, 0.6), r(0.4, 0.6)), (r(dir[0]-0.1, dir[0]+0.1), r(dir[1]-0.1, dir[1]+0.1)))
         t_angle = (r(-5, 5), r(30, 40)*(-1 if i%2 == 0 else 1 ))
-
+        i = max(i, 0)
         s.apply_transition(transition_frame, s.tr_tool.Size,   t_d, t_size[0], t_size[1], cur_list[0][i])
         s.apply_transition(transition_frame, s.tr_tool.Center, t_d, t_center[0] , t_center[1], s.ease_funs.easeInQuart_yline) #cur_list[1][i])
         if s.plot:
@@ -514,7 +517,7 @@ class dav_handler():
     def apply_text_transitions(s):
         text_dirs_l = [(1,0), (-1, 0), (0, 1), (0, -1), (1,1), (-1,-1), (-1,1), (1,-1) ]
 
-        s.textp.Size[0] =  0.050 #at 1080p 0.055 #at 1920x1920 0.08
+        s.textp.Size[0] =  0.040 #at 1080p 0.055 #at 1920x1920 0.08
         t_size = s.textp.Size[0]
 
         s.textp.Center =  {1: 0.5, 2: 0.145 if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}
@@ -523,7 +526,7 @@ class dav_handler():
         dir =  random.choice(text_dirs_l)
         ext_point = point_displacement(t_center, dir, 0.74)
 
-        text_frame =  s.clip_end//2
+        text_frame =  max(101, s.clip_end*0.05) #//2
         s.textp.Center[text_frame-101]  =  {1: -10, 2: -10, 3: 0.0}
         s.textp.Center[0]  = {1: -10, 2: -10, 3: 0.0}
         # for ii in range(0, int(text_frame)):
@@ -572,6 +575,8 @@ class dav_handler():
                 shuffled_l += tmp
 
             curve_list.append([getattr(s.ease_funs, elem + "_yline") for elem in shuffled_l] )
+            
+        s.apply_random_transition(-int(s.clip_fps*1), int(s.clip_fps*1), dir_list[random.randint(0, len(dir_list)-1)], curve_list) # i*s.ctx.transition_delta
 
         for i in range(0, s.ctx.tot_transitions):
             s.apply_random_transition(i, s.ctx.avee_fragments_info[i].frame_end, dir_list[i], curve_list) # i*s.ctx.transition_delta
