@@ -1,5 +1,7 @@
-complete font black list laptop
 
+
+
+use subprocess instead of os.system to avoid problems of files with spaces
 use avee for tiktok?
 add custom hashtags with gui
 improve initial transition 
@@ -8,6 +10,12 @@ combine autopybot with autochromepy
 
 
 ###done###:
+matching colors for dav text
+if dont set the bmp correctly i end up with wrong transition at the end even if is no transition video
+?tiktok didnt write the fucking hashtags
+replace small media icon file dialog in threads and tumblr with autopy
+
+complete font black list laptop
 handle finding custom video in provision
 custom multiple text setup
 move and click using arduino
@@ -18,3 +26,4 @@ check how davinci handles only 1 transition
 
 custom video autoloop / custom video handle lenght
 
+Brush Script MT

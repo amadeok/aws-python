@@ -335,7 +335,7 @@ async def youtube_task(title_hashs = ["#piano, #originalmusic"], channel_id:str=
     
     upload_arrow = await ac.find(htmlE('burst', "id", ac), loop=2,timeout=80, timeout_exception="yt page didn't open", do_until=adel_(start_browser, [args], 30 ), click=True)
         
-    await operate_file_popup( upload_file, upload_arrow.clickCursor)
+    await operate_file_popup( upload_file,lambda: upload_arrow.clickCursor( x_of=random.randint(-20, 20), y_of=random.randint(-20, 20)))
       
     next_btn = await ac.find(htmlE('[label="Next"]', "querySelector", ac), loop=2, do_until=adel_(pg.press, ["enter"], 3, True ))
      
@@ -367,10 +367,14 @@ async def tiktok_task(title_hashs = ["#piano, #originalmusic"], channel_id= "", 
 
     select_file = await ac.find([htmlE("""[aria-label="Select file"]""", "querySelector", ac), htmlE("""[aria-live="polite"]""", "querySelector", ac)], loop=2,timeout=80, timeout_exception="yt page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     
-    await operate_file_popup( upload_file, select_file.clickCursor)
+    await operate_file_popup( upload_file, lambda: select_file.clickCursor( x_of=random.randint(-120, 120), y_of=random.randint(-90, 90)))
 
-    caption = await ac.find(htmlE("""[aria-autocomplete="list"]""", "querySelector", ac), loop=2, do_until=adel_(pg.press, ["enter"], 2, True ), click=1)
+    #caption = await ac.find(htmlE("""[aria-autocomplete="list"]""", "querySelector", ac), loop=2, do_until=adel_(pg.press, ["enter"], 2, True ), click=1)
+    description = ab.find(ab.i.tiktok_description, loop=2, timeout=120, click=0)
+    ac.ard_click.move_mouse_s(description.found, x_of=280+ random.randint(-80, 80), y_of=70+random.randint(-5, 5))
     
+    await asyncio.sleep(1)
+
     ab._workaround_write(track_title + " "  + title_hashs)
 
 #    edit_video_btn = await ac.find(htmlE("/html/body/div[1]/div/div/div/div[2]/div/div[1]/div/div[3]/button", "xpath", ac, label="edit_video_btn"), loop=2,timeout=900, click=0)
@@ -397,7 +401,8 @@ async def threads_task( title_hashs, channel_id, b_start_browser=True,  upload_f
 
     start_a_thread = await ac.find(htmlE("/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[1]/div/div[1]", "xpath", ac, label="start_a_thread"), loop=2,timeout=80, timeout_exception="threads page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     
-    attach_media = await ac.find(htmlE("""[aria-label="Attach media"]""", "querySelector", ac), loop=2, do_until=adel_(start_a_thread.clickCursor, [], 2, True ), click=0)
+    #attach_media = await ac.find(htmlE("""[aria-label="Attach media"]""", "querySelector", ac), loop=2, do_until=adel_(start_a_thread.clickCursor, [], 2, True ), click=0)
+    attach_media = ab.find(ab.i.threads_attach_media, loop=2)#, do_until=del_(do_until_fun, do_until_fun_args, 5 ))
     
     await asyncio.sleep(0.2)
     ab._workaround_write("#")
@@ -407,7 +412,8 @@ async def threads_task( title_hashs, channel_id, b_start_browser=True,  upload_f
     ab._workaround_write(track_title)
     
     #attach_media.clickCursor(15, -15)
-    await operate_file_popup( upload_file, attach_media.clickCursor, [15, -15])
+    #ac.ard_click.move_mouse_s(attach_media.found)
+    await operate_file_popup( upload_file, lambda: ac.ard_click.move_mouse_s(attach_media.found)) # attach_media.clickCursor, [15, -15])
     
     for x in range(10):
         preview = await ac.find(htmlE("/html/body/div[2]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[3]/div[2]/div", "xpath", ac, label="preview") )
@@ -436,14 +442,16 @@ async def twitter_task(title_hashs = ["#piano, #originalmusic"], channel_id="", 
     #await ac.wait_for_websocket(100)
 
     attach_media = await ac.find(htmlE("""[aria-label="Add photos or video"]""", "querySelector", ac, label="attach_media"), loop=2,timeout=80, timeout_exception="twitter page didn't open", do_until=adel_(start_browser, [args], 30 ), click=0)
-    
+    attach_media = ab.find(ab.i.twitter_attach_media, loop=2)#, do_until=del_(do_until_fun, do_until_fun_args, 5 ))
+
     what_is_happening = await ac.find(htmlE("""/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]""", "xpath", ac, label="what_is_happening"), loop=2,timeout=80, click=1)
 
     ab._workaround_write(track_title  + " " + title_hashs ); await asyncio.sleep(0.5)
     
-    attach_media.clickCursor()
+    ac.ard_click.move_mouse_s(attach_media.found)
+    #attach_media.clickCursor()
     
-    await operate_file_popup(upload_file, attach_media.clickCursor)
+    await operate_file_popup(upload_file, lambda: ac.ard_click.move_mouse_s(attach_media.found))
     
     uploaded:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]/div/div/div/div/div/div/div/div/div/div/div[2]/div[4]/div/div/div/div[1]/span", "xpath", ac, label="uploaded"), do_until=None, loop=2,timeout=300)
     
@@ -544,24 +552,28 @@ async def tumblr_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b
     
     loading:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div/div[4]/div/div/div/div/div/div/div[2]/div/div[1]/div[2]/div/div[3]/div[2]/div/div/div[1]/div[1]/div[2]", "xpath", ac, label="loading"),  loop=2,timeout=120,  do_until=None)#adel_(pg.press, ["enter"], 2, True )) 
     
-    post_now:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div/div[4]/div/div/div/div/div/div/div[2]/div/div[3]/div/div/div", "xpath", ac, label="post_now"),  loop=2)
+    #post_now:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div/div[4]/div/div/div/div/div/div/div[2]/div/div[3]/div/div/div", "xpath", ac, label="post_now"),  loop=2)
     
     for x in range(50):
         pg.scroll(-10)
-
-    publish = None
-    while 1:
-        publish:htmlE = await ac.find(htmlE(post_now.xpath, "xpath", ac, label="publish"),  loop=2, click=0 )
-        rgb_string = publish.computed_style["backgroundColor"]
-        if not "." in rgb_string:
-            break
-        print("waiting for publish btn..",rgb_string)
-        await asyncio.sleep(2)
         
-    await asyncio.sleep(1)
+    tumblr_post_now = ab.find(ab.i.tumblr_post_now, loop=2, timeout=600)#, do_until=del_(do_until_fun, do_until_fun_args, 5 ))
+    for x in range(2):
+        ac.ard_click.move_mouse_s(tumblr_post_now.found)
 
-    publish:htmlE = await ac.find(htmlE(post_now.xpath, "xpath", ac, label="publish"),  loop=2, click=0 )
-    publish.clickCursor(y_of=-40)
+    # publish = None
+    # while 1:
+    #     publish:htmlE = await ac.find(htmlE(post_now.xpath, "xpath", ac, label="publish"),  loop=2, click=0 )
+    #     rgb_string = publish.computed_style["backgroundColor"]
+    #     if not "." in rgb_string:
+    #         break
+    #     print("waiting for publish btn..",rgb_string)
+    #     await asyncio.sleep(2)
+        
+    # await asyncio.sleep(1)
+
+    # publish:htmlE = await ac.find(htmlE(post_now.xpath, "xpath", ac, label="publish"),  loop=2, click=0 )
+    # publish.clickCursor(y_of=-40)
 
 
     #await ac.wait_to_go(loading, timeout=600, timeout_exception=True); await asyncio.sleep(1)
@@ -761,7 +773,7 @@ if __name__ == "__main__":
     arduino.set_board_mode(arduino.boardModeEnum.mouseKeyboard.value)
     arduino.ar.change_delay_between(250) #250ms for click
     #ac.set_ard_click(arduino) 
-    perform_upload_tasks(task_payload, [instagram_task2],  arduino=arduino)
+    perform_upload_tasks(task_payload, [tumblr_task],  arduino=arduino)
     #perform_upload_tasks(task_payload,all_tasks.values())
 
 

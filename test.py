@@ -204,7 +204,11 @@ while not comp:
 #s.comp.SetActiveTool(media_in_tool)
 
 textp = comp.ActiveTool()
-
+# textp.Filter = "Gaussian"
+# textp.AddModifier("Glow", "BezierSpline")
+# for  x in range(100):
+#     textp.Glow[x] = x*0.01 
+#glow = comp.AddTool("Glow", -32768, -32768)
 inputs = textp.GetInputList().values()
 names = ["Layout Angle X"]
 for inp in inputs:
@@ -216,6 +220,7 @@ for inp in inputs:
             print("###### ", key.ljust(30), " ", val)
 
 ff = []
+
 # while 1:
 #     angle_l = [iii for iii in range(random.randint(1,3))]
 #     print(angle_l)

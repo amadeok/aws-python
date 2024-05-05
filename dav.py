@@ -15,6 +15,91 @@ import textwrap, ass
 
 import DaVinciResolveScript as dvr_script
 
+import cv2
+from itertools import combinations
+
+def euclidean_distance(color1, color2):
+    return np.sqrt(np.sum((color1 - color2) ** 2))
+
+def get_video_palette(video_path, start_frame=20, end_frame=40, num_colors=10):
+    cap = cv2.VideoCapture(video_path)
+    frame_colors = []
+    frame_count = 0
+    while True:
+        ret, frame = cap.read()
+        if not ret:    break
+        # Check if the current frame is within the specified range
+        if frame_count >= start_frame and frame_count <= end_frame:
+            # Convert the frame from BGR to RGB
+            data = cv2.resize(frame, (100, 100)).reshape(-1, 3)
+
+            #frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            # Flatten the frame to a list of pixels
+           # pixels = data.reshape((-1, 3))
+            frame_colors.extend(data)
+        frame_count += 1
+        if frame_count > end_frame:
+            break
+    cap.release()
+    # Convert the list to a NumPy array
+    frame_colors = np.array(frame_colors)
+    # Use k-means clustering to find the dominant colors
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, 0.1)
+    _, labels, centers = cv2.kmeans(frame_colors.astype(np.float32), num_colors, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    # Convert centers to uint8
+    centers = np.uint8(centers)
+    return centers
+
+
+def get_prominent_color(video_path):
+    cap = cv2.VideoCapture(video_path)
+    for x in range(10):
+        ret, frame = cap.read()
+    ret, frame = cap.read()
+    #data = cv2.resize(frame, (100, 100)).reshape(-1, 3)
+    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    pixels = image_rgb.reshape((-1, 3))
+    pixels = np.float32(pixels)
+    # Define criteria and apply kmeans()
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    k = 3  # You can adjust the number of clusters (colors) here
+    _, labels, centers = cv2.kmeans(pixels, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    # Convert back to uint8 and reshape to the original image shape
+    centers = np.uint8(centers)
+    prominent_color = centers[np.argmax(np.bincount(labels.flatten()))]
+    return prominent_color
+
+def get_contrasting_color(color):
+    r, g, b = color
+    # Calculate perceived brightness using luminance formula
+    brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    # Threshold to determine whether the color is dark or light
+    threshold = 0.5
+    if brightness < threshold:  # Dark color
+        # Lighten the color
+        r = min(255, r + 100)
+        g = min(255, g + 100)
+        b = min(255, b + 100)
+    else:  # Light color
+        # Darken the color
+        r = max(0, r - 100)
+        g = max(0, g - 100)
+        b = max(0, b - 100)
+    
+    return (r, g, b)
+
+def get_contrasting_colors(palette):
+    max_distance = 0
+    contrasting_pair = None
+
+    # Find all combinations of colors in the palette
+    for color1, color2 in combinations(palette, 2):
+        distance = euclidean_distance(color1, color2)
+        if distance > max_distance:
+            max_distance = distance
+            contrasting_pair = (color1, color2)
+
+    return contrasting_pair
 
 def get_color_name(hex_code="", rgb=None, norm=False):
     xx = None; hex = None
@@ -102,6 +187,10 @@ class dav_handler():
         
         assert(os.path.isfile(s.input_video))
 
+        #s.input_video_palette = get_video_palette(s.input_video, start_frame=20, end_frame=25)
+        s.prominent_color = get_prominent_color(s.input_video)
+        s.contrasting_color = get_contrasting_color(s.prominent_color)
+        logging.info(f"get_contrasting_color {s.prominent_color}, contrasting color {s.contrasting_color}")
         assert(codec == "H264" or codec== "H264_NVIDIA")
 
         t2 = time.time()
@@ -113,8 +202,8 @@ class dav_handler():
 
         black_list = s.get_font_black_list()
 
-        font_list = s.fusion.FontManager.GetFontList()
-        s.fonts = list(font_list.keys())
+        s.font_list = s.fusion.FontManager.GetFontList()
+        s.fonts = list(s.font_list.keys())
         s.fonts = [f for f in s.fonts if not f in black_list]
         # aa3 = s.project.GetCurrentRenderFormatAndCodec()
 
@@ -168,9 +257,9 @@ class dav_handler():
         logging.info(f"Times: davinci = {str(datetime.timedelta(seconds=time.time()-t2))} ")
 
     def get_font_black_list(s):
-        black_list = ["AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3", "Lucida Console", "Consolas", "Courier New", "Droid Sans Mono", "Footlight MT Light", "Niagara Solid", "Niagara Engraved", "Rage Italic", "UI Emoji"]
+        black_list = [ "Unispace", "AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3", "Lucida Console", "Consolas", "Courier New", "Droid Sans Mono", "Footlight MT Light", "Niagara Solid", "Niagara Engraved", "Rage Italic", "UI Emoji"]
 
-        black_list_too_big = ['Algerian', 'AmpleSoundTab', 'AniMe Matrix - MB_EN', 'Arial Rounded MT Bold', 'Blackadder ITC', 'Bookman Old Style', 'Broadway', 'Cascadia Code', 'Cascadia Mono', 'Castellar', 'Century', 'Century Schoolbook', 'Comic Sans MS', 'Consolas', 'Cooper Black', 'Copperplate Gothic Bold', 'Copperplate Gothic Light', 'Courier New', 'Edwardian Script ITC', 'Elephant', 'Engravers MT', 'Eras Bold ITC', 'Felix Titling', 'Fira Mono', 'Footlight MT Light', 'Franklin Gothic Heavy', 'Freestyle Script', 'Gill Sans MT Ext Condensed Bold', 'Gill Sans Ultra Bold', 'Goudy Stout', 'HoloLens MDL2 Assets', 'Ink Free', 'Javanese Text', 'Jokerman', 'Juice ITC', 'Kristen ITC', 'Kunstler Script', 'Lucida Bright', 'Lucida Console', 'Lucida Fax', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode', 'Matura MT Script Capitals', 'MS Reference Sans Serif', 'MV Boli', 'Niagara Engraved', 'Niagara Solid', 'OCR A Extended', 'Onyx', 'Palace Script MT', 'Parchment', 'Playbill', 'Rage Italic', 'Ravie', 'Rockwell Extra Bold', 'ROG Fonts', 'Sans Serif Collection', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Showcard Gothic', 'SimSun-ExtB', 'Snap ITC', 'Stencil', 'Verdana', 'Vladimir Script', 'Wide Latin', 'Neue Haas Grotesk Text Pro', 'Rockwell Nova', 'Verdana Pro']
+        black_list_too_big = ['Algerian', 'AmpleSoundTab', 'AniMe Matrix - MB_EN', 'Arial Rounded MT Bold', 'Blackadder ITC', 'Bookman Old Style', 'Broadway', 'Cascadia Code', 'Cascadia Mono', 'Castellar', 'Century', 'Century Schoolbook', 'Comic Sans MS', 'Consolas', 'Cooper Black', 'Copperplate Gothic Bold', 'Copperplate Gothic Light', 'Courier New', 'Edwardian Script ITC', 'Elephant', 'Engravers MT', 'Eras Bold ITC', 'Felix Titling', 'Fira Mono', 'Footlight MT Light', 'Franklin Gothic Heavy', 'Freestyle Script', 'Gill Sans MT Ext Condensed Bold', 'Gill Sans Ultra Bold', 'Goudy Stout', 'HoloLens MDL2 Assets', 'Ink Free', 'Javanese Text', 'Jokerman', 'Juice ITC', 'Kristen ITC', 'Kunstler Script', 'Lucida Bright', 'Lucida Console', 'Lucida Fax', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode', 'Matura MT Script Capitals', 'MS Reference Sans Serif', 'MV Boli', 'Niagara Engraved', 'Niagara Solid', 'OCR A Extended', 'Onyx', 'Palace Script MT', 'Parchment', 'Playbill', 'Rage Italic', 'Ravie', 'Rockwell Extra Bold', 'ROG Fonts', 'Sans Serif Collection', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Showcard Gothic', 'SimSun-ExtB', 'Snap ITC', 'Stencil', 'Verdana', 'Vladimir Script', 'Wide Latin', 'Neue Haas Grotesk Text Pro', 'Rockwell Nova', 'Verdana Pro', "Microsoft PhagsPa", "SimSun", "Yu Gothic", "Modern No. 20", "Symbola", "Brush Script MT", "Sylfaen"]
         return black_list+black_list_too_big
 
     def adding_lyrics(s):
@@ -207,7 +296,7 @@ class dav_handler():
         doc=None
         # with open(lyrics_file, encoding='utf_8_sig') as f:
             # doc = ass.parse(f)
-        secs_per_text = 5
+        secs_per_text = 7
         frames_per_text = secs_per_text*  s.ctx.fps
         texts_n = math.floor(s.clip_end / frames_per_text)
         texts = random.sample(text_map[which], texts_n)
@@ -455,32 +544,63 @@ class dav_handler():
   
     def get_random_text_style(s, operator, min_contrast, font_list):
         font__ = random.choice(font_list)
-        pastel_palette = sns.color_palette("pastel", 100)
-        dark_palette = sns.color_palette("dark", 100)
-        while 1: 
-            p_cc = random.choice(pastel_palette)
-            d_cc = random.choice(dark_palette)
-            c = contrast([e*255 for e in p_cc]  , [e*255 for e in d_cc])
-            if c > min_contrast:
-                break
+
+        # s.contrasting_pair = get_contrasting_colors(s.input_video_palette)
+        c = contrast(s.prominent_color  ,s.contrasting_color)
+        if c > min_contrast:
+            logging.info(f"Not enough contrast ({c}), using sns color text color")
+            pastel_palette = sns.color_palette("pastel", 100)
+            dark_palette = sns.color_palette("dark", 100)
+            while 1: 
+                p_cc = random.choice(pastel_palette)
+                d_cc = random.choice(dark_palette)
+                c = contrast([e*255 for e in p_cc]  , [e*255 for e in d_cc])
+                if c > min_contrast:
+                    break
+        else:
+            p_cc = [e/255 for e in s.prominent_color] 
+            d_cc = [e/255 for e in s.contrasting_color] 
+        # else:
+        #     min = [random.choice(s.input_video_palette), random.choice(s.input_video_palette), 100]
+        #     while 1: 
+        #         p_cc = random.choice(s.input_video_palette)
+        #         d_cc = random.choice(s.input_video_palette)
+        #         c = contrast(p_cc  ,d_cc)
+        #         if c < min[2]:
+        #             min =  [p_cc, d_cc, c]
+        #             if c < 2:
+        #                 p_cc = [e/255 for e in p_cc]
+        #                 d_cc = [e/255 for e in d_cc]
+        #                 break
+                
+            #p_cc, d_cc = s.contrasting_pair
+
         rgb_tuple1, color_name, hex1 = get_color_name(rgb=p_cc, norm=True)
         operator.Red1, operator.Green1, operator.Blue1 =  p_cc
         rgb_tuple2, color_name, hex2 = get_color_name(rgb=d_cc, norm=True)
         operator.Red2, operator.Green2, operator.Blue2 =  d_cc
         operator.Thickness2 = 0.2
-        operator.ElementShape2 = random.randint(1,2)
+        operator.ElementShape2 = random.randint(1,1)
         operator.Level2 = 1# {1: 'Text', 2: 'Line', 3: 'Word', 4: 'Character'}
         operator.Round2 = 0.23
         time.sleep(1)
-
-        operator.Font =  font__ 
-        operator.Style = "Regular"
-
+        
+        f = s.font_list[font__]
+        if not "Regular" in f.keys():
+            style = list(f)[0]
+        else: style = "Regular"
+        operator.Style = style
+        operator.Font =  font__
         logging.info(f"name {operator.Name},  font {font__}, {operator.GetInput('Font')}, c1 {hex1} c2 {hex2} , Shape: {operator.GetInput('ElementShape2')}")
 
         #textp.ElementShape2 = 2 #{1: 'Text Fill', 2: 'Text Outline', 3: 'Border Fill', 4: 'Border Outline'}
 
     def add_tools_and_modifiers(s):
+        if len(s.ctx.custom_video):
+            s.glow = s.comp.AddTool("Glow", -32768, -32768)
+            s.glow.AddModifier("Glow", "BezierSpline")
+
+
         s.dblur = s.comp.AddTool("DirectionalBlur", -32768, -32768)
         ret = s.dblur.AddModifier("Length", "BezierSpline")
         ret = s.dblur.AddModifier("Glow", "BezierSpline")
@@ -504,6 +624,7 @@ class dav_handler():
 
     def add_text_effects(s, comp):
         s.comp.SetActiveTool(comp)
+        time.sleep(0.9)
         name = f"text_shake{random.Random(100)}"
         setattr(s, name, s.comp.AddTool("CameraShake", -32768, -32768))
         textp_shake = getattr(s, name)
@@ -659,10 +780,18 @@ class dav_handler():
 
             curve_list.append([getattr(s.ease_funs, elem + "_yline") for elem in shuffled_l] )
             
-        s.apply_random_transition(-int(s.clip_fps*1), int(s.clip_fps*1), dir_list[random.randint(0, len(dir_list)-1)], curve_list) # i*s.ctx.transition_delta
+        
+        if len(s.ctx.custom_video) == 0:
+            for i in range(0, s.ctx.tot_transitions):
+                s.apply_random_transition(i, s.ctx.avee_fragments_info[i].frame_end, dir_list[i], curve_list) # i*s.ctx.transition_delta
+        else:
+            #s.apply_random_transition(0, int(-s.clip_fps*2), dir_list[random.randint(0, len(dir_list)-1)], curve_list)
+            s.apply_random_transition(0, int(s.clip_end), dir_list[random.randint(0, len(dir_list)-1)], curve_list) 
+            s.apply_curve(s.ease_funs.easeOutSine_yline.line, 0, 5*s.ctx.fps, 0.93, 0.3, s.glow.Glow, f"dir easeInExpo")
+            #easeOutExpo easeOutQuart 
+            
 
-        for i in range(0, s.ctx.tot_transitions):
-            s.apply_random_transition(i, s.ctx.avee_fragments_info[i].frame_end, dir_list[i], curve_list) # i*s.ctx.transition_delta
+                
 
     def render(s, codec):
         s.project.SetRenderSettings({"SelectAllFrames" : 1, "TargetDir" : s.ctx.input_f.out_fld, "CustomName": f"{s.ctx.input_f.basename}_dav.mp4", "AudioSampleRate": random.choice([48000, 44100]) })

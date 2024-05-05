@@ -66,8 +66,10 @@ class arduinoHelper():
             return random.randint(min_value, max_value)
         
         start_x, start_y = start if start else pyautogui.position()
-        end_x, end_y = [apply_randomness(e, end_randomness) for e in target]
-        
+        if len(target) > 2: target = target[0:2]
+        end_x, end_y = [apply_randomness(int(e), end_randomness) for e in target]
+        end_x += int(x_of)
+        end_y += int(y_of)
         num_steps = int(duration * 100)
         step_x = (end_x - start_x) / num_steps
         step_y = (end_y - start_y) / num_steps

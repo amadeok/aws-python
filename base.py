@@ -5,6 +5,7 @@ import queue, app_logging, logging, shutil, sql_utils, aws_python, dav
 import json
 import app_env
 import utils.process_videos as pv, math, tempfile
+import subprocess
 
 class avee_fragment():
     def __init__(self, ctx, audio_start, audio_end) -> None:
@@ -216,18 +217,17 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
                 #cmd = f"""ffmpeg -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]},setpts=N/{info[3]}/TB" {pre_file}   -y""" #os.path.dirname(custom_vi) #
 
                 bin = r"ffmpeg.exe"
-                cmd = f"""{bin} -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}" {pre_file}   -y"""
-                cmd = [ bin, "-i", custom_video, "-filter_complex", f"[0]reverser];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}", pre_file, "-y" ]
+                #cmd = f"""{bin} -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}" {pre_file}   -y"""
+                cmd = [ bin, "-i", custom_video, "-filter_complex", f"[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}", pre_file, "-y" ]
                 logging.info(f"loop reverse cmd {cmd}")
+                subprocess.run(cmd, check=True)
                 #os.system(cmd)
             
-            import subprocess
-            cmd = f'ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest "{ctx.input_f.custom_video_final_file}" -y'
+            #cmd = f'ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest "{ctx.input_f.custom_video_final_file}" -y'
             cmd = ["ffmpeg","-i", pre_file,"-i", input_file,"-c:v", "copy","-c:a", "aac","-map", "0:v:0","-map", "1:a:0","-shortest",ctx.input_f.custom_video_final_file,"-y"
             ]
             subprocess.run(cmd, check=True)
             logging.info(f"Adding audio cmd {cmd}")
-        #    subprocess.run(cmd, shell=True, check=True)
 
             #os.system(cmd)
         else:
