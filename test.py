@@ -2,6 +2,7 @@
 
 # ```python
 import random, time, threading
+import winreg
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import seaborn as sns, webcolors
@@ -218,7 +219,8 @@ ff = []
 # while 1:
 #     angle_l = [iii for iii in range(random.randint(1,3))]
 #     print(angle_l)
-
+from fontTools.ttLib import TTFont
+from fontTools.ttLib.tables._c_m_a_p import CmapSubtable
 
 def get_random_text_style_(operator, min_contrast, font_list):
     pastel_palette = sns.color_palette("pastel", 100)
@@ -239,6 +241,34 @@ def get_random_text_style_(operator, min_contrast, font_list):
     operator.ElementShape2 = random.randint(1,2)
     print(operator.GetInput("Style"))
 
+def get_font_s(font):
+    font = TTFont(font)
+    cmap = font['cmap']
+    t = cmap.getcmap(3,1).cmap
+    s = font.getGlyphSet()
+    units_per_em = font['head'].unitsPerEm
+
+    def getTextWidth(text,pointSize):
+        total = 0
+        for c in text:
+            if ord(c) in t and t[ord(c)] in s:
+                total += s[t[ord(c)]].width
+            else:
+                total += s['.notdef'].width
+        total = total*float(pointSize)/units_per_em;
+        return total
+
+    text = 'This is a test'
+
+    width = getTextWidth(text,12)
+
+    # print ('Text: "%s"' % text)
+    # print ('Width in points: %f' % width)
+    # print ('Width in inches: %f' % (width/72))
+    # print ('Width in cm: %f' % (width*2.54/72))
+    # print ('Width in WP Units: %f' % (width*1200/72))
+    return width
+
 def get_random_text_style(operator, min_contrast, font_list, _):
     font__ = font_list[_] #random.choice(font_list)
     pastel_palette = sns.color_palette("pastel", 100)
@@ -257,12 +287,23 @@ def get_random_text_style(operator, min_contrast, font_list, _):
     operator.ElementShape2 = random.randint(1,2)
     operator.Level2 = 1# {1: 'Text', 2: 'Line', 3: 'Word', 4: 'Character'}
     operator.Round2 = 0.23
-    time.sleep(1)
+    time.sleep(0.0)
 
     operator.Font =  font__ 
     operator.Style = "Regular"
+    
+    font_path = fonts_[font__]["Regular"] 
+    try:
+        bb = get_font_s(font_path)
+        # font = ImageFont.truetype(font_path , 12)
+        # bb = font.getlength('X')
+    except:
+        bb = -1
+    
+    
+    #print(fonts[_], bb)
 
-    print(f"n {_} name {operator.Name},  font {font__}, {operator.GetInput('Font')}, c1 {hex1} c2 {hex2} , Shape: {operator.GetInput('ElementShape2')}")
+    print(f"n {_} | font {font__} | size {bb} || {operator.GetInput('Font')}, c1 {hex1} c2 {hex2} , Shape: {operator.GetInput('ElementShape2')}")
 
 import numpy as np
 point = np.array([0.5,0.855])
@@ -271,41 +312,69 @@ disp = 1
 
 dirs_l = [(1,0), (-1, 0), (0, 1), (0, -1), (1,1), (-1,-1), (-1,1), (1,-1) ]
 
-# def point_displacement(point, vec, disp):
-#     nn = np.linalg.norm(vec)
-#     unit_vec = vec / nn
-#     return point + disp * unit_vec
 
-# print(point_displacement(point, vec, disp))
-# x1 = [0 for elem in dirs_l]# np.linspace(0, 10, 30)
-# y1 = [0 for elem in dirs_l]#np.linspace(0, 10, 30)
-# for i, dir in enumerate(dirs_l):
-#     d = dir[0:2]
-#     p = point_displacement(point, d, 1)
-#     x1[i] = p[0]
-#     y1[i] = p[1]
-# x1 += [point[0]]
-# y1 += [point[1]]
 
-# plt.plot(x1, y1, 'o', color='black');
-# plt.show()
+fonts_ =  fusion.FontManager.GetFontList()
+fonts = list(fonts_.keys())
+black_list = ["AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3", "Lucida Console", "Consolas", "Courier New", "Droid Sans Mono", "Footlight MT Light", "Niagara Solid", "Niagara Engraved", "Rage Italic", "UI Emoji"]
 
-fonts =  fusion.FontManager.GetFontList()
-fonts = list(fonts.keys())
-black_list = ["AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3", "Lucida Console"]
+black_list_too_big = ['Algerian', 'AmpleSoundTab', 'AniMe Matrix - MB_EN', 'Arial Rounded MT Bold', 'Blackadder ITC', 'Bookman Old Style', 'Broadway', 'Cascadia Code', 'Cascadia Mono', 'Castellar', 'Century', 'Century Schoolbook', 'Comic Sans MS', 'Consolas', 'Cooper Black', 'Copperplate Gothic Bold', 'Copperplate Gothic Light', 'Courier New', 'Edwardian Script ITC', 'Elephant', 'Engravers MT', 'Eras Bold ITC', 'Felix Titling', 'Fira Mono', 'Footlight MT Light', 'Franklin Gothic Heavy', 'Freestyle Script', 'Gill Sans MT Ext Condensed Bold', 'Gill Sans Ultra Bold', 'Goudy Stout', 'HoloLens MDL2 Assets', 'Ink Free', 'Javanese Text', 'Jokerman', 'Juice ITC', 'Kristen ITC', 'Kunstler Script', 'Lucida Bright', 'Lucida Console', 'Lucida Fax', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode', 'Matura MT Script Capitals', 'MS Reference Sans Serif', 'MV Boli', 'Niagara Engraved', 'Niagara Solid', 'OCR A Extended', 'Onyx', 'Palace Script MT', 'Parchment', 'Playbill', 'Rage Italic', 'Ravie', 'Rockwell Extra Bold', 'ROG Fonts', 'Sans Serif Collection', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Showcard Gothic', 'SimSun-ExtB', 'Snap ITC', 'Stencil', 'Verdana', 'Vladimir Script', 'Wide Latin']
+
+black_list+= black_list_too_big #fonts too big
+
 black_list_n = [2, 13, 17, 49, 66, 68, 76, 86, 92, 94, 96, 111, 124, 131, 134, 136, 146, 150, 153, 156, 166, 168, 169, 184, 186, 199, 200, 202, 203, 204]
+fonts_f = []
+for k, f in fonts_.items():
+    if not "Regular" in  f:
+        continue
+    try:
+        w = get_font_s(f["Regular"])
+        if w < 70 and not k in black_list:
+            fonts_f.append(k)
+        else:
+            black_list_too_big.append(k)
+    except Exception as e:print(e)
+    
+    #fonts_f = [f for k, p in fonts if get_font_s(fonts_[fonts[_]]) < 70]
+print("\n\n", black_list_too_big)
+from PIL import ImageFont
+import PIL
+PIL.__version__
+def get_available_fonts_win():
+    fonts_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts")
+    num_fonts = winreg.QueryInfoKey(fonts_key)[1]
+    available_fonts = []
+    for i in range(num_fonts):
+        font_name, font_path = winreg.EnumValue(fonts_key, i)[:2]
+        available_fonts.append((font_name, font_path))
+    winreg.CloseKey(fonts_key)
+    return available_fonts
+    
+wf = get_available_fonts_win()
+from fontTools.ttLib import TTFont
+from fontTools.ttLib.tables._c_m_a_p import CmapSubtable
 
+max_size = 1100
 for _ in range(5000):
     #new_y = np.sin(x-0.5*_)
  #   line1.set_xdata(x)
  #   line1.set_ydata(new_y)
-    
-
-
-    print()
-    if fonts[_] in black_list:
+    # try:
+    # fn = fonts[_]
+    # font_size = 24
+    if not "Regular" in  fonts_[fonts_f[_]]:
         continue
-    get_random_text_style(textp, 6, fonts, _)
+    # font_path = fonts_[fonts[_]]["Regular"]  # Replace with the path to your font file
+
+    # font = ImageFont.truetype(font_path , 12)
+    # bb = font.getlength('A')
+
+    # print(fonts[_], bb)
+    # continue
+    if fonts_f[_] in black_list:
+        continue
+    print()
+    get_random_text_style(textp, 6, fonts_f, _)
 
 
     # ax[0].set_title('Random Dark Color')
@@ -326,3 +395,23 @@ for _ in range(5000):
 # This code generates a random dark color by selecting three random values between 0 and 128 for the red, green, and blue channels respectively, and then formatting the RGB values into a hexadecimal string. It generates a random bright color by selecting a random value from a list of CSS4 colors and converting it to a hexadecimal string using the `to_hex` function from the `matplotlib.colors` module.
 
 # The code then visualizes the colors using a matplotlib figure with two subplots, each with a title and a face color set to the randomly generated colors. Finally, it calls `plt.show()` to display the figure.
+
+
+# def point_displacement(point, vec, disp):
+#     nn = np.linalg.norm(vec)
+#     unit_vec = vec / nn
+#     return point + disp * unit_vec
+
+# print(point_displacement(point, vec, disp))
+# x1 = [0 for elem in dirs_l]# np.linspace(0, 10, 30)
+# y1 = [0 for elem in dirs_l]#np.linspace(0, 10, 30)
+# for i, dir in enumerate(dirs_l):
+#     d = dir[0:2]
+#     p = point_displacement(point, d, 1)
+#     x1[i] = p[0]
+#     y1[i] = p[1]
+# x1 += [point[0]]
+# y1 += [point[1]]
+
+# plt.plot(x1, y1, 'o', color='black');
+# plt.show()

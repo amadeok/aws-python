@@ -20,6 +20,7 @@ import app_env
 import pyautogui
 import pyscreeze
 
+
 print("pyautogui version:", pyautogui.__version__)
 print("pyscreeze version:", pyscreeze.__version__)
 
@@ -76,6 +77,6 @@ def main(upload=False):
     custom_vi = os.path.expanduser('~') + r"\Videos\social_media_videos\horizontal\ai_rain__4088192-hd_1920_1080_25fps.mp4"
     custom_vi = r"C:\Users\amade\Videos\social_media_videos\horizontal\202004\ai_restaurant_cafe__202004-916894674.mp4"#r"C:\Users\amade\Videos\social_media_videos\vertical\sakura_trees_pink_stairs__156010-811683620.mp4"
     custom_vi = r"C:\Users\amade\Videos\social_media_videos\vertical\mountains_forest__198802-908900247.mp4"
-    general_task(input_file_,  fr_l[0], add_text=True, custom_video=custom_vi)
+    general_task(input_file_,  fr_l[0], add_text=True, custom_video=custom_vi, secondary_text="peaceful_piano_music")
 
 main(upload=0)

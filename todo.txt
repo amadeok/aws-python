@@ -1,10 +1,18 @@
+complete font black list laptop
+
+use avee for tiktok?
+add custom hashtags with gui
+improve initial transition 
+shake on beat
+combine autopybot with autochromepy
+
+
+###done###:
+handle finding custom video in provision
+custom multiple text setup
+move and click using arduino
 add custom video support
 check davinci resolve fonts that dont work
-add custom hashtags with gui
-
-improve initial transition 
-
-done
 check how davinci handles non 1920x1080 resolutions
 check how davinci handles only 1 transition
 

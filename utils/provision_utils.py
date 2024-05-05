@@ -70,17 +70,25 @@ def close_if_running(process_name):
                 logging.info(f"waiting {process_name} to close..")
                 time.sleep(0.3)
 
-def start_processes():
-    resolve_bin = os.getenv("RESOLVE_BIN") #r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
+def start_ld_player():
     ld_player_bin = os.getenv("LD_BIN") #r"C:\LDPlayer\LDPlayer9\dnplayer.exe"
-
-    close_if_running("Resolve.exe")
 
     close_if_running("dnplayer.exe")
 
-    resolve_running = any(proc.name() == "Resolve.exe" for proc in psutil.process_iter())
-
     ld_player_running = any(proc.name() == "dnplayer.exe" for proc in psutil.process_iter())
+
+    if not ld_player_running:
+        logging.info("Starting ldplayer....")
+        ld  = subprocess.Popen(ld_player_bin)
+
+    return ld_player_running, ld
+
+def start_resolve():
+    resolve_bin = os.getenv("RESOLVE_BIN") #r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
+
+    close_if_running("Resolve.exe")
+
+    resolve_running = any(proc.name() == "Resolve.exe" for proc in psutil.process_iter())
 
     if not resolve_running:
         logging.info("Starting resolve ....")
@@ -93,10 +101,4 @@ def start_processes():
         else:
             logging.info("resolve failed to start after 5 min ? project manager window not found ")
 
-
-
-    if not ld_player_running:
-        logging.info("Starting ldplayer....")
-        ld  = subprocess.Popen(ld_player_bin)
-
-    return resolve_running, ld_player_running, resolve, ld
+    return resolve_running,  resolve

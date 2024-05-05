@@ -472,7 +472,7 @@ def avee_task(target_file, template_file, start, dur, suffix):
 
     adb(cmd)
     src = f"{app_env.ld_shared_folder}\\output\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
-    dst = f"{app_env.output_folder}\\{inst_name}_{target_file.android_basename }\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
+    dst = f"{os.getenv('OUTPUT_FOLDER')}\\{inst_name}_{target_file.android_basename }\\tmp\\{target_file.android_basename}_{suffix:02d}.mp4"
     shutil.move(src, dst)
     if found: #and  
         if found == a.i.exporting_finished:

@@ -48,13 +48,18 @@ void move_click(int x, int y) {
   AbsMouse.press(MOUSE_LEFT);
   delay(delay_between);
   AbsMouse.release(MOUSE_LEFT);
+  char c = 99;
+  Serial.write(99);
 }
+
 void move_click_right(int x, int y) {
   AbsMouse.move(x, y);
   delay(delay_between);
   AbsMouse.press(MOUSE_RIGHT);
   delay(delay_between);
   AbsMouse.release(MOUSE_RIGHT);
+  char c = 99;
+  Serial.write(99);
 }
 
 int serial_read_2bytes() {

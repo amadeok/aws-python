@@ -17,14 +17,18 @@ class avee_fragment():
     def __repr__(self) -> str:
         return " ".join([f'{key}: {value}' for key, value in vars(self).items() if not key.startswith('__')])
     
-
+def find_file(folder, filename):
+    for root, dirs, files in os.walk(folder):
+        if filename in files:
+            return os.path.join(root, filename)
+    return None
 
 class context():
-    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="") -> None:
+    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="", secondary_text="", input_f=None) -> None:
         s.instance_name = instance_name
         s.extra_frames = extra_frames
-        s.out_fld = f"{app_env.output_folder}"
-        s.input_f = name_storage(input_file,  s.out_fld, s.instance_name)
+        s.out_fld = os.getenv('OUTPUT_FOLDER') #f"{app_env.output_folder}"
+        s.input_f = input_f if input_f else  name_storage(input_file,  s.out_fld, s.instance_name)
         if cloud_file_details == None:
             config = ConfigParser()
             ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
@@ -43,9 +47,22 @@ class context():
             s.bars_per_template = cloud_file_details['bars_per_template']
             s.beats_per_bar = cloud_file_details['beats_per_bar']
             s.avee_custom_lenghts = cloud_file_details['avee_custom_lenghts']
-            
+        
         s.custom_video = custom_video
-        s.custom_video_info = pv.get_video_info_cv(custom_video) if custom_video != "" else None
+
+        if len(custom_video):
+            if custom_video == "random":
+                s.custom_video = random.choice(pv.get_sm_videos())
+            elif not os.path.isfile(custom_video):
+                p = os.path.basename(custom_video)
+                found = find_file( os.getenv("SM_VIDEOS"), p)
+                if not found:
+                    raise Exception(f"""Unabled to find custom video {custom_video} in {os.getenv("SM_VIDEOS")}""")
+                s.custom_video = found
+                
+                    
+        s.custom_video_info = pv.get_video_info_cv(s.custom_video) if s.custom_video != "" else None
+        s.secondary_text = secondary_text
         # s.td_start = datetime.timedelta(minutes=s.s_m, seconds=s.s_sec, milliseconds=s.s_ms)
         s.fps = s.custom_video_info[3] if custom_video != "" else 60 #59940/1000
         s.time_per_beat = (60/s.bpm) #its 60 not fps
@@ -171,11 +188,11 @@ def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
     
-def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video=""):
+def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video="", secondary_text="", input_f=None):
 
     t0 = time.time()
 
-    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video)
+    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video, secondary_text=secondary_text, input_f=input_f)
 
     ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
 

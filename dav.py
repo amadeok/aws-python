@@ -111,10 +111,11 @@ class dav_handler():
 
         s.init()
 
-        #s.fonts = ['Open Sans', 'Arial Rounded MT Bold', 'Bauhaus 93', 'Berlin Sans FB', 'Cambria Math', 'Comic Sans MS', 'Eras Bold ITC', 'Eras Demi ITC', 'Gill Sans Ultra Bold Condensed', 'Harrington', 'High Tower Text', 'Imprint MT Shadow', 'Jokerman', 'Kristen ITC',"Maiandra GD","Matura MT Script Capitals","MS PGothic","MV Boli","Trebuchet MS","Tw Cen MT","Tw Cen MT Condensed Extra Bold","Ubuntu","Open Sans"]
+        black_list = s.get_font_black_list()
+
         font_list = s.fusion.FontManager.GetFontList()
         s.fonts = list(font_list.keys())
-
+        s.fonts = [f for f in s.fonts if not f in black_list]
         # aa3 = s.project.GetCurrentRenderFormatAndCodec()
 
         s.ease_funs = spline.ease_funs()
@@ -148,12 +149,15 @@ class dav_handler():
         if s.adding_lyrics():
             s.add_lyrics(ctx.input_f.guessed_lyrics_file)
 
+        if len(s.ctx.secondary_text):
+            s.add_secondary_text(s.ctx.secondary_text)
+
         if s.text:
             s.get_random_text_style(s.textp, 6, s.fonts)
 
             s.textp.StyledText =  s.text #"Follow cristian_k_music\n" + "on IG"
             time.sleep(0.2)
-            s.add_text_effects()
+            s.add_text_effects(s.textp)
 
             s.apply_text_transitions()
 
@@ -163,11 +167,75 @@ class dav_handler():
 
         logging.info(f"Times: davinci = {str(datetime.timedelta(seconds=time.time()-t2))} ")
 
+    def get_font_black_list(s):
+        black_list = ["AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3", "Lucida Console", "Consolas", "Courier New", "Droid Sans Mono", "Footlight MT Light", "Niagara Solid", "Niagara Engraved", "Rage Italic", "UI Emoji"]
+
+        black_list_too_big = ['Algerian', 'AmpleSoundTab', 'AniMe Matrix - MB_EN', 'Arial Rounded MT Bold', 'Blackadder ITC', 'Bookman Old Style', 'Broadway', 'Cascadia Code', 'Cascadia Mono', 'Castellar', 'Century', 'Century Schoolbook', 'Comic Sans MS', 'Consolas', 'Cooper Black', 'Copperplate Gothic Bold', 'Copperplate Gothic Light', 'Courier New', 'Edwardian Script ITC', 'Elephant', 'Engravers MT', 'Eras Bold ITC', 'Felix Titling', 'Fira Mono', 'Footlight MT Light', 'Franklin Gothic Heavy', 'Freestyle Script', 'Gill Sans MT Ext Condensed Bold', 'Gill Sans Ultra Bold', 'Goudy Stout', 'HoloLens MDL2 Assets', 'Ink Free', 'Javanese Text', 'Jokerman', 'Juice ITC', 'Kristen ITC', 'Kunstler Script', 'Lucida Bright', 'Lucida Console', 'Lucida Fax', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode', 'Matura MT Script Capitals', 'MS Reference Sans Serif', 'MV Boli', 'Niagara Engraved', 'Niagara Solid', 'OCR A Extended', 'Onyx', 'Palace Script MT', 'Parchment', 'Playbill', 'Rage Italic', 'Ravie', 'Rockwell Extra Bold', 'ROG Fonts', 'Sans Serif Collection', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Showcard Gothic', 'SimSun-ExtB', 'Snap ITC', 'Stencil', 'Verdana', 'Vladimir Script', 'Wide Latin']
+        return black_list+black_list_too_big
+
     def adding_lyrics(s):
         if s.ctx.add_lyrics and  os.path.isfile(s.ctx.input_f.guessed_lyrics_file):
             return True
         return False
 
+
+    def add_secondary_text(s, which):
+        import json
+        with open(r'data\texts.json', 'r') as file:
+            text_map = json.load(file)
+            
+        s.comp.SetActiveTool(s.main_shake)
+        s.lyrics_textp = s.comp.AddTool("TextPlus", -32768, -32768)
+        time.sleep(0.5)
+        s.lyrics_textp.Enabled2 = 1
+        s.lyrics_textp.Center =  {1: 0.5, 2: 1-0.145, 3: 0.0}
+        s.lyrics_textp.Size[0] =  0.031 if s.ctx.custom_video_info[1] > s.ctx.custom_video_info[2] else 0.7 
+        ret = s.lyrics_textp.AddModifier("StyledText", "BezierSpline")
+        s.get_random_text_style(s.lyrics_textp, 6, font_list=s.fonts)
+
+        outp = s.lyrics_textp.FindMainOutput(1)
+        inps = outp.GetConnectedInputs()
+        merge_tool = inps[1].GetTool()
+        ret2 = merge_tool.AddModifier("Blend", "BezierSpline")
+        merge_tool.Blend[0] = 0
+
+        max_chars_per_line = 31# it's true i forgot about us all
+        wrapper = textwrap.TextWrapper(width=max_chars_per_line)
+
+        doc=None
+        # with open(lyrics_file, encoding='utf_8_sig') as f:
+            # doc = ass.parse(f)
+        secs_per_text = 5
+        frames_per_text = secs_per_text*  s.ctx.fps
+        texts_n = math.floor(s.clip_end / frames_per_text)
+        texts = random.sample(text_map[which], texts_n)
+        
+        for i, text in enumerate(texts):
+            fade_frames = 0.5 * s.clip_fps #seconds
+            #raise Exception("To do:   ev.start - s.ctx.td_start , wtf? ")
+            # start =   ev.start - s.ctx.td_start 
+            # start_secs = start.total_seconds()
+            # if start_secs < 0: start_secs = 0
+
+            start_frame = i*frames_per_text# start_secs*s.clip_fps
+            if start_frame >= s.clip_end:
+                break
+            wrapped =  wrapper.wrap(text=text)
+            s.lyrics_textp.StyledText[start_frame] =  "\n".join(wrapped)
+
+            #end = ev.end - s.ctx.td_start
+            #end_secs = end.total_seconds()
+            end_frame = (i+1)*frames_per_text
+            if end_frame > s.clip_end: end_frame = s.clip_end - fade_frames
+            
+            merge_tool.Blend[start_frame] = 0
+            merge_tool.Blend[start_frame+fade_frames] = 1
+            merge_tool.Blend[end_frame-fade_frames] = 1
+            merge_tool.Blend[end_frame] = 0
+            
+        s.add_text_effects(s.lyrics_textp)
+
+                
     def add_lyrics(s, lyrics_file):
 
         s.comp.SetActiveTool(s.main_shake)
@@ -175,7 +243,7 @@ class dav_handler():
         time.sleep(0.5)
         s.lyrics_textp.Enabled2 = 1
         s.lyrics_textp.Center =  {1: 0.5, 2: 0.145, 3: 0.0}
-        s.lyrics_textp.Size[0] =  0.040 
+        s.lyrics_textp.Size[0] =  0.033 
         ret = s.lyrics_textp.AddModifier("StyledText", "BezierSpline")
         s.get_random_text_style(s.lyrics_textp, 6, font_list=s.fonts)
 
@@ -328,6 +396,7 @@ class dav_handler():
         p = raw_clip.GetClipProperty()
         s.clip_end = float(p["End"])
         s.clip_fps = p["FPS"]
+        s.clip_info = p
 
 
     def get_comp(s):
@@ -428,20 +497,29 @@ class dav_handler():
         else:
             print()
 
-    def add_text_effects(s):
-        s.comp.SetActiveTool(s.textp)
-
-        s.textp_shake = s.comp.AddTool("CameraShake", -32768, -32768) #for text
-        s.textp_shake.XDeviation = 0.83
-        s.textp_shake.YDeviation = 0.83
-        s.textp_shake.RotationDeviation = 0.61
-        s.textp_shake.Randomness = 0.5
-        s.textp_shake.OverallStrength = 0.007
-        s.textp_shake.Speed = 0
-        s.textp_rays = s.comp.AddTool("Fuse.OCLRays", -32768, -32768) 
-        s.textp_rays.Blend = 0.055# 0.4
-        s.textp_shadow = s.comp.AddTool("ofx.com.blackmagicdesign.resolvefx.DropShadow", -32768, -32768) 
-
+    def add_text_effects(s, comp):
+        s.comp.SetActiveTool(comp)
+        name = f"text_shake{random.Random(100)}"
+        setattr(s, name, s.comp.AddTool("CameraShake", -32768, -32768))
+        textp_shake = getattr(s, name)
+        #s.textp_shake = s.comp.AddTool("CameraShake", -32768, -32768) #for text
+        textp_shake.XDeviation = 0.83
+        textp_shake.YDeviation = 0.83
+        textp_shake.RotationDeviation = 0.61
+        textp_shake.Randomness = 0.5
+        textp_shake.OverallStrength = 0.007
+        textp_shake.Speed = 0
+        
+        name = f"text_rays1{random.Random(100)}"
+        setattr(s, name, s.comp.AddTool("Fuse.OCLRays", -32768, -32768) )
+        textp_rays = getattr(s, name)        
+        # textp_rays = s.comp.AddTool("Fuse.OCLRays", -32768, -32768) 
+        textp_rays.Blend = 0.2# 0.4 055
+        
+        name = f"text_DropShadow{random.Random(100)}"
+        setattr(s, name, s.comp.AddTool("ofx.com.blackmagicdesign.resolvefx.DropShadow", -32768, -32768) )
+        textp_shadow = getattr(s, name)
+        
 
     def apply_curve(s, line, x_start, x_end, y_start, y_end, operator, line_name):
         logging.debug(f"Applying curve line: {line_name} xstart: {x_start} xend: {x_end} ystart: {y_start} yend: {y_end} operator: {operator.Name} ")
@@ -517,7 +595,7 @@ class dav_handler():
     def apply_text_transitions(s):
         text_dirs_l = [(1,0), (-1, 0), (0, 1), (0, -1), (1,1), (-1,-1), (-1,1), (1,-1) ]
 
-        s.textp.Size[0] =  0.040 #at 1080p 0.055 #at 1920x1920 0.08
+        s.textp.Size[0] =  0.033 if s.ctx.custom_video_info[1] > s.ctx.custom_video_info[2] else 0.7    #at 1080p 0.055 #at 1920x1920 0.08
         t_size = s.textp.Size[0]
 
         s.textp.Center =  {1: 0.5, 2: 0.145 if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}

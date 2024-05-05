@@ -17,9 +17,14 @@ from utils.provision_utils import gs, round_time, calculate_times_per_day, print
 
 
 def connect_arduino(arduino_port):
-    ac = arduino_helper.arduinoHelper(port=arduino_port)
-    ac.ar.init() #will raise exception if arduino not found, preventing script from going further
-    ac.ar.ard.close()
+    ac = arduino_helper.arduinoHelper(True, port=arduino_port)
+    #ac.ar.init() #will raise exception if arduino not found, preventing script from going further
+    #ac.ar.ard.close()
+    
+    ac.ar.init()
+    ac.set_board_mode(ac.boardModeEnum.mouseKeyboard.value)
+    ac.ar.change_delay_between(250) #250ms for click
+
     return ac
 
 
@@ -50,7 +55,7 @@ if __name__ == "__main__":
 
     time.sleep(2)
 
-    database,processes = provision.do_provision()
+    database,processes = provision.do_provision(ac)
 
     #wait_for_processes(vars)
 
@@ -72,9 +77,10 @@ if __name__ == "__main__":
 
     logging.info(f"""Next scheduled upload session time: {rup.strftime("%d-%m-%Y %H:%M")} in {string}""") 
 
-    ac.ar.init()
+    #ac.ar.init()
     ac.set_turn_on_interval(delta.seconds//60)
     ac.get_board_data()
+    ac.set_board_mode(ac.boardModeEnum.standard.value)
     ac.ar.ard.close()
 
     turn_off = int(os.getenv("TURN_OFF_PC_AFTER_UPLOAD"))

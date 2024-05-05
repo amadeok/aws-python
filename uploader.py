@@ -1,14 +1,9 @@
 import datetime
 import json
 import shlex
-import time
 import autoChromePy
-import autopyBot
-import random
-
 from bson import ObjectId
 from avee_utils import avee_context
-
 import hashlib
 import asyncio,logging,pyautogui as pg, subprocess as sp, os
 import threading
@@ -21,31 +16,30 @@ import autopyBot
 import pygetwindow as gw
 import win32gui
 import win32process
-import pyautogui
 import re, psutil
 import inspect, copy
+import arduino.turn.arduino_helper as arduino_helper
+import string
+import app_logging
 
-ab = autopyBot.autopy.autopy("uploader_imgs")
-ab.find_fun_timeout = 30
-ac = autoChromePy( "Channel dashboard - YouTube Studio")
-adel_ = async_fun_delegate
-del_ = autopyBot.autopy.fun_delegate
-#htmlE = autoChrome.htmlE
-
-#test_file =  r"C:\Users\amade\Videos\002_sky pm 12 30.mkv"
-test_file =  r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\None_00022v2_s\00022v2_s_dav.mp4"
+test_file =  r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\None_00022v2_s\00022v2_s_dav.mp4"
 #test_file = r"C:\Users\amade\Videos\20240318_170455.mp4"
 test_yt_id = "UCRFWvTVdgkejtxqh0jSlXBg" # ak@g
 
+ab = autopyBot.autopy.autopy("uploader_imgs")
+ab.find_fun_timeout = 30
+adel_ = async_fun_delegate
+del_ = autopyBot.autopy.fun_delegate
+#htmlE = autoChrome.htmlE
+#test_file =  r"C:\Users\amade\Videos\002_sky pm 12 30.mkv"
 ac = autoChromePy("")
 _del = autopyBot.autopy.fun_delegate
-import app_logging, logging
 
 #ap = autopyBot.autopy.autopy()
 
 with open('data\hashtag_map.json', 'r') as file:
     hashtag_map = json.load(file)
-        
+
 def procHash(title_hashs, add_short):
     title_hashs_ = copy.deepcopy(title_hashs)
     #title_hashs_ = title_hashs.split(" ")
@@ -55,10 +49,9 @@ def procHash(title_hashs, add_short):
     title_hashs_ = " ".join(title_hashs_)
     return title_hashs_
 
-import string
-import random
 
-def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+
+def instagram_task_avee(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
     title_hashs = procHash(title_hashs, False)
 
     actx = avee_context(hei= 960+50, wid=540, prefix="540p_", autopyFld="images_insta_avee")
@@ -182,6 +175,52 @@ async def task():
     #self.server_task.cancel()
 #ac.start(None)
 
+
+async def instagram_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+    title_hashs = procHash(title_hashs, False)
+          
+    args = ["https://www.instagram.com/?hl=en", f'--profile-directory={edge_profile}']
+    
+    if b_start_browser:   await start_browser(args)
+    
+    create_new = await ac.find(htmlE('/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div[7]', "xpath", ac, label="create_new"), loop=2,timeout=80, timeout_exception="instgram page didn't open", do_until=adel_(start_browser, [args], 30 ), click=True)
+    
+    select_from_computer = await ac.find([htmlE('/html/body/div[5]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[2]/div[1]/div/div/div[2]/div', "xpath", ac, label="select_from_computer"), htmlE("/html/body/div[6]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[2]/div[1]/div/div/div[2]/div/button", "xpath", ac, label="select_from_computer")], loop=2, click=1)#, do_until=adel_(create_new.clickCursor, [], 1, True ), click=1)
+    
+    await operate_file_popup( upload_file, select_from_computer.clickCursor)
+    
+    crop = await ac.find(htmlE("""[aria-label="Select crop"]""", "querySelector", ac, label="crop"), timeout=600, loop=2, click=1)
+    
+    nine_sixteen = await ac.find(htmlE("/html/body/div[6]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[2]/div[1]/div/div/div/div[1]/div/div[1]/div/div[3]/div", "xpath", ac, label="nine_sixteen"), loop=2, click=1)
+    
+    for x in range(2):
+        next = ab.find(ab.i.insta_next, loop=2)
+        ac.ard_click.move_mouse_s(next.found[0:2])
+        await asyncio.sleep(1)  
+    # next = await ac.find(htmlE('/html/body/div[6]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[1]/div/div/div/div[3]/div', "xpath", ac, label="next"), loop=2)#, do_until=adel_(create_new.clickCursor, [], 1, True ))
+    # next.clickCursor(40, -40)
+    
+    # await asyncio.sleep(1)
+
+    # next = await ac.find(htmlE('/html/body/div[6]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[1]/div/div/div/div[3]/div', "xpath", ac, label="next"), loop=2, click=0)
+    # next.clickCursor(40, -40)
+    
+    write_a_caption = await ac.find(htmlE("""[aria-label="Write a caption..."]""", "querySelector", ac, label="write_a_caption"), loop=2, click=1)
+    
+    ab._workaround_write(track_title  + " " + title_hashs ); await asyncio.sleep(0.5)
+    
+    next = ab.find(ab.i.insta_share, loop=2)
+    ac.ard_click.move_mouse_s(next.found[0:2])
+                    
+    shared = await ac.find(htmlE("/html/body/div[6]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[2]/div[1]/div/div[2]/div/span", "xpath", ac, label="shared"),timeout=600, loop=2)          
+                              
+    
+    #share = await ac.find(htmlE("/html/body/div[6]/div[1]/div/div[3]/div/div/div/div/div/div/div/div[1]/div/div/div/div[3]/div/div", "xpath", ac, label="share"), loop=2, click=1)
+   
+
+    await asyncio.sleep(3)
+    pass
+
 def close_firefox():
     tries = 5
     for x in range(tries):
@@ -224,7 +263,7 @@ def get_window_handle_from_pid(pid):
 
 def get_window_handles_with_title(title):
     window_handles = []
-    windows = pyautogui.getWindowsWithTitle('')
+    windows = pg.getWindowsWithTitle('')
     for window in windows:
         # if len(window.title) > 10:
         #     print(window.title)
@@ -267,17 +306,16 @@ def start_browser_sync(url, profile):
     time.sleep(2)
     print("Browser started successfully.")
     
-    
-
-
 def notified_key_press(key):
     logging.info(f"----> pressing key {key}")        
     pg.press(key)
 
 async def operate_file_popup( file_path, do_until_fun, do_until_fun_args=[]):
     ret = ab.find(ab.i.file_name_edge, loop=1, do_until=del_(do_until_fun, do_until_fun_args, 5 ) if do_until_fun else None)
-    
-    [pg.click(ret.found[0]+50,   ret.found[1] ) or await asyncio.sleep(0.6) for x in range(2)]
+    if ac.ard_click:
+        [ac.ard_click.move_mouse_s((int(ret.found[0]+50),  int(ret.found[1] ))) or await asyncio.sleep(0.6) for x in range(2)]
+    else:
+        [pg.click(ret.found[0]+50,   ret.found[1] ) or await asyncio.sleep(0.6) for x in range(2)]
 
     ab.type(file_path)
     logging.info("waiting for file_name_edge to go...")
@@ -493,7 +531,7 @@ async def tumblr_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b
     if b_start_browser:  await start_browser(args)
     
     put_anything:htmlE = await ac.find(htmlE("/html/body/div[1]/div/div/div[4]/div/div/div/div/div/div/div[2]/div/div[1]/div[2]/div/div[3]/div[2]/div/div/div[1]/p/span", "xpath", ac, label="put_anything"),  loop=2,timeout=80, timeout_exception="tumblr page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
-
+    asyncio.sleep(1.6)
     ab._workaround_write(track_title); await asyncio.sleep(0.6)
     
     tags_editor :htmlE = await ac.find(htmlE("""[aria-label="Tags editor"]""", "querySelector", ac),  loop=2, click=1)
@@ -520,7 +558,10 @@ async def tumblr_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b
         print("waiting for publish btn..",rgb_string)
         await asyncio.sleep(2)
         
-    publish.clickCursor()
+    await asyncio.sleep(1)
+
+    publish:htmlE = await ac.find(htmlE(post_now.xpath, "xpath", ac, label="publish"),  loop=2, click=0 )
+    publish.clickCursor(y_of=-40)
 
 
     #await ac.wait_to_go(loading, timeout=600, timeout_exception=True); await asyncio.sleep(1)
@@ -643,9 +684,11 @@ def is_async_function(func):
 
 import utils.cloud_utils.mongo_schema as mongo_schema
 
-def perform_upload_tasks(payload:taskPayload, tasks = all_tasks.values(), mongo_context=None):
+def perform_upload_tasks(payload:taskPayload, tasks = all_tasks.values(), mongo_context=None, arduino=None):
 
     t1 = time.time()
+    
+    ac.ard_click = arduino
     
     logging.info(f"-------> task payload: {payload} " )
 
@@ -703,6 +746,7 @@ def create_attempt_entry(mongo_context, task):
 
 
 if __name__ == "__main__":
+
     task_payload = taskPayload()
     #instagram_task()
 
@@ -711,7 +755,13 @@ if __name__ == "__main__":
     # import subprocess
     # ld  = subprocess.Popen(os.getenv("LD_BIN"))
     #ac.start([lambda: monitor_task()])
-    perform_upload_tasks(task_payload, [tumblr_task])
+    arduino = arduino_helper.arduinoHelper(True, "COM7")
+    task_payload.channel_id = "UCdeGgQuczwgU8H-GaMrdLzw"
+    arduino.ar.init()
+    arduino.set_board_mode(arduino.boardModeEnum.mouseKeyboard.value)
+    arduino.ar.change_delay_between(250) #250ms for click
+    #ac.set_ard_click(arduino) 
+    perform_upload_tasks(task_payload, [instagram_task2],  arduino=arduino)
     #perform_upload_tasks(task_payload,all_tasks.values())
 
 

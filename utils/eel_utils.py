@@ -221,7 +221,26 @@ def trigger_provision(dummy):
 #     logging.info('closing python')
 #     utils.stop  = True
 #     sys.exit()
+@eel.expose
+def open_file_select_window_custom_video(_id, text):
+    if text != "random":
+        logging.info(f'Opening file dialog {_id}')
+        ret = open_file_dialog()
+        if  ret:
+            if not os.path.isfile(ret):
+                file = "utils/file_not_found.py"
+                assert os.path.isfile(file)
+                process = subprocess.Popen(['python', file, ret if ret else "dummy"])
+                process.wait()
+            else:
+                #entry = find_element_by_id(mongo.cd["track_entries"], _id)
+                p1 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "custom_video", "value": ret}          
+                update_task(p1, [ lambda: update_nested_field(find_element_by_id(mongo.cd[p1["collection"]], p1["_id"]), p1["path"], p1["index"], p1["field"], p1["value"])] )
 
+        return ret
+    else:
+        p1 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "custom_video", "value": text}          
+        update_task(p1, [ lambda: update_nested_field(find_element_by_id(mongo.cd[p1["collection"]], p1["_id"]), p1["path"], p1["index"], p1["field"], p1["value"])] )
 
 @eel.expose
 def open_file_select_window(_id):

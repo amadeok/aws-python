@@ -180,24 +180,37 @@ def find_files_with_suffix(directory, suffix, invert):
             subdir = os.path.join(root, dir)
             for subroot, _, subfiles in os.walk(subdir):
                 for subfile in subfiles:
-                    i = int(suffix in subfile.lower())
-                    if invert:   i = invert-(i)
-                    if i:
-                        small_files.append(os.path.join(subroot, subfile))
+                    if not invert:
+                        if suffix in subfile.lower():
+                            small_files.append(os.path.join(subroot, subfile))
+                    else:
+                        if not suffix in subfile.lower():
+                            small_files.append(os.path.join(subroot, subfile))
+                        
 
     return small_files
 
 # small_files = find_files_with_suffix(vertical_folder, "small", 0)
 # for file_path in small_files:
 #     print(file_path)
-    
+
+def get_sm_videos():
+    folder_path = os.getenv("SM_VIDEOS")
+    vertical_folder = os.path.join(folder_path, "vertical")
+    horizontal_folder = os.path.join(folder_path, "horizontal") 
+    files1 = find_files_with_suffix(vertical_folder, "small", 0)
+    files2 = find_files_with_suffix(horizontal_folder, "small", 1)
+    files = files1 + files2
+    return files
+
 if __name__ == "__main__":
-    folder_path = r"C:\Users\amade\Videos\social_media_videos"
+    files = get_sm_videos()
+    folder_path = os.getenv("SM_VIDEOS")
 
     source_folder = folder_path
     vertical_folder = os.path.join(folder_path, "vertical")
     horizontal_folder = os.path.join(folder_path, "horizontal") 
-
+    
     #move_videos_by_orientation(source_folder, vertical_folder, horizontal_folder)
 
     files = find_files_with_suffix(horizontal_folder, "small", 1)

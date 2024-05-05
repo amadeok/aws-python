@@ -10,6 +10,9 @@ enum serialStatusEnum { settingX,
                         ready };
 int serialStatus = settingX;
 
+enum boardModeEnum { standard,      //blinks to indicate remainer time before trigger
+                     mouseKeyboard  //only lisent for serial commands for fast mouse / keyboard operations
+};
 
 unsigned int intervalMins = 5 * 60;
 unsigned long long waitMs = 0;   //intervalMins * 60 * 1000;
@@ -18,7 +21,7 @@ unsigned long blinkRemTimeIntervalMs = 5 * 1000;
 bool bPrintInfo = 0;
 bool bBeepRemainerTime = 0;
 bool bPressEnter = false;
-
+int16_t boardMode = standard;
 unsigned long long start = millis();
 unsigned long long start2 = start;
 unsigned long long startPress = start;
@@ -100,8 +103,9 @@ void printInfo(unsigned long targetMs, unsigned long remMs, unsigned long hours,
 }
 
 void loop() {
+
+
   // blink(3, 300, 100, 1000);
-  delay(100);
   unsigned long targetMs = (debugMs ? debugMs : waitMs);
   unsigned long long ct = millis();
   unsigned long elapsedMs = ct - start;
@@ -109,54 +113,57 @@ void loop() {
   unsigned long hours = remMs / 3600000;              // 1 hour = 3600000 milliseconds
   unsigned long minutes = (remMs % 3600000) / 60000;  // 1 minute = 60000 milliseconds
   unsigned long tensOfMinutes = minutes / 10;
+  if (boardMode == standard) {
 
-  if (bPrintInfo) {
-    printInfo(targetMs, remMs, hours, minutes, tensOfMinutes);
-  }
+    delay(100);
 
-  if (elapsedMs > targetMs) {
-    // Serial.println("trigger");
-    //blink(6, 100, 300, 1200);
-    triggerBeep();
-    digitalWrite(PC_POWER_PIN, LOW);   // Turn on the LED
-    delay(500);                        // Wait for a short duration
-    digitalWrite(PC_POWER_PIN, HIGH);  // Turn off the LED
-    start = millis();
-    bPressEnter = true;
-  }
-  
+    if (bPrintInfo) {
+      printInfo(targetMs, remMs, hours, minutes, tensOfMinutes);
+    }
 
-  unsigned long elapsedMs2 = ct - start2;
-  unsigned long remMs2 = blinkRemTimeIntervalMs - elapsedMs2;
-  if (1)
-    if (elapsedMs2 > blinkRemTimeIntervalMs) {
+    if (elapsedMs > targetMs) {
       // Serial.println("trigger");
-      bool beep = beepOrNot();
-
-      if (hours || tensOfMinutes) {
-        blink(hours, 500, 300, beep ? 500 : 0);
-        delay(1000);
-        blink(tensOfMinutes, 150, 150, beep ? 700 : 0);
-      } else if (minutes >= 2)
-        blink(4, 75, 75, beep ? 900 : 0);
-      else
-        blink(20, 75, 75, beep ? 1000 : 0);
-
-      start2 = millis();
+      //blink(6, 100, 300, 1200);
+      triggerBeep();
+      digitalWrite(PC_POWER_PIN, LOW);   // Turn on the LED
+      delay(500);                        // Wait for a short duration
+      digitalWrite(PC_POWER_PIN, HIGH);  // Turn off the LED
+      start = millis();
+      bPressEnter = true;
     }
 
-  if (bPressEnter && elapsedMs < 600000) { // less than 10 minutes
-    unsigned long elapsedMsPress = ct - startPress;
-    unsigned long remMsPress = (10 * 1000) - elapsedMsPress;
-    if (elapsedMsPress > (10 * 1000)) {
-      //Serial.println("trigger");
-      Keyboard.press(KEY_KP_ENTER);
-      delay(300);
-      Keyboard.release(KEY_KP_ENTER);
-      startPress = millis();
+
+    unsigned long elapsedMs2 = ct - start2;
+    unsigned long remMs2 = blinkRemTimeIntervalMs - elapsedMs2;
+    if (1)
+      if (elapsedMs2 > blinkRemTimeIntervalMs) {
+        // Serial.println("trigger");
+        bool beep = beepOrNot();
+
+        if (hours || tensOfMinutes) {
+          blink(hours, 500, 300, beep ? 500 : 0);
+          delay(1000);
+          blink(tensOfMinutes, 150, 150, beep ? 700 : 0);
+        } else if (minutes >= 2)
+          blink(4, 75, 75, beep ? 900 : 0);
+        else
+          blink(20, 75, 75, beep ? 1000 : 0);
+
+        start2 = millis();
+      }
+
+    if (bPressEnter && elapsedMs < 600000) {  // less than 10 minutes
+      unsigned long elapsedMsPress = ct - startPress;
+      unsigned long remMsPress = (10 * 1000) - elapsedMsPress;
+      if (elapsedMsPress > (10 * 1000)) {
+        //Serial.println("trigger");
+        Keyboard.press(KEY_KP_ENTER);
+        delay(300);
+        Keyboard.release(KEY_KP_ENTER);
+        startPress = millis();
+      }
     }
   }
-
   String s;
   // if (Serial.availableForWrite() < 1)
   //   blink(10, 250, 50, 500);
@@ -221,7 +228,11 @@ void loop() {
               y = serial_read_2bytes();
               move_click_right(x, y);
               break;
-
+            case 30009:  // left click
+              x = serial_read_2bytes();
+              y = serial_read_2bytes();
+              move_click(x, y);
+              break;
             case 30008:  //change delay
               delay_between = y;
               break;
@@ -232,7 +243,13 @@ void loop() {
               start = millis();
               break;
             case 40011:
+              // blink(4, 100, 200, 700);
               bBeepRemainerTime = serial_read_2bytes();
+              break;
+            case 40009:
+              boardMode = serial_read_2bytes();
+              if (bBeepRemainerTime)
+                blink(boardMode + 1, 500, 300, 600);
               break;
             case 40012:
               y = serial_read_2bytes();
@@ -258,6 +275,11 @@ void loop() {
               // }
 
               break;
+            // case 40009: cannot go in here lol
+            //   // boardMode = serial_read_2bytes();
+            //   // if (bBeepRemainerTime)
+            //   //   blink(boardMode + 1, 500, 300, 600);
+            //   break;
             default:
               move_click(x, y);
           }

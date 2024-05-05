@@ -7,15 +7,16 @@ from bson import ObjectId
 from dotenv import load_dotenv
 import app_logging
 import logging, json, dateutil
+from avee_utils import name_storage
 from utils.cloud_utils.gdrive import download_file
 from utils.eel_utils import get_track_entries, initMongoInstance
 import utils.cloud_utils.mongo_schema as mongo_schema
 import uploader, base
 from datetime import timedelta, datetime
 import datetime as datetime_parent
-from utils.provision_utils import gs, break_down_delta, round_time, calculate_times_per_day, print_debug_setup_times, break_down_time_settings, start_processes
+from utils.provision_utils import gs, break_down_delta, round_time, calculate_times_per_day, print_debug_setup_times, break_down_time_settings, start_ld_player, start_resolve
 
-def provision(dummy=False, payload=None):
+def provision(dummy=False, payload=None, arduino=None):
     print(f"provision {dummy}")
     if not payload:
         payload = get_track_entries()
@@ -153,7 +154,7 @@ def provision(dummy=False, payload=None):
         logging.info("##### No tasks ####\n")
         return  payload, None
     
-    processes = start_processes()
+
 
     upload_tasks_n = 0
     for t in tracks_need_to_upload_sorted_by_date: upload_tasks_n+= len(t["sites"])
@@ -178,7 +179,17 @@ def provision(dummy=False, payload=None):
     logging.info(f"""Created upload session entry with id  {new_session_res.inserted_id}""")
 
     logging.info("Starting tasks..")
-
+    ld_processes = []
+    dav_processes = []
+    for i, t in enumerate(tracks_need_to_upload_sorted_by_date):
+        input_audio_file = os.path.abspath(f'{tmp_fld}{os.path.basename(t["track_entry"]["file_details"]["file_path"])}')
+        input_f = name_storage(input_audio_file,  f"{os.getenv('OUTPUT_FOLDER')}", "None")
+        if not os.path.isfile(input_f.avee_final_file) and len(t["track_entry"]["file_details"]["custom_video"]) == 0:
+            ld_processes = list(start_ld_player())
+        if not os.path.isfile(input_f.dav_final_file):
+            dav_processes = list(start_resolve())
+    processes = ld_processes + dav_processes
+    
     for i, t in enumerate(tracks_need_to_upload_sorted_by_date):
         print_task_group(t, i)
         input_audio_file = os.path.abspath(f'{tmp_fld}{os.path.basename(t["track_entry"]["file_details"]["file_path"])}')
@@ -187,7 +198,7 @@ def provision(dummy=False, payload=None):
             continue
         assert(os.path.isfile(input_audio_file))
         try:
-            ctx = base.general_task(input_audio_file, add_text=True, cloud_file_details=t["track_entry"]["file_details"])
+            ctx = base.general_task(input_audio_file, add_text=True, cloud_file_details=t["track_entry"]["file_details"], custom_video=t["track_entry"]["file_details"]["custom_video"], secondary_text=t["track_entry"]["secondary_text"])
         except Exception as e:
             logging.error(f"Error during general task {traceback.format_exc()}")
             uploadSessionObj["pre_upload_errors"].append({"error": str(traceback.format_exc()), "session_entry_id": str(new_session_res.inserted_id)})
@@ -198,7 +209,7 @@ def provision(dummy=False, payload=None):
 
         t["payload"]= uploader.taskPayload(channel_id=main_yt_id, track_title=t["track_entry"]["track_title"], upload_file=os.path.normpath(ctx.input_f.dav_final_file) )
         mongo_context = {"client": mongo, "session_id": new_session_res.inserted_id, "track_id": t["track_entry"]["_id"]}
-        uploader.perform_upload_tasks(t["payload"], t["sites"], mongo_context )
+        uploader.perform_upload_tasks(t["payload"], t["sites"], mongo_context, arduino )
         
     logging.info("All tasks returned")
     
@@ -214,7 +225,7 @@ def print_task_group(t, i):
     logging.info(f"""Task group {i} | sites {t["sites"]}\n""" )     
   
     
-def do_provision():
+def do_provision(arduino=None):
     global mongo
     load_dotenv()  
     uri = os.getenv("MONGODB_URI")
@@ -228,7 +239,7 @@ def do_provision():
                               "upload_sessions": mongo_schema.uploadSession.schema, 
                               "settings" : None} )
     #time.sleep(5)
-    return provision()
+    return provision(arduino=arduino)
 
 if __name__ == '__main__':
     do_provision()
