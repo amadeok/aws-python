@@ -170,7 +170,7 @@ class dav_handler():
     def get_font_black_list(s):
         black_list = ["AmpleSoundTab", "Blackadder ITC", "Bookshelf Symbol 7", "Edwardian Script ITC", "Freestyle Script", "Fusion Shapes", "Gill Sans MT Ext Condensed Bold", "HoloLens MDL2 Assets", "Javanese Text", "Juice ITC", "Kunstler Script", "Marlett", "MingLiU-ExtB", "MS Outlook", "MS Reference Specialty", "MT Extra", "Onyx", "Palace Script MT", "Parchment", "Playbill", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "SWGamekeys MT", "Symbol", "Vladimir Script", "Webdings", "Wingdings", "Wingdings 2", "Wingdings 3", "Lucida Console", "Consolas", "Courier New", "Droid Sans Mono", "Footlight MT Light", "Niagara Solid", "Niagara Engraved", "Rage Italic", "UI Emoji"]
 
-        black_list_too_big = ['Algerian', 'AmpleSoundTab', 'AniMe Matrix - MB_EN', 'Arial Rounded MT Bold', 'Blackadder ITC', 'Bookman Old Style', 'Broadway', 'Cascadia Code', 'Cascadia Mono', 'Castellar', 'Century', 'Century Schoolbook', 'Comic Sans MS', 'Consolas', 'Cooper Black', 'Copperplate Gothic Bold', 'Copperplate Gothic Light', 'Courier New', 'Edwardian Script ITC', 'Elephant', 'Engravers MT', 'Eras Bold ITC', 'Felix Titling', 'Fira Mono', 'Footlight MT Light', 'Franklin Gothic Heavy', 'Freestyle Script', 'Gill Sans MT Ext Condensed Bold', 'Gill Sans Ultra Bold', 'Goudy Stout', 'HoloLens MDL2 Assets', 'Ink Free', 'Javanese Text', 'Jokerman', 'Juice ITC', 'Kristen ITC', 'Kunstler Script', 'Lucida Bright', 'Lucida Console', 'Lucida Fax', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode', 'Matura MT Script Capitals', 'MS Reference Sans Serif', 'MV Boli', 'Niagara Engraved', 'Niagara Solid', 'OCR A Extended', 'Onyx', 'Palace Script MT', 'Parchment', 'Playbill', 'Rage Italic', 'Ravie', 'Rockwell Extra Bold', 'ROG Fonts', 'Sans Serif Collection', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Showcard Gothic', 'SimSun-ExtB', 'Snap ITC', 'Stencil', 'Verdana', 'Vladimir Script', 'Wide Latin']
+        black_list_too_big = ['Algerian', 'AmpleSoundTab', 'AniMe Matrix - MB_EN', 'Arial Rounded MT Bold', 'Blackadder ITC', 'Bookman Old Style', 'Broadway', 'Cascadia Code', 'Cascadia Mono', 'Castellar', 'Century', 'Century Schoolbook', 'Comic Sans MS', 'Consolas', 'Cooper Black', 'Copperplate Gothic Bold', 'Copperplate Gothic Light', 'Courier New', 'Edwardian Script ITC', 'Elephant', 'Engravers MT', 'Eras Bold ITC', 'Felix Titling', 'Fira Mono', 'Footlight MT Light', 'Franklin Gothic Heavy', 'Freestyle Script', 'Gill Sans MT Ext Condensed Bold', 'Gill Sans Ultra Bold', 'Goudy Stout', 'HoloLens MDL2 Assets', 'Ink Free', 'Javanese Text', 'Jokerman', 'Juice ITC', 'Kristen ITC', 'Kunstler Script', 'Lucida Bright', 'Lucida Console', 'Lucida Fax', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode', 'Matura MT Script Capitals', 'MS Reference Sans Serif', 'MV Boli', 'Niagara Engraved', 'Niagara Solid', 'OCR A Extended', 'Onyx', 'Palace Script MT', 'Parchment', 'Playbill', 'Rage Italic', 'Ravie', 'Rockwell Extra Bold', 'ROG Fonts', 'Sans Serif Collection', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Showcard Gothic', 'SimSun-ExtB', 'Snap ITC', 'Stencil', 'Verdana', 'Vladimir Script', 'Wide Latin', 'Neue Haas Grotesk Text Pro', 'Rockwell Nova', 'Verdana Pro']
         return black_list+black_list_too_big
 
     def adding_lyrics(s):
@@ -189,7 +189,9 @@ class dav_handler():
         time.sleep(0.5)
         s.lyrics_textp.Enabled2 = 1
         s.lyrics_textp.Center =  {1: 0.5, 2: 1-0.145, 3: 0.0}
-        s.lyrics_textp.Size[0] =  0.031 if s.ctx.custom_video_info[1] > s.ctx.custom_video_info[2] else 0.7 
+        w_is_larger = s.clip_w > s.clip_h
+        size = 0.031 if w_is_larger else 0.07 
+        s.lyrics_textp.Size[0] =  size
         ret = s.lyrics_textp.AddModifier("StyledText", "BezierSpline")
         s.get_random_text_style(s.lyrics_textp, 6, font_list=s.fonts)
 
@@ -388,7 +390,7 @@ class dav_handler():
         logging.info(f"clip name: {s.clip.GetName()}")
         clip_properties = s.clip.GetProperty()
         s.ctx.custom_video_info
-        ret = s.clip.SetProperty("ZoomX", 3.15 if s.ctx.custom_video_info[1] > s.ctx.custom_video_info[2] else 1) #2.35 if source is 1080p, 1.4-1.5 if 1920x1920 # 3.15 fills the whole screen for 16/9 ratio
+        ret = s.clip.SetProperty("ZoomX", 3.15 if s.clip_w > s.clip_h else 1) #2.35 if source is 1080p, 1.4-1.5 if 1920x1920 # 3.15 fills the whole screen for 16/9 ratio
 
     def get_clip_info(s):
         raw_clips = s.folder.GetClipList()
@@ -397,6 +399,9 @@ class dav_handler():
         s.clip_end = float(p["End"])
         s.clip_fps = p["FPS"]
         s.clip_info = p
+        s.clip_w , s.clip_h = map(int, p["Resolution"].split('x'))
+
+
 
 
     def get_comp(s):
@@ -595,7 +600,7 @@ class dav_handler():
     def apply_text_transitions(s):
         text_dirs_l = [(1,0), (-1, 0), (0, 1), (0, -1), (1,1), (-1,-1), (-1,1), (1,-1) ]
 
-        s.textp.Size[0] =  0.033 if s.ctx.custom_video_info[1] > s.ctx.custom_video_info[2] else 0.7    #at 1080p 0.055 #at 1920x1920 0.08
+        s.textp.Size[0] =  0.033 if s.clip_w > s.clip_h else 0.07    #at 1080p 0.055 #at 1920x1920 0.08
         t_size = s.textp.Size[0]
 
         s.textp.Center =  {1: 0.5, 2: 0.145 if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}

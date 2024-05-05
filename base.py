@@ -29,6 +29,8 @@ class context():
         s.extra_frames = extra_frames
         s.out_fld = os.getenv('OUTPUT_FOLDER') #f"{app_env.output_folder}"
         s.input_f = input_f if input_f else  name_storage(input_file,  s.out_fld, s.instance_name)
+        if not os.path.isdir(s.input_f.dirpath): os.makedirs(s.input_f.dirpath)
+        if not os.path.isdir(s.input_f.out_fld): os.makedirs(s.input_f.out_fld)
         if cloud_file_details == None:
             config = ConfigParser()
             ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
@@ -211,13 +213,23 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
                 pre_file = os.path.join(tempfile.gettempdir(), "0output.mp4")
                 times = math.ceil(dur/info[0])
                 logging.info(f"Custom video has shorter length than input audio, looping with reverse {dur} {info[0]}")
-                cmd = f"""ffmpeg -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]},setpts=N/{info[3]}/TB" {pre_file}   -y""" #os.path.dirname(custom_vi) #
+                #cmd = f"""ffmpeg -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]},setpts=N/{info[3]}/TB" {pre_file}   -y""" #os.path.dirname(custom_vi) #
+
+                bin = r"ffmpeg.exe"
+                cmd = f"""{bin} -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}" {pre_file}   -y"""
+                cmd = [ bin, "-i", custom_video, "-filter_complex", f"[0]reverser];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}", pre_file, "-y" ]
                 logging.info(f"loop reverse cmd {cmd}")
-                os.system(cmd)
+                #os.system(cmd)
             
-            cmd = f"""ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest {ctx.input_f.custom_video_final_file} -y"""
+            import subprocess
+            cmd = f'ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest "{ctx.input_f.custom_video_final_file}" -y'
+            cmd = ["ffmpeg","-i", pre_file,"-i", input_file,"-c:v", "copy","-c:a", "aac","-map", "0:v:0","-map", "1:a:0","-shortest",ctx.input_f.custom_video_final_file,"-y"
+            ]
+            subprocess.run(cmd, check=True)
             logging.info(f"Adding audio cmd {cmd}")
-            os.system(cmd)
+        #    subprocess.run(cmd, shell=True, check=True)
+
+            #os.system(cmd)
         else:
             logging.info(f"Custom video final file already exists, skipping ")
             

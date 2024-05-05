@@ -1,6 +1,6 @@
 import cv2
 import os, ffmpeg
-from moviepy.editor import VideoFileClip
+#from moviepy.editor import VideoFileClip
 import os
 import shutil
 
@@ -199,7 +199,7 @@ def get_sm_videos():
     vertical_folder = os.path.join(folder_path, "vertical")
     horizontal_folder = os.path.join(folder_path, "horizontal") 
     files1 = find_files_with_suffix(vertical_folder, "small", 0)
-    files2 = find_files_with_suffix(horizontal_folder, "small", 1)
+    files2 = find_files_with_suffix(horizontal_folder, "small", 0)
     files = files1 + files2
     return files
 
