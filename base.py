@@ -218,7 +218,7 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
 
                 bin = r"ffmpeg.exe"
                 #cmd = f"""{bin} -i {ctx.custom_video}  -filter_complex "[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}" {pre_file}   -y"""
-                cmd = [ bin, "-i", custom_video, "-filter_complex", f"[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}", pre_file, "-y" ]
+                cmd = [ bin, "-i", ctx.custom_video, "-filter_complex", f"[0]reverse[r];[0][r]concat,loop={math.floor(times/2)}:{(info[0]*2)*info[3]}", pre_file, "-y" ]
                 logging.info(f"loop reverse cmd {cmd}")
                 subprocess.run(cmd, check=True)
                 #os.system(cmd)

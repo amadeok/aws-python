@@ -25,6 +25,7 @@ import app_logging
 test_file =  r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\output\None_00022v2_s\00022v2_s_dav.mp4"
 #test_file = r"C:\Users\amade\Videos\20240318_170455.mp4"
 test_yt_id = "UCRFWvTVdgkejtxqh0jSlXBg" # ak@g
+binary = os.path.expanduser('~') + r"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe"
 
 ab = autopyBot.autopy.autopy("uploader_imgs")
 ab.find_fun_timeout = 30
@@ -274,7 +275,6 @@ def get_window_handles_with_title(title):
 async def start_browser(args):# url, profile):
     global edge_process
     await asyncio.sleep(0.5)
-    binary = r"C:\Users\amade\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe"
     terminate_processes_by_exe(binary)
     for x in range(2):
         await asyncio.sleep(1)
@@ -581,13 +581,14 @@ async def tumblr_task(title_hashs = ["#piano, #originalmusic"], channel_id="", b
     logging.info("TUMBLR_SUCCESS")
     
 
-async def soundcloud_task(title_hashs = ["#piano, #originalmusic"], b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch"):
+async def soundcloud_task(title_hashs = ["#piano, #originalmusic"], b_start_browser=True,  upload_file= test_file, edge_profile="Default", track_title="Op. 42 - Cristian Kusch", channel_id=""):
     
     args = ["https://soundcloud.com/upload", f'--profile-directory={edge_profile}']
     
     if b_start_browser:  await start_browser(args)
     await ac.wait_for_websocket(100)
-    raise Exception("test exception")
+    #terminate_all
+    #raise Exception("test exception")
     await asyncio.sleep(2)
     # choose_file:htmlE = await ac.find(htmlE("/html/body/div[1]/div[2]/div[2]/div/div[3]/div/div[4]/div[1]/div/div[1]/div/button", "xpath", ac, label="choose_file"),  loop=2,timeout=80, timeout_exception="soundcloud page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
     #ac.server_task.cancel("-END-")
@@ -639,13 +640,30 @@ class taskPayload():
     def __repr__(self) -> str:
         return " ".join([f'{key}: {value}' for key, value in vars(self).items() if not key.startswith('__')])
     
+async def terminate_after_timeout(flag):
+    for x in range(10):
+        await asyncio.sleep(1)  # Wait for 10 seconds
+    if not flag.is_set() or 1:
+        logging.info("Flag not cleared in 10 seconds. Terminating processes...")
+        terminate_processes_by_exe(binary)
+
 async def terminate_all():    
     logging.info(f"----> terminating all..." )
     logging.info(f"----> perform_task: closing browser..." )
-    await ac.close_browser()
+    flag = asyncio.Event()
+
+    timeout_task = asyncio.create_task(terminate_after_timeout(flag))
+
+    #await ac.close_browser()
+
     await asyncio.sleep(0.5)
+    for x in range(16):
+        logging.info("Closing all connections..")
+        await ac.close_all_connections()
+        await asyncio.sleep(1.0)
     logging.info(f"----> perform_task: canceling ac.server_task ..." )
     ac.server_task.cancel("-END-")
+    timeout_task.cancel("NORMAL_TERMINATE")
 
 def get_short_id():
     unique_id = str(uuid.uuid4())
@@ -767,13 +785,13 @@ if __name__ == "__main__":
     # import subprocess
     # ld  = subprocess.Popen(os.getenv("LD_BIN"))
     #ac.start([lambda: monitor_task()])
-    arduino = arduino_helper.arduinoHelper(True, "COM7")
-    task_payload.channel_id = "UCdeGgQuczwgU8H-GaMrdLzw"
-    arduino.ar.init()
-    arduino.set_board_mode(arduino.boardModeEnum.mouseKeyboard.value)
-    arduino.ar.change_delay_between(250) #250ms for click
+    # arduino = arduino_helper.arduinoHelper(True, "COM7")
+    # task_payload.channel_id = "UCdeGgQuczwgU8H-GaMrdLzw"
+    # arduino.ar.init()
+    # arduino.set_board_mode(arduino.boardModeEnum.mouseKeyboard.value)
+    # arduino.ar.change_delay_between(250) #250ms for click
     #ac.set_ard_click(arduino) 
-    perform_upload_tasks(task_payload, [tumblr_task],  arduino=arduino)
+    perform_upload_tasks(task_payload, [soundcloud_task],  arduino=None)
     #perform_upload_tasks(task_payload,all_tasks.values())
 
 
