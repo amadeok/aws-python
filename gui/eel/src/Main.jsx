@@ -27,7 +27,8 @@ const Main = ({ compRef }) => {
    const showingDisable = useRef(false)
    const {showingRef, prevShowingRef } = useContext(AppContext);
    const { track_entries, upload_sessions, settings,  count } = compRef.state
-
+  
+   
    const sessionRef = useRef()
    const tracksRef = useRef()
    const prevT = useRef(null)
@@ -228,7 +229,7 @@ const Main = ({ compRef }) => {
             <div className="App-intro_">
                <div className="flex flex-col _h-full _overflow-y-scroll "  ref={tracksRef}> 
                {/* onWheel={()=>handleScroll("Track monitor")}> */}
-                  {track_entries && track_entries.map((entry, i) => (
+                  {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
                      <div key={`${entry["_id"]}_${i}`} className="m-5">
                         <TrackComponent track={entry} ctx={ctx}></TrackComponent>
                      </div>
@@ -239,7 +240,7 @@ const Main = ({ compRef }) => {
             <div className="App-intro_"  >
                <div className="flex flex-col _h-full  _overflow-y-scroll" ref={sessionRef} >
                   {/* onWheel={()=>handleScroll("Sessions monitor")}> */}
-                  {upload_sessions && upload_sessions.map((session, i) => (
+                  {upload_sessions && upload_sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).filter(session=> session.track_ids.length).map((session, i) => (
                      <div key={`${session["_id"]}_${i}`} className="m-5">
                         <UploadSessionComponent uploadSession={session} ctx={ctx}></UploadSessionComponent>
                      </div>

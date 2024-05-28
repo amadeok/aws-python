@@ -251,9 +251,9 @@ class dav_handler():
             s.apply_text_transitions()
 
         s.apply_video_transitions()
-
+        projectManager = s.resolve.GetProjectManager()
+        projectManager.SaveProject()
         s.render(codec)
-
         logging.info(f"Times: davinci = {str(datetime.timedelta(seconds=time.time()-t2))} ")
 
     def get_font_black_list(s):
@@ -324,7 +324,7 @@ class dav_handler():
             merge_tool.Blend[end_frame-fade_frames] = 1
             merge_tool.Blend[end_frame] = 0
             
-        s.add_text_effects(s.lyrics_textp)
+        s.add_text_effects(s.lyrics_textp, 0.001)
 
                 
     def add_lyrics(s, lyrics_file):
@@ -622,7 +622,7 @@ class dav_handler():
         else:
             print()
 
-    def add_text_effects(s, comp):
+    def add_text_effects(s, comp, shake_streght=0.007):
         s.comp.SetActiveTool(comp)
         time.sleep(0.9)
         name = f"text_shake{random.Random(100)}"
@@ -633,7 +633,7 @@ class dav_handler():
         textp_shake.YDeviation = 0.83
         textp_shake.RotationDeviation = 0.61
         textp_shake.Randomness = 0.5
-        textp_shake.OverallStrength = 0.007
+        textp_shake.OverallStrength = shake_streght
         textp_shake.Speed = 0
         
         name = f"text_rays1{random.Random(100)}"

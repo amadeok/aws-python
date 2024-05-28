@@ -2,6 +2,7 @@
 
 #import serial
 from enum import Enum
+import math
 import time, random
 #import autopyBot
 import pyautogui
@@ -17,7 +18,12 @@ import ArdClick
 #exit()
 #ac.reboot()
 
-
+def map_number(num, from_min, from_max, to_min, to_max):
+    # Normalize the number within the given range
+    normalized_num = (num - from_min) / (from_max - from_min)
+    # Map the normalized number to the target range
+    mapped_num = normalized_num * (to_max - to_min) + to_min
+    return mapped_num
     
 class arduinoHelper():
     class boardModeEnum(Enum):
@@ -59,7 +65,7 @@ class arduinoHelper():
             logging.info(f"{str(labels[x]).ljust(20)} {integer_value}")
             
 #    def mouse_move_s(self, point, x_of=0, y_of=0): 
-    def move_mouse_s(self, target, x_of=0, y_of= 0, start=None, duration=0.5, randomness=10, recursive=True, end_randomness=1):
+    def move_mouse_s(self, target, x_of=0, y_of= 0, start=None, duration=None, randomness=10, recursive=True, end_randomness=1):
         def apply_randomness(integer, randomness):
             min_value = integer - randomness
             max_value = integer + randomness
@@ -70,7 +76,11 @@ class arduinoHelper():
         end_x, end_y = [apply_randomness(int(e), end_randomness) for e in target]
         end_x += int(x_of)
         end_y += int(y_of)
-        num_steps = int(duration * 100)
+        if duration == None:
+            dis =  math.sqrt((start_x - end_x)**2 + (start_y - end_y)**2)
+            duration = map_number(dis, 0, 2202,  0, 0.65)
+
+        num_steps = max(1,  int(duration * 100))
         step_x = (end_x - start_x) / num_steps
         step_y = (end_y - start_y) / num_steps
         #pyautogui.mouseDown()
@@ -88,19 +98,22 @@ class arduinoHelper():
             self.ar.mouse_move((end_x, end_y))
             pos = pyautogui.position()
             logging.info(pos)
+        #logging.info(f"dur {duration} steps {num_steps}")
         self.ar.write_mouse_coor_new((end_x, end_y))
         #pyautogui.mouseUp()
 
 
             
 if __name__ == "__main__":
-    ac = arduinoHelper(0, "COM7")
-    
+    ac = arduinoHelper(1, "COM7")
+
     ac.ar.init()
+    ac.set_board_mode(ac.boardModeEnum.mouseKeyboard.value)
+
     ps = [(500, 500), (1600, 600), (1400,1100), (400, 1000) ]
     while 1:
-        for p in ps:
-            ac.ar.write_mouse_coor_new(p)
+        for p in [ps[1]]:
+            ac.move_mouse_s(p)
 
             #ac.move_mouse_s( p, duration=0.5, randomness=10)
             time.sleep(2)

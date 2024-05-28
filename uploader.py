@@ -33,7 +33,7 @@ adel_ = async_fun_delegate
 del_ = autopyBot.autopy.fun_delegate
 #htmlE = autoChrome.htmlE
 #test_file =  r"C:\Users\amade\Videos\002_sky pm 12 30.mkv"
-ac = autoChromePy("")
+ac = autoChromePy("", default_send_timeout=10, autop=ab)
 _del = autopyBot.autopy.fun_delegate
 
 #ap = autopyBot.autopy.autopy()
@@ -590,7 +590,7 @@ async def soundcloud_task(title_hashs = ["#piano, #originalmusic"], b_start_brow
     #terminate_all
     #raise Exception("test exception")
     await asyncio.sleep(2)
-    # choose_file:htmlE = await ac.find(htmlE("/html/body/div[1]/div[2]/div[2]/div/div[3]/div/div[4]/div[1]/div/div[1]/div/button", "xpath", ac, label="choose_file"),  loop=2,timeout=80, timeout_exception="soundcloud page didn't open", do_until=adel_(start_browser, [args], 30 ), click=1)
+    choose_file:htmlE = await ac.find([htmlE("/html/body/div[1]/div[2]/div[2]/div/div[2]/div/div/a", "xpath", ac, label="choose_file"), ab.i.soundclout_test],  loop=2,timeout=80, timeout_exception="soundcloud page didn't open", do_until=adel_(start_browser, [args], 30 ), click=False, click_function=None)
     #ac.server_task.cancel("-END-")
     print()
 
@@ -641,11 +641,15 @@ class taskPayload():
         return " ".join([f'{key}: {value}' for key, value in vars(self).items() if not key.startswith('__')])
     
 async def terminate_after_timeout(flag):
-    for x in range(10):
-        await asyncio.sleep(1)  # Wait for 10 seconds
+    for x in range(60):
+        #logging.info("Closing all connections..")
+        #await ac.close_all_connections()
+        await asyncio.sleep(1.0)
     if not flag.is_set() or 1:
         logging.info("Flag not cleared in 10 seconds. Terminating processes...")
-        terminate_processes_by_exe(binary)
+        # terminate_processes_by_exe(binary)
+        # ac.server_task.cancel("-END-")
+
 
 async def terminate_all():    
     logging.info(f"----> terminating all..." )
@@ -654,13 +658,16 @@ async def terminate_all():
 
     timeout_task = asyncio.create_task(terminate_after_timeout(flag))
 
-    #await ac.close_browser()
+    await ac.close_browser()
 
+        
+        
+        
     await asyncio.sleep(0.5)
-    for x in range(16):
-        logging.info("Closing all connections..")
-        await ac.close_all_connections()
-        await asyncio.sleep(1.0)
+    #for x in range(16):
+        # logging.info("Closing all connections..")
+        # await ac.close_all_connections()
+        # await asyncio.sleep(1.0)
     logging.info(f"----> perform_task: canceling ac.server_task ..." )
     ac.server_task.cancel("-END-")
     timeout_task.cancel("NORMAL_TERMINATE")
@@ -791,7 +798,8 @@ if __name__ == "__main__":
     # arduino.set_board_mode(arduino.boardModeEnum.mouseKeyboard.value)
     # arduino.ar.change_delay_between(250) #250ms for click
     #ac.set_ard_click(arduino) 
-    perform_upload_tasks(task_payload, [soundcloud_task],  arduino=None)
+    for x in range(300000):
+        perform_upload_tasks(task_payload, [soundcloud_task],  arduino=None)
     #perform_upload_tasks(task_payload,all_tasks.values())
 
 

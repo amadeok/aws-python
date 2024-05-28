@@ -1,15 +1,19 @@
-
-
+set correct timeout times for terminate after timeout, and default send time response
 
 use subprocess instead of os.system to avoid problems of files with spaces
-use avee for tiktok?
 add custom hashtags with gui
-improve initial transition 
-shake on beat
+?improve initial transition 
 combine autopybot with autochromepy
-
+inverse concat ffmpeg uses too much ram for 4k videos
+shake on beat
+use avee for tiktok?
 
 ###done###:
+sort track entries by insertion date
+
+remove shaking for secondary text?
+fix crazy arduino mouse shake on move
+
 matching colors for dav text
 if dont set the bmp correctly i end up with wrong transition at the end even if is no transition video
 ?tiktok didnt write the fucking hashtags
