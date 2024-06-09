@@ -94,7 +94,7 @@ class MongoDBClient:
             validate(instance=document, schema=schema_)
             return True
         except Exception as e:
-            logging.info("Validation Error:", e)
+            logging.info(f"Validation Error: {e}")
             return False
 
 

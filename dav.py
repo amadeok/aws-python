@@ -57,6 +57,7 @@ def get_prominent_color(video_path):
         ret, frame = cap.read()
     ret, frame = cap.read()
     #data = cv2.resize(frame, (100, 100)).reshape(-1, 3)
+    t = time.time()
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     pixels = image_rgb.reshape((-1, 3))
     pixels = np.float32(pixels)
@@ -67,6 +68,7 @@ def get_prominent_color(video_path):
     # Convert back to uint8 and reshape to the original image shape
     centers = np.uint8(centers)
     prominent_color = centers[np.argmax(np.bincount(labels.flatten()))]
+    print("get prom color took ", time.time() - t)
     return prominent_color
 
 def get_contrasting_color(color):
@@ -183,7 +185,13 @@ class dav_handler():
         if os.path.isfile(ctx.input_f.dav_final_file) and not overwrite:
             logging.info("Dav file already exists, returning")
             return 
-        s.input_video = ctx.input_f.avee_final_file if not len(ctx.custom_video) else ctx.input_f.custom_video_final_file
+        
+        if  os.path.isfile(ctx.input_f.guessed_midi_file):
+            s.input_video = ctx.input_f.unreal_final_file
+        elif not len(ctx.custom_video):
+            s.input_video = ctx.input_f.avee_final_file  
+        else:
+            s.input_video = ctx.input_f.custom_video_final_file
         
         assert(os.path.isfile(s.input_video))
 
@@ -216,9 +224,9 @@ class dav_handler():
 
         s.get_clip_info()
 
-        expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
-        s.factor = s.clip_end / expected_clip_end
-        logging.debug(f"s.factor {s.factor}")
+        # expected_clip_end = s.ctx.transition_delta*s.ctx.tot_transitions
+        # s.factor = s.clip_end / expected_clip_end
+        # logging.debug(f"s.factor {s.factor}")
 
         s.plot = 0
         if s.plot:
@@ -705,8 +713,20 @@ class dav_handler():
         t_b = r(0.25, 0.45)
         t_size = (r(0.9, 1.1), r(2.0, 2.6))
         #dir = random.choice([(0,0),(1,0),(1,1),(0,1)])
-        t_center = ((r(0.4, 0.6), r(0.4, 0.6)), (r(dir[0]-0.1, dir[0]+0.1), r(dir[1]-0.1, dir[1]+0.1)))
-        t_angle = (r(-5, 5), r(30, 40)*(-1 if i%2 == 0 else 1 ))
+        if not s.ctx.using_unreal:
+            t_center = ((r(0.4, 0.6), r(0.4, 0.6)), (r(dir[0]-0.1, dir[0]+0.1), r(dir[1]-0.1, dir[1]+0.1)))
+            t_angle = (r(-5, 5), r(30, 40)*(-1 if i%2 == 0 else 1 ))
+            t_size = (r(0.9, 1.1), r(2.0, 2.6))
+
+        else:
+            t_center = ((r(0.495, 0.505), (r(0.495, 0.505))), (r(0.495, 0.505), (r(0.495, 0.505))))
+            t_size = (r(0.97, 1.03), r(0.97, 1.03))
+            #t_center = [[r(0.450, 0.550) for x in range(2)] for x in range(2)]
+            #t_center = [r(0.450, 0.550)  for x in range(2)]
+            a = 0.4
+            t_angle = (r(-a, a), r(-a, a)*(-1 if i%2 == 0 else 1 ))
+
+            
         i = max(i, 0)
         s.apply_transition(transition_frame, s.tr_tool.Size,   t_d, t_size[0], t_size[1], cur_list[0][i])
         s.apply_transition(transition_frame, s.tr_tool.Center, t_d, t_center[0] , t_center[1], s.ease_funs.easeInQuart_yline) #cur_list[1][i])
@@ -723,15 +743,17 @@ class dav_handler():
 
         s.textp.Size[0] =  0.033 if s.clip_w > s.clip_h else 0.07    #at 1080p 0.055 #at 1920x1920 0.08
         t_size = s.textp.Size[0]
-
-        s.textp.Center =  {1: 0.5, 2: 0.145 if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}
+        
+        centerY = 0.2 if s.ctx.using_unreal else 0.145
+        
+        s.textp.Center =  {1: 0.5, 2: centerY if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}
         t_center = s.textp.Center[0]
         t_center = (t_center[1], t_center[2])
         dir =  random.choice(text_dirs_l)
         ext_point = point_displacement(t_center, dir, 0.74)
 
         text_frame =  max(101, s.clip_end*0.05) #//2
-        s.textp.Center[text_frame-101]  =  {1: -10, 2: -10, 3: 0.0}
+        s.textp.Center[max(0, text_frame-101)]  =  {1: -10, 2: -10, 3: 0.0}
         s.textp.Center[0]  = {1: -10, 2: -10, 3: 0.0}
         # for ii in range(0, int(text_frame)):
         #     s.textp.Center[ii] = {1: -10, 2: -10, 3: 0.0}
@@ -758,9 +780,9 @@ class dav_handler():
 
             #s.apply_curve(cc3.line, text_frame, text_frame+60, t_angle, 0, angle_dict[angle])
             
-        s.textp.Center[s.clip_end-200] =  {1: t_center[0], 2: t_center[1], 3: 0.0}
+        s.textp.Center[s.clip_end-(s.clip_end/5)] =  {1: t_center[0], 2: t_center[1], 3: 0.0}
 
-        s.textp.Center[s.clip_end-100] =  {1: -0, 2: -2, 3: 0.0}
+        s.textp.Center[s.clip_end-(s.clip_end/10)] =  {1: -0, 2: -2, 3: 0.0}
 
     def apply_video_transitions(s):
         dir_list = []

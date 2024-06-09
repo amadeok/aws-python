@@ -258,7 +258,7 @@ const Main = ({ compRef }) => {
    function create_track_entry() {
       const number = track_entries ? track_entries.length : 0
       const file_details = {"file_path": "C:\\Users\\amade\\Documents\\dawd\\lofi1\\lofi\\Mixdown\\output\\None_00024v2_s\\__00024v2_s_joined.mp4", 
-      "bpm": 119,  "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {}, "drive_id": "", "custom_video":""} //"0": {"dur":2}
+      "bpm": 119,  "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {}, "drive_id": "", "custom_video":"", "has_midi_file": false} //"0": {"dur":2}
       eel.create_entry({ "track_title": `New track${number}`, "op_number": number, "grade": "b", "for_distrokid": false,  
       "entry_status": "pending", "upload_attempts": [], "file_details":file_details, "insertion_date": new Date(), "secondary_text":"", "collection": "track_entries" });
    }

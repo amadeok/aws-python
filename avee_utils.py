@@ -96,11 +96,15 @@ class name_storage():
         self.out_fld = f"{out}\\{instance_name}_{self.basename}\\".replace("\\\\", "\\")
         self.avee_final_file = f"{self.out_fld}\\{self.basename}_joined.mp4".replace("\\\\", "\\")
         self.custom_video_final_file = f"{self.out_fld}\\{self.basename}_custom.mp4".replace("\\\\", "\\")
+        self.unreal_final_file = f"{self.out_fld}\\{self.basename}_unreal.mp4".replace("\\\\", "\\")
+
         self.avee_tmp_file = f"{self.out_fld}\\{self.basename}_tmp.mp4".replace("\\\\", "\\")
 
         self.dav_final_file = self.out_fld + "\\" +  f"{self.basename}_dav.mp4"
         self.instance_name = instance_name
         self.guessed_lyrics_file = self.dirpath + "\\" + self.basename + ".ass"
+        self.guessed_midi_file = self.dirpath + "\\" + self.basename + ".mid"
+
         print()
 
         

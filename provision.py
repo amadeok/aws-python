@@ -194,8 +194,20 @@ def provision(dummy=False, payload=None, arduino=None):
         print_task_group(t, i)
         input_audio_file = os.path.abspath(f'{tmp_fld}{os.path.basename(t["track_entry"]["file_details"]["file_path"])}')
         if not download_file(t["track_entry"]["file_details"]["drive_id"], input_audio_file):
-            logging.error("Failed to download file from drive, skipping")
+            logging.error("Failed to download video file from drive, skipping")
             continue
+        if "has_midi_file" in  t["track_entry"]["file_details"] and t["track_entry"]["file_details"]["has_midi_file"]:
+            logging.info("Track has midi file according to database")
+            basename = os.path.basename(t["track_entry"]["file_details"]["file_path"])
+            midi_file = os.path.splitext(basename)[0] + ".mid"
+            midi_file_download_path = os.path.abspath(f'{tmp_fld}//{midi_file}')
+            if not download_file(t["track_entry"]["file_details"]["midi_drive_id"], midi_file_download_path):
+                logging.error("Failed to download midi file from drive, skipping")
+            else:
+                logging.info(f"""Midi file "{midi_file_download_path}" downloaded""")
+                assert(os.path.isfile(midi_file_download_path))
+            
+
         assert(os.path.isfile(input_audio_file))
         try:
             ctx = base.general_task(input_audio_file, add_text=True, cloud_file_details=t["track_entry"]["file_details"], custom_video=t["track_entry"]["file_details"]["custom_video"], secondary_text=t["track_entry"]["secondary_text"])

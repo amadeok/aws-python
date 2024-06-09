@@ -50,7 +50,7 @@ const TrackComponent = ({ track, ctx }) => {
         <EditableText label={"Grade:"} value={grade} style={Styles} path={getPathBase("grade")}>  </EditableText>
         <CheckboxComponent label={"For DistroKid:"} value={for_distrokid} style={Styles}  path={getPathBase("for_distrokid")}></CheckboxComponent>
 
-        <button onClick={()=>    eel.open_file_select_window(_id)((ret)=> console.log(ret))} className={`${Styles}`}  onMouseEnter={()=>setHL(file_details.file_path)} onMouseLeave={()=> setHL(null)}>File: {getFileNameFromPath(file_details.file_path)} </button>
+        <button onClick={()=>    eel.open_file_select_window(_id)((ret)=> console.log(ret))} className={`${Styles}`}  onMouseEnter={()=>setHL(file_details.file_path)} onMouseLeave={()=> setHL(null)}>File: {getFileNameFromPath(file_details.file_path)} ({file_details.has_midi_file ? "Midi" : "No midi"}) </button>
         <button className="flex flex-1 border border-[#707070] rounded-xl px-1 items-center text-[14px]" onClick={()=>setShowBarsChar(!showBarsChar )} >
           Bpm: {file_details.bpm} &nbsp; Bars: {file_details.bars} &nbsp; B/T: {file_details.bars_per_template} &nbsp;  B/B: {file_details.beats_per_bar}  </button>
           <EditableText label={"Custom video:"} value={getFileNameFromPath(file_details.custom_video) || "disabled"} style={Styles} path={{ "_id": _id, "path": "file_details", "index": null, "field": "custom_video", "collection": "track_entries" }}>  </EditableText>

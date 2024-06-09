@@ -258,14 +258,36 @@ def open_file_select_window(_id):
             entry = find_element_by_id(mongo.cd["track_entries"], _id)
             if len(entry["file_details"]["drive_id"]):
                 gdrive.delete_file(entry["file_details"]["drive_id"])
+            if "midi_drive_id" in entry["file_details"] and len(entry["file_details"]["midi_drive_id"]):
+                gdrive.delete_file(entry["file_details"]["midi_drive_id"])
+                
+            guessed_midi_file = os.path.splitext(ret)[0] + ".mid"
+            midi_found =  os.path.isfile(guessed_midi_file)
+            if midi_found:
+                logging.info(f"""Midi file "{guessed_midi_file}" found """) 
+                midi_uploaded_id = gdrive.create_file(guessed_midi_file, os.path.basename(guessed_midi_file))   
+            else:
+                logging.info(f"""Midi file "{guessed_midi_file}" NOT found """)
+                    
             uploaded_id = gdrive.create_file(ret, os.path.basename(ret))
-            eel.pythonAlert("File uploaded to drive")
+            
+            msg = "Video file and midi file uploaded to drive" if midi_found else "Video file uploaded to drive"
+            logging.info(f"{msg}")
+            eel.pythonAlert(msg)
+            
             p1 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "file_path", "value": ret}          
             p2 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "drive_id", "value": uploaded_id} 
+            p3 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "has_midi_file", "value": midi_found} 
+            p4 = {"collection": "track_entries", "_id": _id, "path": "file_details", "index": None, "field": "midi_drive_id", "value": midi_uploaded_id if midi_found else ""} 
             funs = [
                 lambda: update_nested_field(find_element_by_id(mongo.cd[p1["collection"]], p1["_id"]), p1["path"], p1["index"], p1["field"], p1["value"]),
-                lambda: update_nested_field(find_element_by_id(mongo.cd[p2["collection"]], p2["_id"]), p2["path"], p2["index"], p2["field"], p2["value"])
+                lambda: update_nested_field(find_element_by_id(mongo.cd[p2["collection"]], p2["_id"]), p2["path"], p2["index"], p2["field"], p2["value"]),
+                lambda: update_nested_field(find_element_by_id(mongo.cd[p3["collection"]], p3["_id"]), p3["path"], p3["index"], p3["field"], p3["value"]),
+                lambda: update_nested_field(find_element_by_id(mongo.cd[p4["collection"]], p4["_id"]), p4["path"], p4["index"], p4["field"], p4["value"])
             ]
+            #if midi_found:
+
+                
             update_task(p1, funs )
 
     return ret

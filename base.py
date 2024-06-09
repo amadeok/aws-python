@@ -6,6 +6,7 @@ import json
 import app_env
 import utils.process_videos as pv, math, tempfile
 import subprocess
+import unreal
 
 class avee_fragment():
     def __init__(self, ctx, audio_start, audio_end) -> None:
@@ -32,18 +33,26 @@ class context():
         s.input_f = input_f if input_f else  name_storage(input_file,  s.out_fld, s.instance_name)
         if not os.path.isdir(s.input_f.dirpath): os.makedirs(s.input_f.dirpath)
         if not os.path.isdir(s.input_f.out_fld): os.makedirs(s.input_f.out_fld)
+        s.using_unreal = os.path.isfile(s.input_f.guessed_midi_file)
+       
         if cloud_file_details == None:
-            config = ConfigParser()
-            ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
-            config.read(ini_file)
-            s.bpm = config.getint('main', 'bpm')
-            # s.s_m = config.getint('main', 's_m')
-            # s.s_sec = config.getint('main', 's_sec')
-            # s.s_ms = config.getint('main', 's_ms')
-            s.bars = config.getint('main', 'bars')
-            s.bars_per_template = config.getint('main', 'bars_per_template')
-            s.beats_per_bar = config.getint('main', 'beats_per_bar')
-            s.avee_custom_lenghts = json.loads(config.get('main', 'avee_custom_lenghts', fallback="{}"))
+            pass
+            s.bpm = 60
+            s.beats_per_bar = 4
+            s.bars_per_template = 4
+            s.bars = 4
+            s.avee_custom_lenghts = {}
+            # config = ConfigParser()
+            # ini_file = s.input_f.dirpath + "\\" + s.input_f.basename + ".ini"
+            # config.read(ini_file)
+            # s.bpm = config.getint('main', 'bpm')
+            # # s.s_m = config.getint('main', 's_m')
+            # # s.s_sec = config.getint('main', 's_sec')
+            # # s.s_ms = config.getint('main', 's_ms')
+            # s.bars = config.getint('main', 'bars')
+            # s.bars_per_template = config.getint('main', 'bars_per_template')
+            # s.beats_per_bar = config.getint('main', 'beats_per_bar')
+            # s.avee_custom_lenghts = json.loads(config.get('main', 'avee_custom_lenghts', fallback="{}"))
         else:
             s.bpm = cloud_file_details['bpm']
             s.bars =cloud_file_details['bars']
@@ -224,10 +233,16 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
                 #os.system(cmd)
             
             #cmd = f'ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest "{ctx.input_f.custom_video_final_file}" -y'
-            cmd = ["ffmpeg","-i", pre_file,"-i", input_file,"-c:v", "copy","-c:a", "aac","-map", "0:v:0","-map", "1:a:0","-shortest",ctx.input_f.custom_video_final_file,"-y"
-            ]
-            subprocess.run(cmd, check=True)
-            logging.info(f"Adding audio cmd {cmd}")
+            audio_offset = os.getenv("AUDIO_OFFSET") #-0.028
+            if ctx.using_unreal:
+                if os.path.isfile(ctx.input_f.unreal_final_file):
+                   logging.info(f"Unreal final file already exists, skipping")
+                else:
+                    tmp_unreal_file =  os.path.join(tempfile.gettempdir(), "temp_unreal_video.mp4")
+                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, tmp_unreal_file, input_file)
+                    addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
+            else: 
+                addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
 
             #os.system(cmd)
         else:
@@ -243,3 +258,11 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
     return ctx
+
+def addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset):
+    cmd = ["ffmpeg","-i", tmp_unreal_file if ctx.using_unreal else  pre_file, 
+                    "-itsoffset", str(audio_offset), "-i", input_file, "-c:v", "copy","-c:a", "aac","-map", "0:v:0","-map", "1:a:0","-shortest",
+                    ctx.input_f.unreal_final_file if ctx.using_unreal else ctx.input_f.custom_video_final_file,"-y" ]
+            
+    subprocess.run(cmd, check=True)
+    logging.info(f"Adding audio cmd {cmd}")
