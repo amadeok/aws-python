@@ -1,3 +1,5 @@
+import logging
+import random
 import cv2
 import os, ffmpeg
 #from moviepy.editor import VideoFileClip
@@ -194,6 +196,10 @@ def find_files_with_suffix(directory, suffix, invert):
 # for file_path in small_files:
 #     print(file_path)
 
+
+
+
+
 def get_sm_videos():
     folder_path = os.getenv("SM_VIDEOS")
     vertical_folder = os.path.join(folder_path, "vertical")
@@ -202,6 +208,14 @@ def get_sm_videos():
     files2 = find_files_with_suffix(horizontal_folder, "small", 0)
     files = files1 + files2
     return files
+
+def get_random_sm_video():
+    while 1:
+        video = random.choice(get_sm_videos())
+        duration, width, height, fps = get_video_info_cv(video)
+        if fps < 40:
+            logging.info(f"Randomly selected custom sm video: {video}, dur: {duration}, w: {width}, h: {height}, fps: {fps}")
+            return video
 
 if __name__ == "__main__":
     files = get_sm_videos()

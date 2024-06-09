@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import tempfile
 import app_logging
 import utils.process_videos as pv
+import pygetwindow as gw
+from pydub import AudioSegment
 
 def kill_ffmpeg_processes():
     for proc in psutil.process_iter(['pid', 'name']):
@@ -91,7 +93,6 @@ def error_checker():
     logging.info("error checker ended")
 
 
-from pydub import AudioSegment
 
 def get_audio_length(file_path):
     audio = AudioSegment.from_file(file_path)
@@ -121,13 +122,17 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     "r.CustomMaxOutputVideoLenght": get_audio_length(audio_file)
     }
     variables_to_update.update(extra_settings)
-
-    update_config('unreal_defaults.ini', variables_to_update, "unreal.ini")
+    
+    ini_defaults = os.environ['STREAM_PIANO_INI_VARS_FILE_DEFAULTS']
+    
+    update_config(ini_defaults, variables_to_update, "unreal.ini")
 
     load_dotenv()  
     unreal_ini = os.path.abspath("unreal.ini")
     assert(os.path.isfile(unreal_ini))
     os.environ['STREAM_PIANO_INI_VARS_FILE'] = unreal_ini# #r"C:\Users\%USERNAME%\Documents\Unreal Projects\stream_piano\Content\Debug\RuntimeVarsInit.ini"
+
+    move_unreal = int(os.getenv("MOVE_UNREAL"))
 
     # uri = os.getenv("STREAM_PIANO_INI_VARS_FILE")
     bin = os.getenv("STREAM_PIANO_BIN")
@@ -136,6 +141,12 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     cmd = [bin,  "-windowed", "resx=1280", "resy=720"]
     proc = subprocess.Popen(cmd)
     pid = proc.pid
+    if move_unreal:
+        windows = []
+        while not len(windows):
+            windows = gw.getWindowsWithTitle("stream_piano")
+        windows[0].moveTo(1921, 1080)
+
     proc.wait()
     stop = True
     t.join()

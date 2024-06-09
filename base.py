@@ -64,7 +64,7 @@ class context():
 
         if len(custom_video):
             if custom_video == "random":
-                s.custom_video = random.choice(pv.get_sm_videos())
+                s.custom_video = pv.get_random_sm_video()# random.choice(pv.get_sm_videos())
             elif not os.path.isfile(custom_video):
                 p = os.path.basename(custom_video)
                 found = find_file( os.getenv("SM_VIDEOS"), p)
