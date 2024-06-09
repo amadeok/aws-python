@@ -115,6 +115,7 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     #pianoKeyBP=9
     
     variables_to_update = {
+    "r.InputAudioFilePath": audio_file,
     'r.InputMidiFilePath': input_midi_file,
     'r.InputVideoFilePath': input_video_file,
     "r.ffmpegOutFilePath": output_file,

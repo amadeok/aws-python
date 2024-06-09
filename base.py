@@ -239,8 +239,8 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
                    logging.info(f"Unreal final file already exists, skipping")
                 else:
                     tmp_unreal_file =  os.path.join(tempfile.gettempdir(), "temp_unreal_video.mp4")
-                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, tmp_unreal_file, input_file)
-                    addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
+                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, ctx.input_f.unreal_final_file , input_file) #tmp_unreal_file
+                    #addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
             else: 
                 addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
 
