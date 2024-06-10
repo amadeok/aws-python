@@ -36,7 +36,7 @@ f = "00024v2_s.wav"
 #f = "00039.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
-input_file_ = r"C:\Users\%USERNAME%\Downloads\00001 Forest Walk short.wav"#r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00025_s.wav"#
+input_file_ = r"C:\Users\%USERNAME%\Downloads\00025_s.wav"# r"C:\Users\%USERNAME%\Downloads\00001 Forest Walk.wav"#r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00025_s.wav"#
 
 input_file_ = input_file_.replace("%USERNAME%", os.getenv("USERNAME"))
 
