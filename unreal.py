@@ -1,5 +1,6 @@
 import random
-import os, sys, subprocess, logging, threading, psutil
+import os, sys, subprocess, logging, threading, psutil, win32gui 
+
 import time
 from dotenv import load_dotenv
 import tempfile
@@ -80,6 +81,8 @@ def remove_carriage_returns(file_path):
 def error_checker():
     global stop
     global pid
+    global hwnd
+    import pyautogui
     logging.info("error checker started")
     error_log_f = tempfile.gettempdir() + "/Temp/STREAM_PIANO_ERROR.txt"
 
@@ -90,6 +93,11 @@ def error_checker():
                 os.kill(pid, -9)
                 raise Exception("Stream piano error: " + data)
         time.sleep(1)
+        if hwnd:
+            try:
+                pyautogui.click(hwnd.centerx, hwnd.centery)
+            except Exception as e:
+                print(e)
     logging.info("error checker ended")
 
 
@@ -99,13 +107,15 @@ def get_audio_length(file_path):
     length_in_seconds = len(audio) / 1000.0
     return length_in_seconds
 
+from avee_utils import get_window_handles_with_title
 
 def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyBPrange=(0, 9), extra_settings ={}):
     global stop
     global pid
+    global hwnd
     stop = False
     logging.info(f"Performing unreal task, in video {input_video_file}, in midi, {input_midi_file},  out file, { output_file}")
-    
+    hwnd = 0
     error_log_f = tempfile.gettempdir() + "/Temp/STREAM_PIANO_ERROR.txt"
     if os.path.isfile(error_log_f): os.remove(error_log_f)
     t = threading.Thread(target=error_checker)
@@ -120,7 +130,7 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     'r.InputVideoFilePath': input_video_file,
     "r.ffmpegOutFilePath": output_file,
     "r.pianoKeyBP":pianoKeyBP,
-    "r.CustomMaxOutputVideoLenght": get_audio_length(audio_file)
+    "r.CustomMaxOutputVideoLenght": 0#get_audio_length(audio_file)
     }
     variables_to_update.update(extra_settings)
     
@@ -144,9 +154,22 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     pid = proc.pid
     if move_unreal:
         windows = []
-        while not len(windows):
-            windows = gw.getWindowsWithTitle("stream_piano")
-        windows[0].moveTo(1921, 1080)
+        while 1:
+            br = 0
+            windows = get_window_handles_with_title(["stream_piano"])
+            for w in windows:
+                if not "Notepad" in w.title:
+                    br = True
+            if br: break
+        for w in windows:
+            if not "Notepad" in w.title:
+                hwnd = w
+                win32gui.SetForegroundWindow(w._hWnd)
+                win32gui.SetActiveWindow(w._hWnd)
+                w.moveTo(1921, 1080)    
+                w.moveTo(1921, 1080)    
+
+
 
     proc.wait()
     stop = True

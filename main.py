@@ -83,7 +83,8 @@ def main(upload=False):
     custom_vi = os.path.expanduser('~') + r"Videos\social_media_videos\horizontal\202004\ai_restaurant_cafe__202004-916894674.mp4"#os.path.expanduser('~') +"Videos\social_media_videos\vertical\sakura_trees_pink_stairs__156010-811683620.mp4"
     custom_vi = os.path.expanduser('~') + r"Videos\social_media_videos\vertical\mountains_forest__198802-908900247.mp4"
     custom_vi = pv.get_random_sm_video()#random.choice(pv.get_sm_videos())
-    
-    base.general_task(input_file_,  fr_l[0], add_text=True, custom_video=custom_vi, secondary_text="peaceful_piano_music")
+    pre_file = os.path.join(tempfile.gettempdir(), "0output.mp4")
+
+    base.general_task(input_file_,  fr_l[0], add_text=True, custom_video=pre_file, secondary_text="peaceful_piano_music")
 
 main(upload=0)
