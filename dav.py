@@ -242,11 +242,10 @@ class dav_handler():
         s.add_tools_and_modifiers()
 
         #s.lyrics_text = [("it's true i forgot about us all", 0), ("it's true i did see you fall", 100)]
-
-        if s.adding_lyrics():
+        adding_lyrics =  s.adding_lyrics()
+        if adding_lyrics:
             s.add_lyrics(ctx.input_f.guessed_lyrics_file)
-
-        if len(s.ctx.secondary_text):
+        elif len(s.ctx.secondary_text):
             s.add_secondary_text(s.ctx.secondary_text)
 
         if s.text:
@@ -286,8 +285,10 @@ class dav_handler():
         time.sleep(0.5)
         s.lyrics_textp.Enabled2 = 1
         s.lyrics_textp.Center =  {1: 0.5, 2: 1-0.145, 3: 0.0}
+        
         w_is_larger = s.clip_w > s.clip_h
-        size = 0.031 if w_is_larger else 0.07 
+        size = 0.031 if w_is_larger else ( 0.07 if s.ctx.force_unreal_vertical else 1 )
+        
         s.lyrics_textp.Size[0] =  size
         ret = s.lyrics_textp.AddModifier("StyledText", "BezierSpline")
         s.get_random_text_style(s.lyrics_textp, 6, font_list=s.fonts)
@@ -320,7 +321,7 @@ class dav_handler():
             if start_frame >= s.clip_end:
                 break
             wrapped =  wrapper.wrap(text=text)
-            s.lyrics_textp.StyledText[start_frame] =  "\n".join(wrapped)
+            s.lyrics_textp.StyledText[start_frame] =  "\n".join(wrapped) if  s.ctx.force_unreal_vertical else text
 
             #end = ev.end - s.ctx.td_start
             #end_secs = end.total_seconds()
@@ -341,8 +342,13 @@ class dav_handler():
         s.lyrics_textp = s.comp.AddTool("TextPlus", -32768, -32768)
         time.sleep(0.5)
         s.lyrics_textp.Enabled2 = 1
-        s.lyrics_textp.Center =  {1: 0.5, 2: 0.145, 3: 0.0}
-        s.lyrics_textp.Size[0] =  0.033 
+        centery = 0.22 if s.ctx.force_unreal_vertical else 0.3
+        s.lyrics_textp.Center =  {1: 0.5, 2: centery, 3: 0.0}
+        
+        w_is_larger = s.clip_w > s.clip_h
+        size = ( 0.031 if s.ctx.force_unreal_vertical else 0.045 ) if w_is_larger else 0.07
+        s.lyrics_textp.Size[0] =  size
+        
         ret = s.lyrics_textp.AddModifier("StyledText", "BezierSpline")
         s.get_random_text_style(s.lyrics_textp, 6, font_list=s.fonts)
 
@@ -361,19 +367,18 @@ class dav_handler():
 
         for ev in doc.events:
             fade_frames = 0.5 * s.clip_fps #seconds
-            raise Exception("To do:   ev.start - s.ctx.td_start , wtf? ")
-            start =   ev.start - s.ctx.td_start 
-            start_secs = start.total_seconds()
+            #raise Exception("To do:   ev.start - s.ctx.td_start , wtf? ")
+            #start =   ev.start - s.ctx.td_start 
+            start_secs = ev.start.total_seconds()
             if start_secs < 0: start_secs = 0
 
             start_frame = start_secs*s.clip_fps
             if start_frame >= s.clip_end:
                 break
             wrapped =  wrapper.wrap(text=ev.text)
-            s.lyrics_textp.StyledText[start_frame] =  "\n".join(wrapped)
+            s.lyrics_textp.StyledText[start_frame] =  "\n".join(wrapped) if  s.ctx.force_unreal_vertical else ev.text
 
-            end = ev.end - s.ctx.td_start
-            end_secs = end.total_seconds()
+            end_secs = ev.end.total_seconds()
             end_frame = end_secs*s.clip_fps
             if end_frame > s.clip_end: end_frame = s.clip_end - fade_frames
             
@@ -448,8 +453,10 @@ class dav_handler():
         s.folder = s.mediaPool.AddSubFolder(rootFolder, s.ctx.input_f.basename)
         s.MediaStorage = s.resolve.GetMediaStorage()
 
-        ret = s.project.SetSetting("timelineResolutionWidth", '1080')
-        ret = s.project.SetSetting("timelineResolutionHeight", '1920')
+        res = ("1080", "1920") if s.ctx.force_unreal_vertical else ("1920", "1080")
+        
+        ret = s.project.SetSetting("timelineResolutionWidth", res[0])
+        ret = s.project.SetSetting("timelineResolutionHeight", res[1])
 
         ret= s.project.SetSetting("timelineFrameRate", str(s.ctx.fps))
         ret= s.project.SetSetting("timelinePlaybackFrameRate", str(s.ctx.fps))
@@ -487,7 +494,7 @@ class dav_handler():
         logging.info(f"clip name: {s.clip.GetName()}")
         clip_properties = s.clip.GetProperty()
         s.ctx.custom_video_info
-        ret = s.clip.SetProperty("ZoomX", 3.15 if s.clip_w > s.clip_h else 1) #2.35 if source is 1080p, 1.4-1.5 if 1920x1920 # 3.15 fills the whole screen for 16/9 ratio
+        ret = s.clip.SetProperty("ZoomX", 3.15 if s.ctx.force_unreal_vertical else 1) #2.35 if source is 1080p, 1.4-1.5 if 1920x1920 # 3.15 fills the whole screen for 16/9 ratio
 
     def get_clip_info(s):
         raw_clips = s.folder.GetClipList()
@@ -746,7 +753,7 @@ class dav_handler():
         
         centerY = 0.2 if s.ctx.using_unreal else 0.145
         
-        s.textp.Center =  {1: 0.5, 2: centerY if random.randint(1,1) else 0.855, 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 0.855, 3: 0.0}
+        s.textp.Center =  {1: 0.5, 2: centerY , 3: 0.0} if not s.adding_lyrics() else {1: 0.5, 2: 1-0.145, 3: 0.0}
         t_center = s.textp.Center[0]
         t_center = (t_center[1], t_center[2])
         dir =  random.choice(text_dirs_l)
@@ -809,6 +816,7 @@ class dav_handler():
         else:
             #s.apply_random_transition(0, int(-s.clip_fps*2), dir_list[random.randint(0, len(dir_list)-1)], curve_list)
             s.apply_random_transition(0, int(s.clip_end), dir_list[random.randint(0, len(dir_list)-1)], curve_list) 
+            time.sleep(0.5)
             s.apply_curve(s.ease_funs.easeOutSine_yline.line, 0, 5*s.ctx.fps, 0.93, 0.3, s.glow.Glow, f"dir easeInExpo")
             #easeOutExpo easeOutQuart 
             

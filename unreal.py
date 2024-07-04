@@ -182,11 +182,12 @@ if __name__ == "__main__":
     #     for line in files:
     #         file.write(f"{line}\n")
             
-    with open("get_sm_videos.txt", 'r') as file:
-        files = file.readlines()
-        
+    # with open("get_sm_videos.txt", 'r') as file:
+    #     files = file.readlines()
+    files = pv.get_sm_videos_hor()
     index = 0
     tmp_index_file =  os.path.join(tempfile.gettempdir(), "tmp_index_file.txt")
+    
     if not os.path.isfile(tmp_index_file):
         with open(tmp_index_file, 'w') as file:
             file.write(f"0")
@@ -207,7 +208,8 @@ if __name__ == "__main__":
         logging.info(f"Index {index}")
         video_file =  files[index] #r"random"
         kill_ffmpeg_processes()
-        unreal_task(video_file, midi_file, final_file,audio_file,  (3, 3), {"r.InputMidiDevice":"clone 1", "r.InputMidiDevice":"clone 1", "r.bPrintRvars":"1", "r.fitKeysForShortFormat":"2" })
+        unreal_task(video_file, midi_file, final_file,audio_file,  (3, 3), {"r.bForceVerticalFormat":"0", "r.fitKeysForShortFormat":"2", "r.pianoKeyScaleOverr":"1.5", "r.keyboardXOffset":"-55"}) #"r.InputMidiDevice":"clone 1", "r.InputMidiDevice":"clone 1", "r.bPrintRvars":"1", "r.fitKeysForShortFormat":"2", 
+        break
         index+=1
         with open(tmp_index_file, 'w') as file:
             file.write(str(index))

@@ -37,7 +37,7 @@ f = "00024v2_s.wav"
 #f = random.choice(os.listdir(audio_fld))
 input_file_ = audio_fld + "//" + f
 input_file_ = r"C:\Users\%USERNAME%\Downloads\00025_s.wav"# r"C:\Users\%USERNAME%\Downloads\00001 Forest Walk.wav"#r"C:\Users\amade\Documents\dawd\lofi1\lofi\Mixdown\00025_s.wav"#
-
+input_file_ = r"C:\Users\%USERNAME%\Documents\dawd\Exported\00018 love of my life\00018\Mixdown\solaria_alt_short.wav"
 input_file_ = input_file_.replace("%USERNAME%", os.getenv("USERNAME"))
 
 #input_file_ = r"C:\Users\amade\Documents\dawd\Exported\00034\Mixdown\s_00034(5).wav"
@@ -85,6 +85,6 @@ def main(upload=False):
     custom_vi = pv.get_random_sm_video()#random.choice(pv.get_sm_videos())
     pre_file = os.path.join(tempfile.gettempdir(), "0output.mp4")
 
-    base.general_task(input_file_,  fr_l[0], add_text=True, custom_video=pre_file, secondary_text="peaceful_piano_music")
+    base.general_task(input_file_,  fr_l[0], add_text=True, custom_video=pre_file, secondary_text="peaceful_piano_music", force_unreal_vertical=1)
 
 main(upload=0)

@@ -209,6 +209,12 @@ def get_sm_videos():
     files = files1 + files2
     return files
 
+def get_sm_videos_hor():
+    folder_path = os.getenv("SM_VIDEOS")
+    horizontal_folder = os.path.join(folder_path, "horizontal") 
+    files = find_files_with_suffix(horizontal_folder, "small", 0)
+    return files
+
 def get_random_sm_video():
     while 1:
         video = random.choice(get_sm_videos())

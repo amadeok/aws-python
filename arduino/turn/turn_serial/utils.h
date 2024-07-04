@@ -39,7 +39,12 @@ void press_key(int key) {
   Keyboard.release(key);
 }
 
-
+void press_key_only(int key) {
+  Keyboard.press(key);
+}
+void release_key_only(int key) {
+  Keyboard.release(key);
+}
 
 void move_click(int x, int y) {
   AbsMouse.move(x, y);
@@ -50,6 +55,16 @@ void move_click(int x, int y) {
   AbsMouse.release(MOUSE_LEFT);
   char c = 99;
   Serial.write(99);
+}
+
+void move_click_2(int x, int y, bool right, bool click) {
+  AbsMouse.move(x, y);
+  //delay(delay_between);
+  if (click)
+    AbsMouse.press(right ? MOUSE_RIGHT : MOUSE_LEFT);
+  else
+    AbsMouse.release(right ? MOUSE_RIGHT : MOUSE_LEFT);
+  
 }
 
 void move_click_right(int x, int y) {

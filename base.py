@@ -26,7 +26,7 @@ def find_file(folder, filename):
     return None
 
 class context():
-    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="", secondary_text="", input_f=None) -> None:
+    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="", secondary_text="", input_f=None, force_unreal_vertical=True) -> None:
         s.instance_name = instance_name
         s.extra_frames = extra_frames
         s.out_fld = os.getenv('OUTPUT_FOLDER') #f"{app_env.output_folder}"
@@ -34,7 +34,7 @@ class context():
         if not os.path.isdir(s.input_f.dirpath): os.makedirs(s.input_f.dirpath)
         if not os.path.isdir(s.input_f.out_fld): os.makedirs(s.input_f.out_fld)
         s.using_unreal = os.path.isfile(s.input_f.guessed_midi_file)
-       
+        s.force_unreal_vertical = force_unreal_vertical
         if cloud_file_details == None:
             pass
             s.bpm = 60
@@ -200,11 +200,11 @@ def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
     
-def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video="", secondary_text="", input_f=None):
+def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video="", secondary_text="", input_f=None, force_unreal_vertical=True):
 
     t0 = time.time()
 
-    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video, secondary_text=secondary_text, input_f=input_f)
+    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video, secondary_text=secondary_text, input_f=input_f, force_unreal_vertical=force_unreal_vertical)
 
     ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
 
@@ -234,12 +234,13 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
             
             #cmd = f'ffmpeg -i {pre_file}  -i {ctx.input_f.input_path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest "{ctx.input_f.custom_video_final_file}" -y'
             audio_offset = os.getenv("AUDIO_OFFSET") #-0.028
+            tmp_unreal_file = None
             if ctx.using_unreal:
                 if os.path.isfile(ctx.input_f.unreal_final_file):
                    logging.info(f"Unreal final file already exists, skipping")
                 else:
                     tmp_unreal_file =  os.path.join(tempfile.gettempdir(), "temp_unreal_video.mp4")
-                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, ctx.input_f.unreal_final_file , input_file) #tmp_unreal_file
+                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, ctx.input_f.unreal_final_file , input_file, extra_settings= {} if  force_unreal_vertical else {"r.bForceVerticalFormat":"0", "r.fitKeysForShortFormat":"2", "r.pianoKeyScaleOverr":"1.5", "r.keyboardXOffset":"-55"} ) #tmp_unreal_file
                     #addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
             else: 
                 addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)

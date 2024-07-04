@@ -252,6 +252,7 @@ void loop() {
                 blink(boardMode + 1, 500, 300, 600);
               break;
             case 40012:
+            {
               y = serial_read_2bytes();
               unsigned long intervalMins_ = intervalMins;
               unsigned long ct_ = millis() / 1000;
@@ -280,7 +281,42 @@ void loop() {
             //   // if (bBeepRemainerTime)
             //   //   blink(boardMode + 1, 500, 300, 600);
             //   break;
+            }
+            case 40013:
+              //press left click 
+              x = serial_read_2bytes();
+              y = serial_read_2bytes();
+              move_click_2(x, y, false, true);
+              break;
+            case 40014:
+              //release left click 
+              x = serial_read_2bytes();
+              y = serial_read_2bytes();
+              move_click_2(x, y, false, false);
+              break;
+            case 40015:
+              //press right click 
+              x = serial_read_2bytes();
+              y = serial_read_2bytes();
+              move_click_2(x, y, true, true);
+              break;
+            case 40016:
+              //release right click 
+              x = serial_read_2bytes();
+              y = serial_read_2bytes();
+              move_click_2(x, y, true, false);
+              break;
+            case 40017:
+              y = serial_read_2bytes();
+              press_key_only(y);
+              break;
+            case 40018:
+              y = serial_read_2bytes();
+              release_key_only(y);
+              break;
             default:
+                          blink(4);
+
               move_click(x, y);
           }
           serialStatus = settingX;
