@@ -1,3 +1,4 @@
+#include "Arduino.h"
 int proMicroLED_pin = 17;
 int LED_PIN = LED_PIN;
 const int PC_POWER_PIN = A0;
@@ -16,8 +17,11 @@ String pass = "";
 bool using_pro_micro = true;
 
 int delay_between = 500;
+int  delay_between_var = 10;
 
-
+int get_delay_between(){ 
+  return random( max(delay_between-delay_between_var, 0) , delay_between+delay_between_var);  
+}
 
 void blink(int times, int delay_1 = 250,int delay_2 = 250, int beep = 0) {
   for (int n = 0; n < times; n++) {
@@ -33,9 +37,9 @@ void blink(int times, int delay_1 = 250,int delay_2 = 250, int beep = 0) {
 }
 
 void press_key(int key) {
-  delay(delay_between);
+  delay(get_delay_between());
   Keyboard.press(key);
-  delay(delay_between);
+  delay(get_delay_between());
   Keyboard.release(key);
 }
 
@@ -47,11 +51,11 @@ void release_key_only(int key) {
 }
 
 void move_click(int x, int y) {
-  AbsMouse.move(x, y);
-  delay(delay_between);
 
+  AbsMouse.move(x, y);
+  delay(get_delay_between());
   AbsMouse.press(MOUSE_LEFT);
-  delay(delay_between);
+  delay(get_delay_between());
   AbsMouse.release(MOUSE_LEFT);
   char c = 99;
   Serial.write(99);
@@ -69,9 +73,9 @@ void move_click_2(int x, int y, bool right, bool click) {
 
 void move_click_right(int x, int y) {
   AbsMouse.move(x, y);
-  delay(delay_between);
+  delay(get_delay_between());
   AbsMouse.press(MOUSE_RIGHT);
-  delay(delay_between);
+  delay(get_delay_between());
   AbsMouse.release(MOUSE_RIGHT);
   char c = 99;
   Serial.write(99);
@@ -113,7 +117,7 @@ void write_string2() {
   Serial.println(s);
   x = serial_read_2bytes();
   y = serial_read_2bytes();
-  delay(delay_between);
+  delay(get_delay_between());
 
   AbsMouse.move(x, y);
   for (int t = 0; t < 2; t++) {

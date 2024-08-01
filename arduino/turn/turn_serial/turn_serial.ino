@@ -104,7 +104,6 @@ void printInfo(unsigned long targetMs, unsigned long remMs, unsigned long hours,
 
 void loop() {
 
-
   // blink(3, 300, 100, 1000);
   unsigned long targetMs = (debugMs ? debugMs : waitMs);
   unsigned long long ct = millis();

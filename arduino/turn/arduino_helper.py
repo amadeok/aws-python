@@ -66,6 +66,8 @@ class arduinoHelper():
             
 #    def mouse_move_s(self, point, x_of=0, y_of=0): 
     def move_mouse_s(self, target, x_of=0, y_of= 0, start=None, duration=None, randomness=10, recursive=True, end_randomness=1):
+        self.ar.move_mouse_s(target, x_of, y_of, start, duration, randomness, recursive, end_randomness)
+        return
         def apply_randomness(integer, randomness):
             min_value = integer - randomness
             max_value = integer + randomness
@@ -100,10 +102,10 @@ class arduinoHelper():
             logging.info(pos)
         #logging.info(f"dur {duration} steps {num_steps}")
         self.ar.write_mouse_coor_new((end_x, end_y))
-        #pyautogui.mouseUp()
+        #pyautogui.mouseUp()                                                                           
+                                       
 
-
-            
+                                 
 if __name__ == "__main__":
     ac = arduinoHelper(1, "COM7")
 
@@ -112,7 +114,7 @@ if __name__ == "__main__":
 
     ps = [(500, 500), (1600, 600), (1400,1100), (400, 1000) ]
     while 1:
-        for p in [ps[1]]:
+        for p in ps:#[ps[1]]:
             ac.move_mouse_s(p)
 
             #ac.move_mouse_s( p, duration=0.5, randomness=10)
