@@ -26,7 +26,7 @@ def find_file(folder, filename):
     return None
 
 class context():
-    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="", secondary_text="", input_f=None, force_unreal_vertical=True) -> None:
+    def __init__(s, instance_name, input_file, extra_frames, cloud_file_details = None, custom_video="", secondary_text="", input_f=None, force_unreal_vertical=True, dav_text_color_inner=None, dav_text_color_outer=None) -> None:
         s.instance_name = instance_name
         s.extra_frames = extra_frames
         s.out_fld = os.getenv('OUTPUT_FOLDER') #f"{app_env.output_folder}"
@@ -35,6 +35,8 @@ class context():
         if not os.path.isdir(s.input_f.out_fld): os.makedirs(s.input_f.out_fld)
         s.using_unreal = os.path.isfile(s.input_f.guessed_midi_file)
         s.force_unreal_vertical = force_unreal_vertical
+        s.dav_text_color_outer = dav_text_color_outer
+        s.dav_text_color_inner = dav_text_color_inner
         if cloud_file_details == None:
             pass
             s.bpm = 60
@@ -200,11 +202,11 @@ def general_task_aws(instance, input_file, sql, extra_frames_, do_aws=False):
 
     logging.info(f"Times: total = {str(datetime.timedelta(seconds=t4-t0))} ")
     
-def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video="", secondary_text="", input_f=None, force_unreal_vertical=True):
+def general_task(input_file, extra_frames_=[], add_text=False, upload=False, cloud_file_details=None, custom_video="", secondary_text="", input_f=None, force_unreal_vertical=True, dav_text_color_inner=None,  dav_text_color_outer=None, unreal_key_color_override=None):
 
     t0 = time.time()
 
-    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video, secondary_text=secondary_text, input_f=input_f, force_unreal_vertical=force_unreal_vertical)
+    ctx = context(None, input_file, extra_frames_, cloud_file_details=cloud_file_details, custom_video=custom_video, secondary_text=secondary_text, input_f=input_f, force_unreal_vertical=force_unreal_vertical, dav_text_color_inner=dav_text_color_inner,dav_text_color_outer=dav_text_color_outer )
 
     ctx.text = None if not add_text else random.choice(app_logging.possible_texts) 
 
@@ -240,10 +242,15 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
                    logging.info(f"Unreal final file already exists, skipping")
                 else:
                     tmp_unreal_file =  os.path.join(tempfile.gettempdir(), "temp_unreal_video.mp4")
-                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, ctx.input_f.unreal_final_file , input_file, extra_settings= {} if  force_unreal_vertical else {"r.bForceVerticalFormat":"0", "r.fitKeysForShortFormat":"2", "r.pianoKeyScaleOverr":"1.5", "r.keyboardXOffset":"-55"} ) #tmp_unreal_file
-                    #addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
+                    extra_settigngs = {} if not unreal_key_color_override else {"r.bUsePianoKeyColorOverride":"1", "r.pianoKeyColorOverride":",".join(map(str, unreal_key_color_override))}
+                    if not force_unreal_vertical:
+                        extra_settigngs.update({"r.bForceVerticalFormat":"0", "r.fitKeysForShortFormat":"0", "r.pianoKeyScaleOverr":"1.25", "r.keyboardXOffset":"5", "r.keyboardYOffset":"-7"} )
+                        
+                    unreal.unreal_task(pre_file, ctx.input_f.guessed_midi_file, tmp_unreal_file, input_file, extra_settings=extra_settigngs ) #tmp_unreal_file 
+                    #{"r.bForceVerticalFormat":"0", "r.fitKeysForShortFormat":"2", "r.pianoKeyScaleOverr":"1.5", "r.keyboardXOffset":"-55"}
+                    addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
             else: 
-                addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
+                addAudio( input_file, ctx, pre_file, tmp_unreal_file, audio_offset)
 
             #os.system(cmd)
         else:
@@ -262,7 +269,8 @@ def general_task(input_file, extra_frames_=[], add_text=False, upload=False, clo
 
 def addAudio(input_file, ctx, pre_file, tmp_unreal_file, audio_offset):
     cmd = ["ffmpeg","-i", tmp_unreal_file if ctx.using_unreal else  pre_file, 
-                    "-itsoffset", str(audio_offset), "-i", input_file, "-c:v", "copy","-c:a", "aac","-map", "0:v:0","-map", "1:a:0","-shortest",
+                    #"-itsoffset", str(audio_offset), 
+                    "-i", input_file, "-c:v", "copy","-c:a", "aac","-map", "0:v:0","-map", "1:a:0","-shortest",
                     ctx.input_f.unreal_final_file if ctx.using_unreal else ctx.input_f.custom_video_final_file,"-y" ]
             
     subprocess.run(cmd, check=True)

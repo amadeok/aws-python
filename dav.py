@@ -196,9 +196,9 @@ class dav_handler():
         assert(os.path.isfile(s.input_video))
 
         #s.input_video_palette = get_video_palette(s.input_video, start_frame=20, end_frame=25)
-        s.prominent_color = get_prominent_color(s.input_video)
-        s.contrasting_color = get_contrasting_color(s.prominent_color)
-        logging.info(f"get_contrasting_color {s.prominent_color}, contrasting color {s.contrasting_color}")
+        s.prominent_color = ctx.dav_text_color_inner if ctx.dav_text_color_inner else get_prominent_color(s.input_video)
+        s.contrasting_color = ctx.dav_text_color_outer if ctx.dav_text_color_outer else get_contrasting_color(s.prominent_color)
+        logging.info(f"get_prominent_color {s.prominent_color}, contrasting color {s.contrasting_color}")
         assert(codec == "H264" or codec== "H264_NVIDIA")
 
         t2 = time.time()

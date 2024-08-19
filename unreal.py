@@ -125,12 +125,12 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     #pianoKeyBP=9
     
     variables_to_update = {
-    "r.InputAudioFilePath": audio_file,
+    #"r.InputAudioFilePath": audio_file,
     'r.InputMidiFilePath': input_midi_file,
     'r.InputVideoFilePath': input_video_file,
     "r.ffmpegOutFilePath": output_file,
     "r.pianoKeyBP":pianoKeyBP,
-    "r.CustomMaxOutputVideoLenght": 0#get_audio_length(audio_file)
+    "r.CustomMaxOutputVideoLenght": get_audio_length(audio_file)
     }
     variables_to_update.update(extra_settings)
     
@@ -146,10 +146,13 @@ def unreal_task(input_video_file, input_midi_file, output_file, audio_file, keyB
     move_unreal = int(os.getenv("MOVE_UNREAL"))
 
     # uri = os.getenv("STREAM_PIANO_INI_VARS_FILE")
-    bin = os.getenv("STREAM_PIANO_BIN")
+    bin_ship = os.getenv("STREAM_PIANO_BIN")
     bin_dev = os.getenv("STREAM_PIANO_BIN_DEV")
-
-    cmd = [bin,  "-windowed", "resx=1280", "resy=720"]
+    bin = bin_dev
+    
+    cmd = [bin,  "-windowed", "resx=1280", "resy=720"] 
+    if bin == bin_dev:
+        cmd.append('-ExecCmds="DISABLEALLSCREENMESSAGES"')
     proc = subprocess.Popen(cmd)
     pid = proc.pid
     if move_unreal:

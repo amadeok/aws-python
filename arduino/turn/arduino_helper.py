@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     ac.ar.init()
     ac.set_board_mode(ac.boardModeEnum.mouseKeyboard.value)
-
+    ac.ar.change_delay_between(40)
     ps = [(500, 500), (1600, 600), (1400,1100), (400, 1000) ]
     while 1:
         for p in ps:#[ps[1]]:
