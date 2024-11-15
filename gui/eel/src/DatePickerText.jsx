@@ -66,7 +66,7 @@ const DatePickerComponent = ({ label, value, style, path }) => {
   return (
     <div className={style ? style :  `flex ${false ? "flex-col" : ""}`}>
         <div className={" _bg-slate-400 flex"}>
-          <div className='  _grow-[0] pr-2 w-fit '>    {label}    </div>
+          <div className='  _grow-[0] _pr-2 w-fit '>    {label}    </div>
         <button
           className="" onClick={handleClick}>
           {formatDate(selectedDate)}

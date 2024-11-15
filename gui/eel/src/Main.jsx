@@ -186,7 +186,7 @@ const Main = ({ compRef }) => {
 
                )}
             </div>
-            <div className="flex bg-[#222222] text-white px-3 items-center">
+            <div className="flex bg-[#222222] text-white px-3 items-center pb-2">
                <button onClick={() => eel.trigger_provision(false)} className="button1 mx-2">Trigger provision</button>
                <button onClick={() => eel.trigger_provision(true)} className="button1 mx-2">Trigger dummy provision</button>
 
@@ -228,7 +228,7 @@ const Main = ({ compRef }) => {
          {showing === "Simple" ?
             <div>
                {/* <div className="flex flex-row justify-evenly  mx-5" ref={tracksRef}> */}
-               <div className="grid grid-cols-11 my-2 mx-3 " ref={tracksRef}>
+               <div className="grid grid-cols-11 my-2 mt-4 mx-3 " ref={tracksRef}>
                
                   <div className='flex-[3] p-2, py-0 text-white items-center border-t border-l border-r-0 border-b border-gray-500  col-span-3'>Track Title</div>
                   <div className={firstStyles}>Op No</div>

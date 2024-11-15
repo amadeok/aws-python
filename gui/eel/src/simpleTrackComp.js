@@ -37,7 +37,8 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
 
   const platformN = upload_sites.length
   const platformPerc = 100 / platformN
-  let Styles = "_grow _w-[20%] _flex-[10%] _w-[10%]  text-left  _rounded-xl _mx-2 p-2 py-0 border-[#707070] items-center _h-fit "
+  let Styles = "  text-left   py-0 border-[#707070] items-center _h-fit pl-1 "
+  // _grow _w-[20%] _flex-[10%] _w-[10%]
   let borderStyles = isLast ? "border border-r-0" : "border border-r-0 border-b-0"
   // let SpanStyle = 
   Styles += borderStyles
@@ -48,7 +49,7 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
         {/* { isLast? " last" : "not last"  } */}
         {showBarsChar && <BarsChart _id={_id} isOpen={showBarsChar} setIsOpen={setShowBarsChar} file_details={file_details} ></BarsChart>}
 
-        <EditableText label={""} value={track_title} style={"text-left flex  col-span-3  border-[#707070] items-center " + borderStyles} path={getPathBase("track_title")}> </EditableText>
+        <EditableText label={""} value={track_title} style={"text-left flex  col-span-3  border-[#707070] items-center pl-1 " + borderStyles} path={getPathBase("track_title")}> </EditableText>
         <EditableText label={""} value={op_number} style={Styles} path={getPathBase("op_number")} isNumber={true}> </EditableText>
 
         <EditableText label={""} value={grade} style={Styles} path={getPathBase("grade")}>  </EditableText>

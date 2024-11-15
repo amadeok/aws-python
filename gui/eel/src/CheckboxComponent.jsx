@@ -15,7 +15,7 @@ function CheckboxComponent({value, label, style, path}) {
   return (
     <div className={`${style} flex`}>
       {/* <label> */}
-        <div className='pr-2 w-fit'>
+        <div className='_pr-2 w-fit'>
           {label}
         </div>
 
