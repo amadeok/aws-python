@@ -45,3 +45,5 @@ __pycache__/boto3_utils.cpython-310.pyc
 __pycache__/boto3_utils.cpython-310.pyc
 __pycache__/boto3_utils.cpython-310.pyc
 __pycache__/boto3_utils.cpython-310.pyc
+gui/eel/react-eel-app.exe
+*.spec
