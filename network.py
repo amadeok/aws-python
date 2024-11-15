@@ -1,4 +1,4 @@
-import numpy, time, logging, app_logging, socket,threading, math
+import numpy, time, logging, socket,threading, math
 
 def client_connect(port, ip, a =None):
     log = a.rlog if a else logging.info

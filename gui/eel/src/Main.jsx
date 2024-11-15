@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import TrackComponent from './trackComp';
 import RadioComponent from './RadioElement';
+import SimpleTrackComponent from './simpleTrackComp';
 import { eel } from './eel';
 import { useEffect, useState, useRef } from 'react';
 import { AppContext } from './AppContext';
@@ -21,14 +22,14 @@ const Main = ({ compRef }) => {
    const scrollPosition = useRef({})
    const curScrollPosition = useRef(0)
 
-   const pages = ["Track monitor", "Sessions monitor"]
+   const pages = ["Simple", "Track monitor", "Sessions monitor"]
    const [showing, setShowing] = useState("Track monitor")
    // const showingRef = useRef(showing)
    const showingDisable = useRef(false)
-   const {showingRef, prevShowingRef } = useContext(AppContext);
-   const { track_entries, upload_sessions, settings,  count } = compRef.state
-  
-   
+   const { showingRef, prevShowingRef } = useContext(AppContext);
+   const { track_entries, upload_sessions, settings, count } = compRef.state
+
+
    const sessionRef = useRef()
    const tracksRef = useRef()
    const prevT = useRef(null)
@@ -40,7 +41,7 @@ const Main = ({ compRef }) => {
    const [showIds, setShowIds] = useState(false)
    const [attemptShow, setAttemptShow] = useState('All'); //None, Error, All
    const [HL, setHL] = useState(null)
-   const ctx = { attemptShow: attemptShow, showIds: showIds, selectedTrack: selectedTrack, selectedSession: selectedSession, HL:HL, setHL:setHL }
+   const ctx = { attemptShow: attemptShow, showIds: showIds, selectedTrack: selectedTrack, selectedSession: selectedSession, HL: HL, setHL: setHL }
 
 
    const handleScroll = (type) => {
@@ -127,14 +128,14 @@ const Main = ({ compRef }) => {
    }
    const handlePageSwitch = (page) => {
       const prev = _.cloneDeep(showingRef.current)
-      const prev_pos = _.cloneDeep( scrollPosition.current[prev])
-      const cur = _.cloneDeep( page)
-      const cur_pos = _.cloneDeep( scrollPosition.current[cur])
+      const prev_pos = _.cloneDeep(scrollPosition.current[prev])
+      const cur = _.cloneDeep(page)
+      const cur_pos = _.cloneDeep(scrollPosition.current[cur])
       // console.log("...........", "prev", prev, " | prev_pos", prev_pos, " | cur", cur, " | cur_pos", cur_pos," | showingRef.current",  showingRef.current  )
       showingRef.current = page
       setTimeout(() => {
          // console.log("...........", "prev", prev, " | prev_pos", prev_pos, " | cur", cur, " | cur_pos", cur_pos," | showingRef.current",  showingRef.current  )
-         window.scrollTo({     top: cur_pos,     behavior: 'instant'    });
+         window.scrollTo({ top: cur_pos, behavior: 'instant' });
       }, 100);
 
       setShowing(page);
@@ -148,7 +149,7 @@ const Main = ({ compRef }) => {
    //       showingDisable.current = false
    //    }, 0);
 
-      
+
    //    // if (pos)
    //    setTimeout(() => {
    //       const pos = scrollPosition.current[showingRef.current]
@@ -164,17 +165,18 @@ const Main = ({ compRef }) => {
    //    // console.log("-------> useEffect showingref ", showing,pos)
    // }, [showingRef.current])
 
-   const store = (name, obj) =>{
-      if (localStorage)localStorage.setItem(name, obj)
+   const store = (name, obj) => {
+      if (localStorage) localStorage.setItem(name, obj)
    }
-   
+   const firstStyles = "p-2 py-0 flex-1 text-white items-center border border-r-0 border-gray-500"
+
    return (
 
       <div className="_App">
          <header id='fixed-menu' className="_App-header bg-[#222222] text-white _min-h-[100px] text-center _mx-auto items-center justify-center flex flex-col">
             <div className='flex items-center p-2'>
                {/* <div>{curScroll}</div> */}
-         
+
                {pages.map((page, i) =>
                   <div key={i}>
                      <button onClick={() => handlePageSwitch(page)}
@@ -188,7 +190,7 @@ const Main = ({ compRef }) => {
                <button onClick={() => eel.trigger_provision(false)} className="button1 mx-2">Trigger provision</button>
                <button onClick={() => eel.trigger_provision(true)} className="button1 mx-2">Trigger dummy provision</button>
 
-               {showing === "Track monitor" ?
+               {showing === "Track monitor" || showing === "Simple" ?
                   <div className='flex items-center'>
                      <button onClick={create_track_entry}
                         className="button1 mx-2">New track</button>
@@ -211,24 +213,50 @@ const Main = ({ compRef }) => {
                }
 
                <div className='px-2'> <RadioComponent label={"Display attemps:"} style={'flex flex items-start '} selectedOption={attemptShow} setSelectedOption={(e) => { store("attemptShow", e.target.value); console.log(e.target.value); setAttemptShow(e.target.value) }} values={["None", "Error", "All"]}></RadioComponent></div>
-               <EditableText label={"Upload freq:"} value={settings && settings[0].upload_frequency} style={" bordered w-[150px] px-2"}  path={{ "_id": settings && settings[0]._id, "path": "upload_frequency", "index": null, "field": null, "collection": "settings" }} isNumber={true}> </EditableText>
+               <EditableText label={"Upload freq:"} value={settings && settings[0].upload_frequency} style={" bordered w-[150px] px-2"} path={{ "_id": settings && settings[0]._id, "path": "upload_frequency", "index": null, "field": null, "collection": "settings" }} isNumber={true}> </EditableText>
 
                {/* </div> */}
             </div>
          </header>
          {HL && <div className='fixed z-40 bg-slate-500 rounded-xl p-3 py-1'>{HL}</div>}
-         
+
          <div className="spacer">
             &nbsp;
          </div>
          {/* <div className='fixed-menu'>FIXED</div> */}
 
+         {showing === "Simple" ?
+            <div>
+               {/* <div className="flex flex-row justify-evenly  mx-5" ref={tracksRef}> */}
+               <div className="grid grid-cols-11 my-2 mx-3 " ref={tracksRef}>
+               
+                  <div className='flex-[3] p-2, py-0 text-white items-center border-t border-l border-r-0 border-b border-gray-500  col-span-3'>Track Title</div>
+                  <div className={firstStyles}>Op No</div>
+                  <div className={firstStyles}>Grade</div>
 
-         {showing === "Track monitor" ?
+                  <div className={firstStyles}>For Distrokid</div>
+                  <div className={firstStyles + " col-span-2"}>Ins. date</div>
+                  <div className={firstStyles}>Entry status</div>
+                  <div className={firstStyles}>del</div>
+                  <div className={firstStyles + " border-r-[2px]"}>id</div>
+
+               </div>
+
+               {/* <div className="flex flex-col _h-full _overflow-y-scroll " ref={tracksRef}> */}
+               <div className="grid grid-cols-1 mx-3" ref={tracksRef}>
+                  {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
+                     <div key={`${entry["_id"]}_${i}`} className="_mx-5">
+                        <SimpleTrackComponent track={entry} ctx={ctx}  isLast={ i === track_entries.length-1} ></SimpleTrackComponent>
+                     </div>
+                  ))}
+               </div>
+            </div>
+
+            :
             // <TrackMonitor compRef={compRef}>                </TrackMonitor> 
-            <div className="App-intro_">
-               <div className="flex flex-col _h-full _overflow-y-scroll "  ref={tracksRef}> 
-               {/* onWheel={()=>handleScroll("Track monitor")}> */}
+            (showing === "Track monitor" ? <div className="App-intro_">
+               <div className="flex flex-col _h-full _overflow-y-scroll " ref={tracksRef}>
+                  {/* onWheel={()=>handleScroll("Track monitor")}> */}
                   {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
                      <div key={`${entry["_id"]}_${i}`} className="m-5">
                         <TrackComponent track={entry} ctx={ctx}></TrackComponent>
@@ -236,17 +264,17 @@ const Main = ({ compRef }) => {
                   ))}
                </div>
             </div>
-            :
-            <div className="App-intro_"  >
-               <div className="flex flex-col _h-full  _overflow-y-scroll" ref={sessionRef} >
-                  {/* onWheel={()=>handleScroll("Sessions monitor")}> */}
-                  {upload_sessions && upload_sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).filter(session=> session.track_ids.length).map((session, i) => (
-                     <div key={`${session["_id"]}_${i}`} className="m-5">
-                        <UploadSessionComponent uploadSession={session} ctx={ctx}></UploadSessionComponent>
-                     </div>
-                  ))}
-               </div>
-            </div>
+               :
+               <div className="App-intro_"  >
+                  <div className="flex flex-col _h-full  _overflow-y-scroll" ref={sessionRef} >
+                     {/* onWheel={()=>handleScroll("Sessions monitor")}> */}
+                     {upload_sessions && upload_sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).filter(session => session.track_ids.length).map((session, i) => (
+                        <div key={`${session["_id"]}_${i}`} className="m-5">
+                           <UploadSessionComponent uploadSession={session} ctx={ctx}></UploadSessionComponent>
+                        </div>
+                     ))}
+                  </div>
+               </div>)
          }
 
 
@@ -257,14 +285,18 @@ const Main = ({ compRef }) => {
 
    function create_track_entry() {
       const number = track_entries ? track_entries.length : 0
-      const file_details = {"file_path": "C:\\Users\\amade\\Documents\\dawd\\lofi1\\lofi\\Mixdown\\output\\None_00024v2_s\\__00024v2_s_joined.mp4", 
-      "bpm": 119,  "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {}, "drive_id": "", "custom_video":"", "has_midi_file": false} //"0": {"dur":2}
-      eel.create_entry({ "track_title": `New track${number}`, "op_number": number, "grade": "b", "for_distrokid": false,  
-      "entry_status": "pending", "upload_attempts": [], "file_details":file_details, "insertion_date": new Date(), "secondary_text":"", "collection": "track_entries" });
+      const file_details = {
+         "file_path": "C:\\Users\\amade\\Documents\\dawd\\lofi1\\lofi\\Mixdown\\output\\None_00024v2_s\\__00024v2_s_joined.mp4",
+         "bpm": 119, "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {}, "drive_id": "", "custom_video": "", "has_midi_file": false
+      } //"0": {"dur":2}
+      eel.create_entry({
+         "track_title": `New track${number}`, "op_number": number, "grade": "b", "for_distrokid": false,
+         "entry_status": "pending", "upload_attempts": [], "file_details": file_details, "insertion_date": new Date(), "secondary_text": "", "collection": "track_entries"
+      });
    }
 
    function sessionDropdown() {
-      return <DropdownComponent label={"Current Session"} placeholder={getPlaceholderSession()} options={upload_sessions && upload_sessions.map((e, i) => ({ id_: e._id, label:  `${formatDate(new Date(e.date))} (${i})` }))}
+      return <DropdownComponent label={"Current Session"} placeholder={getPlaceholderSession()} options={upload_sessions && upload_sessions.map((e, i) => ({ id_: e._id, label: `${formatDate(new Date(e.date))} (${i})` }))}
          selectedOption={selectedSession} handleSelectChange={handleSelectChangeSession}></DropdownComponent>;
    }
 
@@ -279,12 +311,12 @@ const Main = ({ compRef }) => {
       let ph = null
       var i = 0
       if (upload_sessions)
-      for (i = 0; i <  upload_sessions.length; i++){
-         if (upload_sessions[i]._id === selectedSession){
-            ph = upload_sessions[i]
-            break
+         for (i = 0; i < upload_sessions.length; i++) {
+            if (upload_sessions[i]._id === selectedSession) {
+               ph = upload_sessions[i]
+               break
+            }
          }
-      }
       //let ph = upload_sessions && upload_sessions.find(item => item._id === selectedSession)
       if (ph) return `${formatDate(new Date(ph.date))} (${i})`
       else {   // setSelectedTrack("NOT_FOUND")
