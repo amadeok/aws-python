@@ -45,15 +45,17 @@ if __name__ == '__main__':
     setMongoInstance(mongo)
 
     try:
+        
+        mode = "None" #edge
         react_port = 3560
         if  len(sys.argv)>1 and sys.argv[1] == '--develop':
             logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
             fld = "src" if os.path.isdir("src") else r"gui\eel\src"
             eel.init(fld)
-            eel.start({"port": react_port}, host="localhost", port=8888, mode="edge")
+            eel.start({"port": react_port}, host="localhost", port=8888, mode=mode)
         elif 0:
             # eel.init('build')
-            # eel.start('index.html', host="localhost", port=8888, mode="edge")
+            # eel.start('index.html', host="localhost", port=8888, mode=mode)
             logging.info("---init")
             eel.init('build')
             eel.start({"port": react_port}, host="localhost", port=8888)          
@@ -70,7 +72,7 @@ if __name__ == '__main__':
             def test(a, b):
                 logging.info(f"------------CLOSED {a}, {b}")
                 # sys.exit()
-            eel.start('index.html',  **eel_kwargs,  close_callback=test, mode= 'edge' ) #mode= 'edge',
+            eel.start('index.html',  **eel_kwargs,  close_callback=test, mode= mode)#,  browser="new window") #mode= 'edge',
 
             #eel.start('index.html', block=True, options={'port': 80, 'host': '0.0.0.0', 'close_callback': lambda: print("------------CLOSE"), 'mode': False})
             logging.info("---after eel start")
