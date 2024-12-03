@@ -228,7 +228,7 @@ const Main = ({ compRef }) => {
          {showing === "Simple" ?
             <div>
                {/* <div className="flex flex-row justify-evenly  mx-5" ref={tracksRef}> */}
-               <div className="grid grid-cols-11 my-2 mt-4 mx-3 " ref={tracksRef}>
+               <div className="grid grid-cols-12 my-2 mt-4 mx-3 " ref={tracksRef}>
                
                   <div className='flex-[3] p-2, py-0 text-white items-center border-t border-l border-r-0 border-b border-gray-500  col-span-3'>Track Title</div>
                   <div className={firstStyles}>Op No</div>
@@ -237,6 +237,7 @@ const Main = ({ compRef }) => {
                   <div className={firstStyles}>For Distrokid</div>
                   <div className={firstStyles + " col-span-2"}>Ins. date</div>
                   <div className={firstStyles}>Entry status</div>
+                  <div className={firstStyles}>Play</div>
                   <div className={firstStyles}>del</div>
                   <div className={firstStyles + " border-r-[2px]"}>id</div>
 

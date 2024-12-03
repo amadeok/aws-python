@@ -93,6 +93,24 @@ def check_field_presence(dict1, dict2, field1, field2):
             return True
     return False
 
+import glob
+
+def get_most_recent_audio_file_with_string(folder_path, search_string=None):
+    # Search for MP3 and WAV files in the specified folder
+    audio_files = glob.glob(os.path.join(folder_path, "*.mp3")) + \
+                  glob.glob(os.path.join(folder_path, "*.wav"))
+    
+    # Filter files that contain the given string in their name
+    matching_files = [file for file in audio_files if search_string in os.path.basename(file)] if search_string else audio_files
+    
+    if not matching_files:
+        return None  # Return None if no matching audio files are found
+    
+    # Sort files by modification time, newest first
+    most_recent_file = max(matching_files, key=os.path.getmtime)
+    return most_recent_file
+
+
 # class eelHandler():
 #     def __init__(self) -> None:
 #         pass
@@ -121,6 +139,21 @@ def add_field(payload):
 @eel.expose
 def delete_field(payload):
     update_task(payload, lambda: delete_field_(find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["field"], payload["index"]))
+
+@eel.expose
+def play_track(payload):
+    track_n = payload["track_n"]
+    file_name = str(track_n).zfill(5)
+    base_folder1 = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\newstart\\"), file_name)
+    base_folder2 = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\dawd\Exported"), file_name)
+    
+    folder = base_folder1 if os.path.isdir(base_folder1) else base_folder2
+    mixdown_fld = os.path.join(folder, "Mixdown")
+    file = get_most_recent_audio_file_with_string(mixdown_fld)
+    cmd = f'"{file}"'
+    print("Playing track: ", cmd)
+    os.system(cmd)
+    
 
 @eel.expose
 def delete_entry(payload):
