@@ -3,16 +3,15 @@
 
 a = Analysis(
     ['index.py'],
-    pathex=[],
+    pathex=['F:\\all\\GitHub\\aws-python'],
     binaries=[],
-    datas=[('C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\eel\\eel.js', 'eel'), ('build', 'build')],
+    datas=[('F:\\all\\GitHub\\aws-python\\gui\\eel\\env_eel\\lib\\site-packages\\eel\\eel.js', 'eel'), ('build', 'build')],
     hiddenimports=['bottle_websocket'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['torch', 'cv2'],
+    excludes=[],
     noarchive=False,
-    optimize=0,
 )
 pyz = PYZ(a.pure)
 

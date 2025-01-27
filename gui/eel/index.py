@@ -1,4 +1,16 @@
-# coding: utf-8
+import logging
+
+# Configure logging
+logging.basicConfig(
+    filename="app.log",
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+logging.info("Application started")
+logging.debug("Debug information")
+logging.error("An error occurred")
+
 import subprocess
 import sys, time, os
 import uuid
@@ -10,6 +22,9 @@ sys.path.append('../../')  # Adds the parent directory to the Python path
 #sys.path.insert(1, r'F:\all\GitHub\Eel')
 #import app_logging
 import eel, copy, logging
+logging.info("111")
+import utils
+logging.info("222")
 
 from utils.cloud_utils.mongo_client import MongoDBClient
 import utils.cloud_utils.mongo_schema as mongo_schema

@@ -67,7 +67,7 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
 
         <EditableText label={""} value={entry_status} style={`${Styles}  outline  font-semibold ${entry_status == "ready" ? " text-[#ffffff]  bg-green-800 outline-1  outline-[#00ff00] " : " text-[#000000] bg-yellow-200  outline-[#ff0000] "}`}
           path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return (text != "ready" || file_details.drive_id.length) && isInArray(text, arr) ? null : `${text} not in ${arr} or no file uploaded` }}> </EditableText>
-        <div className=" cursor-pointer" onClick={() => eel.play_track({track_n: op_number})} >P</div>
+        <div className=" cursor-pointer" onClick={() => eel.play_track({track_n: op_number})} >{`P.`}{`${op_number}`} </div>
         <div className={Styles}>
           {/* "flex flex-1  justify-start mt-2 text-[12px]"> */}
           <button onClick={() => eel.delete_entry({ "_id": _id, "collection": "track_entries" })} className="_mx-5 _px-3 _border _rounded-xl ">Delete</button>

@@ -1,1 +1,1 @@
-pip3.10 install GitPython distro webcolors ass MediaInfo pymediainfo pywinauto random_word boto3 python-dotenv ffmpeg-python  pyscreeze==0.1.29 "pymongo[srv]"==3.11 google-api-python-client jsonschema
+pip3.10 install GitPython distro webcolors ass MediaInfo pymediainfo pywinauto random_word boto3 python-dotenv ffmpeg-python  pyscreeze==0.1.29 "pymongo[srv]"==3.11 google-api-python-client jsonschema certifi
