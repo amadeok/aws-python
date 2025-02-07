@@ -151,7 +151,7 @@ def play_track(payload):
     mixdown_fld = os.path.join(folder, "Mixdown")
     file = get_most_recent_audio_file_with_string(mixdown_fld)
     cmd = f'"{file}"'
-    print("Playing track: ", cmd)
+    logging.info(f"Playing track: {cmd}" )
     os.system(cmd)
     
 

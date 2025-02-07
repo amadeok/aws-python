@@ -1,36 +1,37 @@
 import logging
 
-# Configure logging
 logging.basicConfig(
-    filename="app.log",
+    filename="gui_app.log",
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-logging.info("Application started")
-logging.debug("Debug information")
-logging.error("An error occurred")
-
 import subprocess
 import sys, time, os
 import uuid
-#import threading
 from bson import ObjectId
 
+def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        # Allow KeyboardInterrupt to exit without logging
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logging.critical(
+        "Uncaught exception",
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
+
+sys.excepthook = log_uncaught_exceptions
 #import pyautogui
 sys.path.append('../../')  # Adds the parent directory to the Python path
 #sys.path.insert(1, r'F:\all\GitHub\Eel')
-#import app_logging
-import eel, copy, logging
-logging.info("111")
-import utils
-logging.info("222")
+logging.info("Application started")
+import eel, copy
 
 from utils.cloud_utils.mongo_client import MongoDBClient
 import utils.cloud_utils.mongo_schema as mongo_schema
 import utils.cloud_utils.gdrive as gdrive
 from utils.eel_utils import setMongoInstance, set_file_logging
-
 
 formatter = '%(asctime)s - %(message)s' #- %(name)s - %(levelname)s 
 handlers = []
