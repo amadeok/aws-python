@@ -228,8 +228,8 @@ const Main = ({ compRef }) => {
          {showing === "Simple" ?
             <div>
                {/* <div className="flex flex-row justify-evenly  mx-5" ref={tracksRef}> */}
-               <div className="grid grid-cols-12 my-2 mt-4 mx-3 " ref={tracksRef}>
-               
+               <div className="grid grid-cols-[repeat(11,minmax(0,1fr))] my-2 mt-4 mx-3 " ref={tracksRef}>
+
                   <div className='flex-[3] p-2, py-0 text-white items-center border-t border-l border-r-0 border-b border-gray-500  col-span-3'>Track Title</div>
                   <div className={firstStyles}>Op No</div>
                   <div className={firstStyles}>Grade</div>
@@ -237,8 +237,11 @@ const Main = ({ compRef }) => {
                   <div className={firstStyles}>For Distrokid</div>
                   <div className={firstStyles + " col-span-2"}>Ins. date</div>
                   <div className={firstStyles}>Entry status</div>
-                  <div className={firstStyles}>Play</div>
-                  <div className={firstStyles}>del</div>
+                  <div className='flex justify-around'>
+                     <div className={firstStyles}>Play</div>
+                     <div className={firstStyles}>del</div>
+                     <div className={firstStyles}>Update Links</div>
+                  </div>
                   <div className={firstStyles + " border-r-[2px]"}>id</div>
 
                </div>
@@ -247,7 +250,7 @@ const Main = ({ compRef }) => {
                <div className="grid grid-cols-1 mx-3" ref={tracksRef}>
                   {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
                      <div key={`${entry["_id"]}_${i}`} className="_mx-5">
-                        <SimpleTrackComponent track={entry} ctx={ctx}  isLast={ i === track_entries.length-1} ></SimpleTrackComponent>
+                        <SimpleTrackComponent track={entry} ctx={ctx} isLast={i === track_entries.length - 1} ></SimpleTrackComponent>
                      </div>
                   ))}
                </div>

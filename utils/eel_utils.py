@@ -6,6 +6,7 @@ import utils.cloud_utils.mongo_client as mongo_client
 import utils.cloud_utils.gdrive as gdrive
 import utils.cloud_utils.mongo_schema as mongo_schema
 import utils.mongo_utils as mu
+import json
 
 def get_field_current(obj, path):
     keys = path.split('.')
@@ -154,7 +155,53 @@ def play_track(payload):
     logging.info(f"Playing track: {cmd}" )
     os.system(cmd)
     
+    
+@eel.expose
+def update_links(payload):
+    logging.info(f"Updating links {payload['track_n']}" )
+    links_file = get_links_file(payload)
+    assert os.path.isfile(links_file)
+    with open(links_file, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    payload["value"] = data.get("links", {})
+    update_task(payload, lambda: update_nested_field(find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["index"], payload["field"], payload["value"]))
 
+def get_links_file(payload):
+    track_n = payload["track_n"]
+    file_name = str(track_n).zfill(5)
+    links_file = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\newstart\\"), file_name, file_name) +  ".json"
+    return links_file
+                              
+@eel.expose
+def open_links_file(payload):
+    logging.info(f"Opening links file {payload['track_n']}" )
+    links_file = get_links_file(payload)
+    if not os.path.isfile(links_file):
+        logging.info("File doesn't exist, creating with defaults")
+        with open(links_file, 'w') as f:
+            json.dump({"links": {site: "" for site in mongo_schema.default_links_sites}}, f, indent=4)
+    else:
+        with open(links_file, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        if not data.get("links"):
+            data.update({"links": {site: "" for site in mongo_schema.default_links_sites}})
+        with open(links_file, 'w') as f:
+            json.dump(data, f, indent=4)
+            
+    os.startfile(links_file)
+
+
+@eel.expose
+def explorer(payload):
+    track_n = payload["track_n"]
+    file_name = str(track_n).zfill(5)
+    folder = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\newstart"), file_name) 
+    os.startfile(folder)
+    # cmd = ["xyplorer", folder]
+    # print("Explorer command", cmd)
+    # subprocess.Popen(cmd, shell=True)
+
+    
 @eel.expose
 def delete_entry(payload):
     if payload["collection"] == "track_entries":

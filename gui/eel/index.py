@@ -1,15 +1,21 @@
 import logging
-
-logging.basicConfig(
-    filename="gui_app.log",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-
 import subprocess
 import sys, time, os
 import uuid
 from bson import ObjectId
+
+import logging
+import sys
+
+# Configure logging to write to file and console
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("gui_app.log"),
+        logging.StreamHandler(sys.stdout)  # Print to console
+    ],
+)
 
 def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
@@ -20,6 +26,7 @@ def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
         "Uncaught exception",
         exc_info=(exc_type, exc_value, exc_traceback)
     )
+
 
 sys.excepthook = log_uncaught_exceptions
 #import pyautogui

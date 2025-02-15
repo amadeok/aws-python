@@ -10,6 +10,7 @@ from typing import List, Dict
 
 
 
+default_links_sites = ["youtube", "spotify", "apple_music", "soundcloud", "tidal", "amazon_music", "deezer", "pandora", "google_play_music"]
 upload_sites = ["youtube", "tiktok", "instagram", "threads", "twitter", "facebook", "tumblr" ]
 
 base_schema = {
@@ -107,6 +108,7 @@ class trackSchema():
              "secondary_text": {"type": "string"},
             # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
             "_id": {"type": "string"},
+            "links": {"type" : "object"}
         },
         "required": ["track_title", "op_number", "grade", "for_distrokid", "entry_status", "upload_attempts", "file_details", "insertion_date", "secondary_text"], "additionalProperties": False 
     }
@@ -161,23 +163,37 @@ if __name__ == "__main__":
     
     uri = os.getenv("MONGODB_URI")
     
+    mongo_client = MongoDBClient(uri, 'cristiank_website', {"newsletter_emails":None}  )
     
-    mongo_client = MongoDBClient(uri, 'social-media-helper',
-                             {'track_entries': trackSchema.schema, 
-                              "upload_attempts": uploadAttempt.schema,
-                              "upload_sessions": uploadSession.schema} )
+    # mongo_client = MongoDBClient(uri, 'social-media-helper',
+    #                          {'track_entries': trackSchema.schema, 
+    #                           "upload_attempts": uploadAttempt.schema,
+    #                           "upload_sessions": uploadSession.schema} )
     
-    time.sleep(20)
+    time.sleep(1)
     #obj = trackSchema.create("op 32", "b", False,   {"youtube":uploadSite.create("tt", [uploadAttemp.create("2023" , "fail")])})
-    example_track = trackSchema.create("op 32", "b", False,  uploadSites.create())
+    # example_track = trackSchema.create("op 32", "b", False,  uploadSites.create())
     
-    print(json.dumps(example_track, indent=4))
+    # print(json.dumps(example_track, indent=4))
 
-    mongo_client.validate_document(example_track, trackSchema.schema )
+    # mongo_client.validate_document(example_track, trackSchema.schema )
 
-    mongo_client.delete_all_in_collection()
+    # mongo_client.delete_all_in_collection()
+    # entries = list(mongo_client.client["newsletter_emails"].find({}))
+        
+    # Step 2: Access the database
+    db = mongo_client.client["cristiank_website"]
 
-    entries = mongo_client.fetch_entries()
+    # Step 3: Access the collection
+    collection = db["newsletter_emails"]
+
+    # Step 4: Retrieve all documents
+    documents = collection.find({})
+
+    # Step 5: Print or process the documents
+    for doc in documents:
+        print(doc)
+    # entries = mongo_client.fetch_entries("newsletter_emails")
     print("Existing entries:", entries)
 
     new_entry_id = mongo_client.create_entry(example_track)

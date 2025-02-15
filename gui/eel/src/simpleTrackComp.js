@@ -42,9 +42,10 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
   let borderStyles = isLast ? "border border-r-0" : "border border-r-0 border-b-0"
   // let SpanStyle = 
   Styles += borderStyles
+  const hoverStyles = ` hover:bg-red-500`
   return (
     <div className="text-[#bebebe] text-center">
-      <div className="grid grid-cols-12 _flex ">
+      <div className="grid grid-cols-[repeat(11,minmax(0,1fr))] _flex ">
         {/* <h2 className="_my-3 p-1 ">Track Details: </h2> */}
         {/* { isLast? " last" : "not last"  } */}
         {showBarsChar && <BarsChart _id={_id} isOpen={showBarsChar} setIsOpen={setShowBarsChar} file_details={file_details} ></BarsChart>}
@@ -66,12 +67,21 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
         <DatePickerComponent label={""} value={insertion_date} style={Styles + " col-span-2"} path={getPathBase("insertion_date")}>   </DatePickerComponent>
 
         <EditableText label={""} value={entry_status} style={`${Styles}  outline  font-semibold ${entry_status == "ready" ? " text-[#ffffff]  bg-green-800 outline-1  outline-[#00ff00] " : " text-[#000000] bg-yellow-200  outline-[#ff0000] "}`}
-          path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return (text != "ready" || file_details.drive_id.length) && isInArray(text, arr) ? null : `${text} not in ${arr} or no file uploaded` }}> </EditableText>
-        <div className=" cursor-pointer" onClick={() => console.log("playing track" + op_number) || eel.play_track({track_n: op_number})} >{`P.`}{`${op_number}`} </div>
-        <div className={Styles}>
-          {/* "flex flex-1  justify-start mt-2 text-[12px]"> */} 
-          <button onClick={() => eel.delete_entry({ "_id": _id, "collection": "track_entries" })} className="_mx-5 _px-3 _border _rounded-xl ">Delete</button>
+          path={getPathBase("entry_status")} validator={(text) => { console.log("validator", text); const arr = ["ready", "pending", "error"]; return isInArray(text, arr) ? null : `${text} not in ${arr} or no file uploaded` }}> </EditableText>
+
+        <div className={`${Styles} flex gap-3  justify-around `}>
+          <button onClick={() => console.log("playing track" + op_number) || eel.play_track({ track_n: op_number })} className={hoverStyles} >{`P.`}{`${op_number}`} </button>
+          <button onClick={() => confirmDelete(_id, op_number)} className={hoverStyles}>Del</button>
+          <button onClick={() => eel.update_links({ ...getPathBase("links"), track_n: op_number })}ù
+            onContextMenu={(e) => {
+              e.preventDefault(); 
+              eel.open_links_file({ ...getPathBase("links"), track_n: op_number })
+            }} 
+            className={hoverStyles}>Links</button>
+          <button onClick={() => eel.explorer({ track_n: op_number })} className={hoverStyles}>Fld</button>
         </div>
+
+
 
         <div className={Styles}>{_id}</div>
 
@@ -127,6 +137,15 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
     </div>
   );
 
+  function confirmDelete(entryId, op_number) {
+    let confirmResult = confirm(`Are you sure you want to delete entry  ${op_number}?`);
+    if (confirmResult) {
+      eel.delete_entry({ "_id": entryId, "collection": "track_entries" });
+      alert("Entry deleted successfully!");
+    } else {
+      alert("Deletion canceled.");
+    }
+  }
   function getSessionDate(session_entry_id, getIndex = false) {
     const ret = getIndex ? compRef.state.upload_sessions.findIndex((item) => item._id === session_entry_id) : compRef.state.upload_sessions.find((item) => item._id === session_entry_id)
     return ret != null ? (getIndex ? ret : formatDate(new Date(ret.date))) : "session not found";
