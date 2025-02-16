@@ -5,16 +5,17 @@ import uuid
 from bson import ObjectId
 
 import logging
-import sys
 
-# Configure logging to write to file and console
+is_develop = len(sys.argv)>1 and sys.argv[1] == '--develop'
+
+handlers = [logging.FileHandler("gui_app.log")]
+if is_develop:
+    handlers.append(logging.StreamHandler(sys.stdout))
+    
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("gui_app.log"),
-        logging.StreamHandler(sys.stdout)  # Print to console
-    ],
+    handlers=handlers
 )
 
 def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
@@ -71,7 +72,7 @@ if __name__ == '__main__':
         
         mode = "None" #edge
         react_port = 3560
-        if  len(sys.argv)>1 and sys.argv[1] == '--develop':
+        if  is_develop:
             logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
             fld = "src" if os.path.isdir("src") else r"gui\eel\src"
             eel.init(fld)
