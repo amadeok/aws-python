@@ -70,6 +70,7 @@
                 //"RESOLVE_SCRIPT_LIB": "C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\fusionscript.dll",
                 "PYTHONPATH": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310;C:\\ProgramData\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules\\"
             }
-        }
+        },
+        
     ]
 }

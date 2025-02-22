@@ -19,6 +19,7 @@ function EditableText({ label, value, style, path, validator = null, isNumber=fa
   };
 
   function getn(val) {
+    console.log("-------->getn", val)
     return isNumber ? Number(val) : val;
   }
   const handleChange = (e) => {

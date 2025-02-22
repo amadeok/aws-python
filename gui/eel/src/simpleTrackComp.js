@@ -53,7 +53,7 @@ const SimpleTrackComponent = ({ track, ctx, isLast }) => {
         <EditableText label={""} value={track_title} style={"text-left flex  col-span-3  border-[#707070] items-center pl-1 " + borderStyles} path={getPathBase("track_title")}> </EditableText>
         <EditableText label={""} value={op_number} style={Styles} path={getPathBase("op_number")} isNumber={true}> </EditableText>
 
-        <EditableText label={""} value={grade} style={Styles} path={getPathBase("grade")}>  </EditableText>
+        <EditableText label={""} value={grade} style={Styles} isNumber={true} path={getPathBase("grade")}>  </EditableText>
         <CheckboxComponent label={""} value={for_distrokid} style={Styles} path={getPathBase("for_distrokid")}></CheckboxComponent>
 
         {/* <button onClick={()=>    eel.open_file_select_window(_id)((ret)=> console.log(ret))} className={`${Styles}`}  onMouseEnter={()=>setHL(file_details.file_path)} onMouseLeave={()=> setHL(null)}>File: {getFileNameFromPath(file_details.file_path)} ({file_details.has_midi_file ? "Midi" : "No midi"}) </button> */}

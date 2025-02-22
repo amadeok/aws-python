@@ -294,7 +294,7 @@ const Main = ({ compRef }) => {
          "bpm": 119, "bars": 16, "bars_per_template": 2, "beats_per_bar": 4, "avee_custom_lenghts": {}, "drive_id": "", "custom_video": "", "has_midi_file": false
       } //"0": {"dur":2}
       eel.create_entry({
-         "track_title": `New track${number}`, "op_number": number, "grade": "b", "for_distrokid": false,
+         "track_title": `New track${number}`, "op_number": number, "grade": 2, "for_distrokid": false,
          "entry_status": "pending", "upload_attempts": [], "file_details": file_details, "insertion_date": new Date(), "secondary_text": "", "collection": "track_entries"
       });
    }

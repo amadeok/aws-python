@@ -98,7 +98,7 @@ class trackSchema():
         "properties": {
             "track_title": {"type": "string"},
             "op_number": {"type": "number"},
-            "grade": {"type": "string"},
+            "grade": {"type": "number"},
             "for_distrokid": {"type": "boolean"},
             # "file_name": {"type": "string"},
             "entry_status": {"type": "string"},
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     #print(o)
     example_track = {
         "track_title": "My Track",
-        "grade": "A",
+        "grade": 1,
         "for_distrokid": True,
         "uploads": [
             {

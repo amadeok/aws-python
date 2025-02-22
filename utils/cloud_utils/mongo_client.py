@@ -55,7 +55,8 @@ class MongoDBClient:
     def update_entry(self, query, update_data, collection, schema=None):
         if not schema or  self.validate_document(update_data, schema):
             update_data_ = update_data.copy()
-            del update_data_["_id"]
+            if "_id" in update_data_:
+                del update_data_["_id"]
             return self.col(collection).update_one(query, {"$set": update_data_})
             logging.info("Document updated successfully.")
         else:
