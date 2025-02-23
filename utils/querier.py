@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import tkinter as tk
 from tkinter import scrolledtext
-import json
+import json, copy
 import settingsManager
 
 def find_first_from_right(target_string, string_list):
@@ -39,37 +39,46 @@ class JsonEditorApp:
 
         self.data = data
         self.starting_string = ""
+        self.starting_projection_string = ""
 
-        self.settings_manager = settingsManager.SettingsManager("querier_settings.json", defaults={"starting_string":""}, target=self)
+        self.settings_manager = settingsManager.SettingsManager("querier_settings.json", defaults={"starting_string":"", "starting_projection_string":""}, target=self)
         self.settings_manager.load_settings()
+
         def save_func():
             self.starting_string =  self.entry.get().strip()
+            self.starting_projection_string =  self.projection_entry.get().strip()
             self.settings_manager.save_settings()
 
         self.root.bind("<Control-s>", lambda e: save_func())
 
-
         self.setup_ui()
-        self.set_entry_value(self.starting_string)
+        self.set_entry_value(self.entry, self.starting_string)
+        self.set_entry_value(self.projection_entry, self.starting_projection_string)
 
 
-    def set_entry_value(self, text):
-        self.entry.delete(0, tk.END)
-        self.entry.insert(0, text)
+
+    def set_entry_value(self, entry_,  text):
+        entry_.delete(0, tk.END)
+        entry_.insert(0, text)
 
     def setup_ui(self):
         self.entry_label = tk.Label(self.root, text="Enter key or index path:")
         self.entry_label.pack(padx=10, pady=5)
 
-        self.entry = tk.Entry(self.root, width=50)
+        self.entry = tk.Entry(self.root, width=100)
         self.entry.pack(padx=10, pady=5)
         self.entry.bind("<Return>", self.navigate_json)
+        
+        self.projection_entry = tk.Entry(self.root, width=100)
+        self.projection_entry.pack(padx=10, pady=5)
+        self.projection_entry.bind("<Return>", self.navigate_json)
 
         self.scroll_text = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, font=("Courier", 12))
         self.scroll_text.pack(padx=20, pady=20, expand=True, fill=tk.BOTH)
 
         self.update_button = tk.Button(self.root, text="Update JSON", command=self.update_json)
         self.update_button.pack(pady=10)
+        self.root.bind("<Shift-Return>", self.update_json)
 
         self.status_label = tk.Label(self.root, text="", fg="green")
         self.status_label.pack(pady=5)
@@ -77,9 +86,47 @@ class JsonEditorApp:
     def navigate_json(self, event=None):
         """Navigate through JSON using the given path."""
         user_input = self.entry.get().strip()
+        projection_input = self.projection_entry.get().strip()
+        if projection_input.__len__() > 1:
+            if projection_input[0] == "+": 
+                projection_input = projection_input[1:]
+                default_include=True
+            elif projection_input[0] == "-":
+                default_include=False
+                projection_input = projection_input[1:]
+
+        projection_data = json.loads(projection_input) if projection_input != "" else {}
+        
         selected_data, prev_obj, _id = self.get_json_part(self.data, user_input)
         
-        json_string = json.dumps(selected_data, indent=4)
+        if projection_data != {}:
+            
+            if default_include:
+                final_data = copy.deepcopy(selected_data )
+                for k,v in projection_data.items():
+                    if v == 0:
+                        if type(selected_data) == dict:
+                            del final_data[k]
+                        else:
+                            for i, elem in enumerate(selected_data):
+                                del final_data[i][k]
+                        
+            else:
+                final_data = {} if type(selected_data) == dict else [{} for e in selected_data]
+                for k,v in projection_data.items():
+                    if v == 1:
+                        if type(selected_data) == dict:
+                            final_data.update({k:selected_data[k]})
+                        else:
+                            for i, elem in enumerate(selected_data):
+                                final_data[i].update({k:elem[k]})
+        else:
+            final_data = selected_data
+
+        print('final_data: ', final_data)
+
+
+        json_string = json.dumps(final_data, indent=4)
         self.scroll_text.config(state=tk.NORMAL)
         self.scroll_text.delete(1.0, tk.END)
         self.scroll_text.insert(tk.END, json_string)
