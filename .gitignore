@@ -59,3 +59,4 @@ utils/.backup_env
 gui_app.log
 utils/mongo_backup_shortcut.lnk
 /node_modules
+utils/querier_settings.json
