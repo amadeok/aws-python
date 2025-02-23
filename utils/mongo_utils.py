@@ -7,7 +7,7 @@ import utils.cloud_utils.gdrive as gdrive
 import utils.cloud_utils.mongo_schema as mongo_schema
 
 
-def get_track_entries_(mongo):
+def get_track_entries_(mongo: mongo_client.MongoDBClient):
     assert mongo
     payload = {}
     for name in mongo.collection_names:
@@ -46,6 +46,23 @@ def get_track_entries_(mongo):
                 upload_session["track_ids"].append(upload_attempt["track_entry_id"])
 
     # utils.merge_arrays(mongo.cd["upload_sessions"] , mongo.cd["track_entries"], "track_entries", "_id")
+
+    payload["upload_sites"] = mongo_schema.upload_sites
+    return payload
+
+def get_cristiank_website_entries(mongo: mongo_client.MongoDBClient):
+    assert mongo
+    payload = {}
+    for name in mongo.collection_names:
+        mongo.cd[name]  =  mongo.fetch_entries(name, None)
+
+    newsletter_subscriber_emails = copy.deepcopy(mongo.cd["newsletter_subscriber_emails"])
+    user_emails =copy.deepcopy( mongo.cd["user_emails"])
+    website_settings =copy.deepcopy( mongo.cd["website_settings"] )
+
+    payload["newsletter_subscriber_emails"] = newsletter_subscriber_emails
+    payload["user_emails"] = user_emails
+    payload["website_settings"] = website_settings
 
     payload["upload_sites"] = mongo_schema.upload_sites
     return payload

@@ -1,4 +1,4 @@
 {
-    "starting_string": "track_entries[{\"op_number\":33}]",
-    "starting_projection_string": "-{\"grade\":1,\"upload_attempts\":0, \"file_details\":0, \"links\":0}"
+    "starting_string": "user_emails[0].name",
+    "starting_projection_string": ""
 }
