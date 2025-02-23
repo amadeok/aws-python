@@ -52,8 +52,8 @@ class MongoDBClient:
     # def update_entry(self, query, update_data):
     #     return collection.update_one(query, {"$set": update_data})
 
-    def update_entry(self, query, update_data, collection, schema=None):
-        if not schema or  self.validate_document(update_data, schema):
+    def update_entry(self, query, update_data, collection, schema=None, soft_validate=False):
+        if not schema or  self.validate_document(update_data, schema, soft_validate):
             update_data_ = update_data.copy()
             if "_id" in update_data_:
                 del update_data_["_id"]
@@ -90,13 +90,21 @@ class MongoDBClient:
                 return False
         return True
 
-    def validate_document(self, document, schema_  ):
-        try:
-            validate(instance=document, schema=schema_)
-            return True
-        except Exception as e:
-            logging.error(f"Validation Error: {e}")
-            return False
+    def validate_document(self, document: dict, schema_, soft_validate=False  ):
+        if not soft_validate:
+            try:
+                validate(instance=document, schema=schema_)
+                return True
+            except Exception as e:
+                logging.error(f"Validation Error: {e}")
+                return False
+        else:
+            all_keys_present = document.keys() <= schema_["properties"].keys()
+            return all_keys_present
+            # if not all_keys_present: return False
+            # for k, val in document.items():
+            #     if not schema_["properties"][k] == 
+
 
 
 # Example usage:
