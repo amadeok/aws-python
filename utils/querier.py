@@ -124,11 +124,13 @@ class JsonEditorApp:
         self.entry = tk.Text(self.text_frame, width=100, height=2, undo=True)
         self.entry.pack( padx=10, pady=5)
         self.entry.bind("<Return>", self.navigate_json)
+        self.entry.bind("<Shift-Return>", lambda *args: self.update_json())
 
         # Second text widget
         self.projection_entry = tk.Text(self.text_frame, width=100, height=2, undo=True)
         self.projection_entry.pack(padx=10, pady=5)
         self.projection_entry.bind("<Return>", self.navigate_json)
+        self.projection_entry.bind("<Shift-Return>", lambda *args: self.update_json())
 
         # Listbox aligned to the right of text widgets
         self.listbox = tk.Listbox(self.text_frame2, height=5)
@@ -140,12 +142,12 @@ class JsonEditorApp:
         self.listbox.bind("<<ListboxSelect>>", self.on_select)
 
 
-        self.scroll_text = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, font=("Courier", 12))
+        self.scroll_text = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, font=("Courier", 12), undo=True)
         self.scroll_text.pack(padx=20, pady=20, expand=True, fill=tk.BOTH)
 
         self.update_button = tk.Button(self.root, text="Update JSON", command=self.update_json)
         self.update_button.pack(pady=10)
-        self.root.bind("<Shift-Return>", lambda *args: self.update_json())
+        self.scroll_text.bind("<Shift-Return>", lambda *args: self.update_json())
 
         self.status_label = tk.Label(self.root, text="", fg="green")
         self.status_label.pack(pady=5)
@@ -268,7 +270,8 @@ class JsonEditorApp:
             self.status_label.config(text="Invalid JSON format!", fg="red")
         except Exception as e:
             self.status_label.config(text=f"Error: {str(e)}", fg="red")
-        finally: return ""
+        finally: 
+            return 'break'
 
     def set_json_part(self, json_obj, path, value):
         """Modify the correct part of the JSON object."""
