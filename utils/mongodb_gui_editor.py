@@ -1,11 +1,15 @@
 
 from bson import ObjectId
-import eel_utils
+import sys, os
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+os.chdir(parent_dir)
+print("Working directory", os.getcwd())
+
 import mongo_utils
 import cloud_utils.mongo_schema as mongo_schema
-import cloud_utils.mongo_client as mongo_client, os, sys
+import cloud_utils.mongo_client as mongo_client
 from dotenv import load_dotenv
-load_dotenv()
 import tkinter as tk
 from tkinter import scrolledtext
 import json, copy
@@ -23,10 +27,8 @@ def find_first_from_right(target_string, string_list):
     max_index = -1
     result = None
 
-    # Iterate through the list
     for s in string_list:
         if s in target_string:
-            # Find the index of the substring in the target string
             index = target_string.rfind(s)  # Find the last occurrence of s
             if index > max_index:
                 max_index = index
@@ -34,12 +36,14 @@ def find_first_from_right(target_string, string_list):
 
     return result
 
-import tkinter as tk
-from tkinter import scrolledtext
-import json
-import copy
-from bson.objectid import ObjectId
+def list_to_nested_dict(keys, value):
+    nested_dict = value
+    for key in reversed(keys):
+        nested_dict = {key: nested_dict}
+    return nested_dict
 
+def list_to_flat_dict(keys, value):
+    return {".".join(keys): value}
 class JsonEditorApp:
     def __init__(self, root):
         self.root = root
@@ -211,18 +215,18 @@ class JsonEditorApp:
         try:
             _id = None
             path_parts = self.parse_path(path)
-            key = None
+            key = []
             for part in path_parts:
                 if isinstance(json_obj, list):
                     if part.startswith("{") and part.endswith("}"):
                         query = json.loads(part)
-                        key = query
+                        key = []
                         json_obj = self.find_in_list(json_obj, query)
                     else:
-                        key = int(part)
+                        key.append(int(part))
                         json_obj = json_obj[int(part)]
                 else:
-                    key = part
+                    key.append(part)
                     json_obj = json_obj[part]
                 if type(json_obj) == dict and "_id" in json_obj:
                     _id = json_obj["_id"]
@@ -259,10 +263,15 @@ class JsonEditorApp:
             result = find_first_from_right(target_string, string_list)
             print("collection determined:", result)  # Output: "hello"
             if result:
+
                 selected_data, key,  _id = self.get_json_part(self.data, path)
+                update_data_ = list_to_flat_dict(key, updated_data)
+                # ori_database = self.get_database()
+                # ori_database.update(update_data_)
                 query = {"_id": ObjectId(_id)}
-                update_data_  = {key: updated_data}
-                ret = client.update_entry(query, update_data_, result, client.schemas[result], True )
+
+                ret = client.update_entry(query, update_data_, result, None, False )
+                if not ret: raise Exception("Error updating database")
                 print("mongo update res", ret, query)
 
             self.status_label.config(text="JSON updated successfully!", fg="#00ff00")
@@ -326,34 +335,18 @@ class JsonEditorApp:
         if temp:
             parts.append(temp)
         return parts
-# # Sample JSON Data
-# data = {
-#     "name": "John Doe",
-#     "age": 30,
-#     "email": "johndoe@example.com",
-#     "is_active": True,
-#     "address": {
-#         "street": "123 Main St",
-#         "city": "Anytown",
-#         "state": "AN",
-#         "zip": "12345"
-#     },
-#     "hobbies": ["reading", "coding", "hiking"],
-#     "friends": [
-#         {"name": "Jane", "age": 28},
-#         {"name": "Mike", "age": 35}
-#     ]
-# }
+
 
 
 
 if __name__ == "__main__":
-
+    
+    argm = settingsManager.ArgParser(("env_file", str, ".env"))
+    load_dotenv(argm.args.env_file)
 
     uri = os.getenv("MONGODB_URI")
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(script_dir)
 
     root = tk.Tk()
     root.title("JSON Editor")

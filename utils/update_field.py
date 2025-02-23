@@ -21,15 +21,22 @@ if __name__ == "__main__":
     
     database = mongo_utils.get_track_entries_(client)
     entries = database["track_entries"]
+    entries_to_change = []
     for entry in entries:
         try:
-            entry["grade"] = float(entry["grade"])
+            if not "Op. " in entry["track_title"]:
+                entry["track_title"] = f"""Op. {entry["track_title"]}"""
+                print("op changed", entry["op_number"])
+                entries_to_change.append(entry)
+            # entry["grade"] = float(entry["grade"])
+            assert str(entry["op_number"]) in entry["track_title"]
         except Exception as e: 
             print("Error", e)
-            entry["grade"] =  -10.0
+            # entry["grade"] =  -10.0
 
-    for entry in entries:
+    for entry in entries_to_change:
         query = {"_id": ObjectId(entry["_id"])}
-        data = {"grade": entry["grade"]}
-        client.update_entry(query, data, "track_entries")# mongo_schema.trackSchema.schema)
+        data = {"track_title": entry["track_title"]}
+        ret = client.update_entry(query, data, "track_entries")# mongo_schema.trackSchema.schema)
+        print(entry["op_number"], ret)
 

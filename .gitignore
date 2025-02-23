@@ -61,3 +61,4 @@ utils/mongo_backup_shortcut.lnk
 /node_modules
 utils/querier_settings.json
 utils/mongodb_gui_editor_shortcut.lnk
+querier_settings.json
