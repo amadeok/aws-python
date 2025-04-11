@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editable Dictionary Grid</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat({{ headers|length }}, 1fr);
+            gap: 1px;
+            background-color: #ddd;
+            padding: 1px;
+            margin-bottom: 20px;
+        }
+        .grid > div {
+            background-color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .header {
+            font-weight: bold;
+            background-color: #f2f2f2 !important;
+        }
+        .editable {
+            border: 1px solid transparent;
+            padding: 5px;
+            width: 90%;
+            text-align: center;
+        }
+        .editable:focus {
+            border: 1px solid #4CAF50;
+            outline: none;
+        }
+        .status {
+            color: green;
+            margin-top: 10px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Editable Grid!!</h1>
+    <p>Edit any cell and press Enter to save</p>
+    
+    <div class="grid">
+        <!-- Headers -->
+        {% for header in headers %}
+            <div class="header">{{ header }}</div>
+        {% endfor %}
+        
+        <!-- Data rows -->
+        {% for item in data %}
+            {% for key in headers %}
+                <div>
+                    <input 
+                        type="text" 
+                        class="editable" 
+                        value="{{ item[key] }}" 
+                        data-id="{{ item['id'] }}" 
+                        data-field="{{ key }}"
+                        onkeydown="if(event.key === 'Enter') { saveData(this); }"
+                    >
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <script>
+        function saveData(element) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Saving...';
+            
+            const id = element.getAttribute('data-id');
+            const field = element.getAttribute('data-field');
+            const value = element.value;
+            
+            // Get all fields for this row
+            const rowInputs = document.querySelectorAll(`input[data-id="${id}"]`);
+            const updatedItem = { id: parseInt(id) };
+            
+            // Build the complete item object
+            rowInputs.forEach(input => {
+                updatedItem[input.getAttribute('data-field')] = input.value;
+            });
+            
+            // Convert numbers back to numbers if needed
+            if (field === 'age' || field === 'id') {
+                updatedItem[field] = parseInt(value);
+            }
+            
+            // Send to server
+            fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedItem)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    statusDiv.textContent = 'Data saved successfully!';
+                    statusDiv.style.color = 'green';
+                    setTimeout(() => statusDiv.textContent = '', 2000);
+                } else {
+                    statusDiv.textContent = 'Error: ' + data.message;
+                    statusDiv.style.color = 'red';
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = 'Error: ' + error;
+                statusDiv.style.color = 'red';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editable Dictionary Grid</title>
+    <style>
+      #data-grid {
+        border: 1px solid #ddd;
+        font-family: Arial, sans-serif;
+      }
+
+      .grid-header {
+        background-color: #f2f2f2;
+        padding: 0px;
+        font-weight: bold;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        position: sticky;
+        top: 0;
+      }
+
+      .grid-cell {
+        padding: 0px;
+        border-bottom: 1px solid #eee;
+        min-height: 20px;
+        cursor: pointer;
+      }
+
+      .grid-cell:hover {
+        background-color: #f9f9f9;
+      }
+
+      .cell-edit {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+      }
+
+      .status-message {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        transition: all 0.3s;
+      }
+
+      .status-message.success {
+        background-color: #dff0d8;
+        color: #3c763d;
+      }
+
+      .status-message.error {
+        background-color: #f2dede;
+        color: #a94442;
+      }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js"></script>
+  </head>
+  <body>
+    <h1>Editable Dictionary Grid!!!!</h1>
+    <div id="data-grid"></div>
+    <div id="status-message" class="status-message"></div>
+
+    <script src="aux_.js"></script>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>

@@ -22,13 +22,13 @@ const Main = ({ compRef }) => {
    const scrollPosition = useRef({})
    const curScrollPosition = useRef(0)
 
-   const pages = ["Simple", "Track monitor", "Sessions monitor"]
+   const pages = ["Simple", "Uploads", "Track monitor", "Sessions monitor"]
    const [showing, setShowing] = useState("Track monitor")
    // const showingRef = useRef(showing)
    const showingDisable = useRef(false)
    const { showingRef, prevShowingRef } = useContext(AppContext);
-   const { track_entries, upload_sessions, settings, count } = compRef.state
-
+   const { track_entries, upload_sessions, upload_attempts, settings, count } = compRef.state
+   console.log("upload_attempts", upload_attempts)
 
    const sessionRef = useRef()
    const tracksRef = useRef()
@@ -224,62 +224,71 @@ const Main = ({ compRef }) => {
             &nbsp;
          </div>
          {/* <div className='fixed-menu'>FIXED</div> */}
-
-         {showing === "Simple" ?
-            <div>
-               {/* <div className="flex flex-row justify-evenly  mx-5" ref={tracksRef}> */}
-               <div className="grid grid-cols-[repeat(11,minmax(0,1fr))] my-2 mt-4 mx-3 " ref={tracksRef}>
-
-                  <div className='flex-[3] p-2, py-0 text-white items-center border-t border-l border-r-0 border-b border-gray-500  col-span-3'>Track Title</div>
-                  <div className={firstStyles}>Op No</div>
-                  <div className={firstStyles}>Grade</div>
-
-                  <div className={firstStyles}>For Distrokid</div>
-                  <div className={firstStyles + " col-span-2"}>Ins. date</div>
-                  <div className={firstStyles}>Entry status</div>
-                  <div className='flex justify-around'>
-                     <div className={firstStyles}>Play</div>
-                     <div className={firstStyles}>del</div>
-                     <div className={firstStyles}>Update Links</div>
-                  </div>
-                  <div className={firstStyles + " border-r-[2px]"}>id</div>
-
-               </div>
-
-               {/* <div className="flex flex-col _h-full _overflow-y-scroll " ref={tracksRef}> */}
-               <div className="grid grid-cols-1 mx-3" ref={tracksRef}>
-                  {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
-                     <div key={`${entry["_id"]}_${i}`} className="_mx-5">
-                        <SimpleTrackComponent track={entry} ctx={ctx} isLast={i === track_entries.length - 1} ></SimpleTrackComponent>
-                     </div>
-                  ))}
-               </div>
-            </div>
-
-            :
-            // <TrackMonitor compRef={compRef}>                </TrackMonitor> 
-            (showing === "Track monitor" ? <div className="App-intro_">
-               <div className="flex flex-col _h-full _overflow-y-scroll " ref={tracksRef}>
-                  {/* onWheel={()=>handleScroll("Track monitor")}> */}
-                  {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
-                     <div key={`${entry["_id"]}_${i}`} className="m-5">
-                        <TrackComponent track={entry} ctx={ctx}></TrackComponent>
-                     </div>
-                  ))}
-               </div>
-            </div>
-               :
-               <div className="App-intro_"  >
-                  <div className="flex flex-col _h-full  _overflow-y-scroll" ref={sessionRef} >
-                     {/* onWheel={()=>handleScroll("Sessions monitor")}> */}
-                     {upload_sessions && upload_sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).filter(session => session.track_ids.length).map((session, i) => (
-                        <div key={`${session["_id"]}_${i}`} className="m-5">
-                           <UploadSessionComponent uploadSession={session} ctx={ctx}></UploadSessionComponent>
+               
+               {(() => {
+               switch (showing) {
+                  case 'Simple':
+                     return  <div>
+                     {/* <div className="flex flex-row justify-evenly  mx-5" ref={tracksRef}> */}
+                     <div className="grid grid-cols-[repeat(11,minmax(0,1fr))] my-2 mt-4 mx-3 " ref={tracksRef}>
+      
+                        <div className='flex-[3] p-2, py-0 text-white items-center border-t border-l border-r-0 border-b border-gray-500  col-span-3'>Track Title</div>
+                        <div className={firstStyles}>Op No</div>
+                        <div className={firstStyles}>Grade</div>
+      
+                        <div className={firstStyles}>For Distrokid</div>
+                        <div className={firstStyles + " col-span-2"}>Ins. date</div>
+                        <div className={firstStyles}>Entry status</div>
+                        <div className='flex justify-around'>
+                           <div className={firstStyles}>Play</div>
+                           <div className={firstStyles}>del</div>
+                           <div className={firstStyles}>Update Links</div>
                         </div>
-                     ))}
+                        <div className={firstStyles + " border-r-[2px]"}>id</div>
+      
+                     </div>
+      
+                     {/* <div className="flex flex-col _h-full _overflow-y-scroll " ref={tracksRef}> */}
+                     <div className="grid grid-cols-1 mx-3" ref={tracksRef}>
+                        {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
+                           <div key={`${entry["_id"]}_${i}`} className="_mx-5">
+                              <SimpleTrackComponent track={entry} ctx={ctx} isLast={i === track_entries.length - 1} ></SimpleTrackComponent>
+                           </div>
+                        ))}
+                     </div>
                   </div>
-               </div>)
-         }
+                  case 'Track monitor':
+                     return <div className="App-intro_">
+                     <div className="flex flex-col _h-full _overflow-y-scroll " ref={tracksRef}>
+                        {/* onWheel={()=>handleScroll("Track monitor")}> */}
+                        {track_entries && track_entries.sort((a, b) => new Date(b.insertion_date) - new Date(a.insertion_date)).map((entry, i) => (
+                           <div key={`${entry["_id"]}_${i}`} className="m-5">
+                              <TrackComponent track={entry} ctx={ctx}></TrackComponent>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+                  case "Sessions monitor":
+                     return <div className="App-intro_">
+                     <div className="flex flex-col _h-full _overflow-y-scroll " ref={sessionRef}>
+                        {/* onWheel={()=>handleScroll("Sessions monitor")}> */}
+                        {upload_sessions && upload_sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).filter(session => session.track_ids.length).map((session, i) => (
+                           <div key={`${session["_id"]}_${i}`} className="m-5">
+                              <UploadSessionComponent uploadSession={session} ctx={ctx}></UploadSessionComponent>
+                           </div>
+                        ))}
+                     </div></div>
+                  default:
+                     return <p>Unknown fruit</p>;
+
+                     case "Uploads":
+                        return <div className="App-intro_">
+                           
+                        </div>
+               }
+               })()}
+               
+
 
 
          {/* {showing === "Track monitor" ? <TrackMonitor compRef={compRef}></TrackMonitor> : <div></div>} */}

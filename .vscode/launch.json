@@ -71,6 +71,13 @@
                 "PYTHONPATH": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310;C:\\ProgramData\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting\\Modules\\"
             }
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch js Program",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${file}"
+          }
         
     ]
 }
