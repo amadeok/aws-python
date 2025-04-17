@@ -3,7 +3,7 @@ import os, sys, eel
 from bson import ObjectId
 import logging, uuid, subprocess, copy
 import utils.cloud_utils.mongo_client as mongo_client
-import utils.cloud_utils.gdrive as gdrive
+#import utils.cloud_utils.gdrive as gdrive
 import utils.cloud_utils.mongo_schema as mongo_schema
 
 
