@@ -103,7 +103,7 @@ class trackSchema():
             # "file_name": {"type": "string"},
             "entry_status": {"type": "string"},
              "upload_attempts": {"type": "array", "default": []},   #{ "type": "array", "items": uploadSite.schema}
-             "file_details": fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
+             "file_details": {"type": "object"},# fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
              "insertion_date": {"type": "string"},
              "secondary_text": {"type": "string"},
             # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}

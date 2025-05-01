@@ -202,15 +202,18 @@ def explorer(payload):
     # subprocess.Popen(cmd, shell=True)
 
     
-@eel.expose
-def delete_entry(payload):
+
+    
+    
+def base_delete_entry(payload, mon=None):
+    mongo_ = mongo or mon
     if payload["collection"] == "track_entries":
-        entry = find_element_by_id(mongo.cd[payload["collection"]], payload["_id"])
-        if len(entry["file_details"]["drive_id"]):
+        entry = find_element_by_id(mongo_.cd[payload["collection"]], payload["_id"])
+        if "file_details" in entry and "drive_id" in  entry["file_details"] and len(entry["file_details"]["drive_id"]):
             gdrive.delete_file(entry["file_details"]["drive_id"])
         
     delete_query = {"_id": ObjectId(payload["_id"])}
-    ret = mongo.delete_entry(delete_query, payload["collection"])
+    ret = mongo_.delete_entry(delete_query, payload["collection"])
     if ret and ret.deleted_count:
         logging.info(f"""Deleted entry with id: {payload["_id"]} , {ret.deleted_count  if ret else 0}""")
     else:
@@ -227,22 +230,24 @@ def delete_entry(payload):
         collection_entry_name = "session_entry_id"
 
     if len(other_collection):    
-        attempts_filtered = [item for item in mongo.cd["upload_attempts"] if item.get(collection_entry_name) == payload["_id"]]
+        attempts_filtered = [item for item in mongo_.cd["upload_attempts"] if item.get(collection_entry_name) == payload["_id"]]
         def check(attempt):
 #            for attempt in attempts_:
-            for item in mongo.cd[other_collection]:
+            for item in mongo_.cd[other_collection]:
                 if attempt[other_collection_entry_name] == item["_id"]:
                     return True
             return False
         for attempt in attempts_filtered:
             ret = check(attempt)
             if not ret:
-                deleted = mongo.delete_entry({"_id": ObjectId(attempt["_id"])}, "upload_attempts")
+                deleted = mongo_.delete_entry({"_id": ObjectId(attempt["_id"])}, "upload_attempts")
                 logging.info(f"--->deleting unreferenced upload attempt with id  {attempt['_id']} {deleted.deleted_count if deleted else 'delete fail'}")
         
         #utils.check_field_presence(mongo.cd["track_entries"], mongo.cd["upload_attempts"], "upload_attempts", "track_ids")
 
-
+@eel.expose
+def delete_entry(payload):
+    base_delete_entry(payload)
     eel.setCompState(get_track_entries())
 
 @eel.expose
