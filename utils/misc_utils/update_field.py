@@ -24,12 +24,18 @@ if __name__ == "__main__":
     entries_to_change = []
     for entry in entries:
         try:
-            if not "Op. " in entry["track_title"]:
-                entry["track_title"] = f"""Op. {entry["track_title"]}"""
-                print("op changed", entry["op_number"])
-                entries_to_change.append(entry)
-            # entry["grade"] = float(entry["grade"])
-            assert str(entry["op_number"]) in entry["track_title"]
+            if not "links" in entry:
+                query = {"_id": ObjectId(entry["_id"])}
+                data = {"links": obj}
+                ret = client.update_entry(query, data, "track_entries")
+                print("updated ", entry["op_number"], ret.modified_count)
+                #print(entry["links"])
+            # if not "Op. " in entry["track_title"]:
+            #     entry["track_title"] = f"""Op. {entry["track_title"]}"""
+            #     print("op changed", entry["op_number"])
+            #     entries_to_change.append(entry)
+            # # entry["grade"] = float(entry["grade"])
+            # assert str(entry["op_number"]) in entry["track_title"]
         except Exception as e: 
             print("Error", e)
             # entry["grade"] =  -10.0

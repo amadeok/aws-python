@@ -1,4 +1,5 @@
 
+import datetime
 import json
 import  os
 import time
@@ -93,6 +94,17 @@ class uploadSites():
     
     
 class trackSchema():
+    links_obj_default = {
+        "youtube": "",
+        "spotify":"",
+        "apple_music" :"",
+        "soundcloud" :"",
+        "tidal" :"",
+        "amazon_music" :"",
+        "deezer" :"",
+        "pandora" :"",
+        "google_play_music" :""
+        }
     schema = {
         "type": "object",
         "properties": {
@@ -111,13 +123,15 @@ class trackSchema():
             "_id": {"type": "string"},
             "links": {"type" : "object"}
         },
-        "required": ["track_title", "op_number", "grade", "for_distrokid",
+        "required": ["track_title", "op_number", "grade", "for_distrokid", "links",
                      "entry_status", "upload_attempts", "file_details", "insertion_date", "secondary_text",  "album_number"], "additionalProperties": False 
     }
-    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts, insertion_date, secondary_text, album_number ):  
+    def create(track_title, op_number, grade=1, for_distrokid=False, file_details={}, entry_status="pending", upload_attempts=[], insertion_date=None, secondary_text="", album_number=-1, links=links_obj_default ):  
+        
         obj =  { "track_title": track_title, "op_number":op_number,  "grade":grade, "for_distrokid": for_distrokid, 
                 "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts, 
-                "insertion_date": insertion_date, "secondary_text": secondary_text, "album_number": album_number}#,  "uploads": uploads  } 
+                "insertion_date": insertion_date or datetime.datetime.utcnow().isoformat(), 
+                "secondary_text": secondary_text, "album_number": album_number, "links":links}#,  "uploads": uploads  } 
         validate(obj, trackSchema.schema)
         return obj
 

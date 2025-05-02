@@ -63,3 +63,7 @@ utils/querier_settings.json
 utils/mongodb_gui_editor_shortcut.lnk
 querier_settings.json
 gui/simple/tracks_simple_gui_prod_shortcut.lnk
+gui/simple/logs/track_monitor.log
+track_monitor.log
+gui/simple/aux_.js
+gui/simple/aux_.js

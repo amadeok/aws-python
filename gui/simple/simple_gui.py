@@ -1,3 +1,13 @@
+import logging, os
+import loggingHelper, flask
+APP_NAME = "track_monitor"
+loggingHelper.Logger(APP_NAME, level=logging.WARNING,ignore_strings=["GET /health"])
+#, log_file=F"{os.path.dirname(os.path.abspath(__file__))}/logs/{APP_NAME}.log",
+        # level=logging.INFO, max_bytes=1000*1000, backup_count=3,
+        # format_ =  logging.Formatter(
+        #     f'%(asctime)s - %(levelname)s - %(message)s'
+        # ))
+
 import datetime, sys
 import objectGuiJsPy, os
 from dotenv import load_dotenv
@@ -68,7 +78,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
             try:
                 #op_number = len(self.database)
                 op_number = max(self.database, key=lambda x: x['op_number'])['op_number'] +1
-                payload = mongo_schema.trackSchema.create(f"Op. {op_number}", op_number, 1, False, {}, "pending", [], datetime.datetime.utcnow().isoformat(), "")
+                payload = mongo_schema.trackSchema.create(track_title=f"Op. {op_number}", op_number=op_number)
                 # payload = {
                 #     "op_number": op_number,
                 #     "track_title": f"Op. {op_number}",
@@ -83,7 +93,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
                     "success": True
                 }
             except Exception as e:
-                print (e)
+                logging.error(f"error {e}")
                 response  = {
                     "success": False, "error": str(e)
                 }
@@ -100,12 +110,10 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
                 eel_utils.base_delete_entry(payload, self.mongo_client) 
                 response = {"success": True}
             except Exception as e:
-                print("error", e)
+                logging.info(f"error: {e}")
                 response = {"success": False, "error": str(e)}
 
             return flask.jsonify(response)
-
-        print("Child initialized")
     
     def get_database(self):
         self.database = mongo_utils.get_track_entries_(self.mongo_client)["track_entries"]
@@ -114,11 +122,16 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
     def custom_handle_api(self):
 
         data = flask.request.get_json()
-        print("Custom API handler received:", data)
+        logging.info(f"Custom API handler received: {data}")
         try:
             if "key_to_update" in data:
                 key = data["key_to_update"]
                 new_val = data["elem"][key]
+                try:
+                    new_val
+                except Exception as e:
+                    pass
+                # end try
                 _id = ObjectId(data["elem"]["_id"])
                 update_data = {key: new_val}
                 update_result =  self.mongo_client.update_entry({"_id":_id}, update_data, "track_entries")
@@ -131,7 +144,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
             }
             
         except Exception as e:
-            print("Error", e)
+            logging.info(f"Error: {e}")
             
             response = {
                 'status': 'error',
@@ -145,7 +158,9 @@ if __name__ == "__main__" or 1:
     #import settingsManager
     # parser = settingsManager.ArgParser( ("debug", bool, False), ("port", int, None), ("simple_gui:app", str, "None", False))
     # parser.parser.add_argument("simple_gui:app")
-    print("getwd", os.getcwd())
+
+
+
     port = int(os.getenv("WAITRESS_PORT") or 8912)
     debug = int(os.getenv("WAITRESS_DEBUG") or True)
 
@@ -159,9 +174,11 @@ if __name__ == "__main__" or 1:
                             "upload_sessions": mongo_schema.uploadSession.schema, 
                             "settings": None} )
 
+
+    
     database = mongo_utils.get_track_entries_(client)
 
-    gui_app = MyCustomApp(mongo_client_=client, database=database["track_entries"],
+    gui_app = MyCustomApp(mongo_client_=client, database=database["track_entries"], app_name=APP_NAME,
                           html_path= os.path.dirname(os.path.abspath(__file__)),debug_mode=debug, port=port)
     if debug:
         gui_app.setup_browser_sync()
@@ -170,75 +187,3 @@ if __name__ == "__main__" or 1:
 
 
 
-
-
-
-# script_dir = os.path.dirname(os.path.abspath(__file__))
-# os.chdir(script_dir)
-# print(f"Current working directory changed to: {os.getcwd()}")
-
-
-# job = subprocessHelper.JobObject()
-# job.assign_process(subprocessHelper.subprocess.Popen('browser-sync start --proxy localhost:5000 --files *.html,script.js,aux_.js,static/*'.split(" "), shell=True))
-
-# app = Flask(__name__)
-
-
-
-# # Serve HTML file
-# @app.route('/')
-# def serve_html():
-#     return send_from_directory('.', 'index.html')
-
-# @app.route('/script.js')
-# def serve_script():
-#     return send_from_directory('.', 'script.js')
-
-# @app.route('/aux_.js')
-# def serve_aux_():
-#     return send_from_directory('.', 'aux_.js')
-
-
-# # Handle API calls
-# @app.route('/api', methods=['POST'])
-# def handle_api():
-#     data = request.get_json()
-#     print("Received API call with data:", data)
-    
-#     # Process the data here
-#     response = {
-#         'status': 'success',
-#         'data': data,
-#         'message': 'API call processed successfully'
-#     }
-#     return jsonify(response)
-
-
-# @app.route('/get-database', methods=['GET'])
-# def handle_get():
-#     print("Received API call with data get")
-    
-#     # Process the data here
-#     response = {
-#         'status': 'success',
-#         'data': database,
-#         'message': 'Database fetched successfully'
-#     }
-#     return jsonify(response)
-
-
-# @app.route('/test', methods=['POST'])
-# def handle_api_():
-#     data = request.get_json()
-#     print("Received API call with data:", data)
-    
-#     # Process the data here
-#     response = {
-#         'status': 'success',
-#         'data': "TEST",
-#         'message': 'API call processed successfully'
-#     }
-#     return jsonify(response)
-
-# if __name__ == '__main__':
-#     app.run(port=5000, debug=False)
