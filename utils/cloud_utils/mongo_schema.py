@@ -106,15 +106,18 @@ class trackSchema():
              "file_details": {"type": "object"},# fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
              "insertion_date": {"type": "string"},
              "secondary_text": {"type": "string"},
+             "album_number": {"type": "number", "default": -1},
             # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
             "_id": {"type": "string"},
             "links": {"type" : "object"}
         },
-        "required": ["track_title", "op_number", "grade", "for_distrokid", "entry_status", "upload_attempts", "file_details", "insertion_date", "secondary_text"], "additionalProperties": False 
+        "required": ["track_title", "op_number", "grade", "for_distrokid",
+                     "entry_status", "upload_attempts", "file_details", "insertion_date", "secondary_text",  "album_number"], "additionalProperties": False 
     }
-    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts, insertion_date, secondary_text ):  
+    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts, insertion_date, secondary_text, album_number ):  
         obj =  { "track_title": track_title, "op_number":op_number,  "grade":grade, "for_distrokid": for_distrokid, 
-                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts, "insertion_date": insertion_date, "secondary_text": secondary_text}#,  "uploads": uploads  } 
+                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts, 
+                "insertion_date": insertion_date, "secondary_text": secondary_text, "album_number": album_number}#,  "uploads": uploads  } 
         validate(obj, trackSchema.schema)
         return obj
 

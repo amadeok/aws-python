@@ -21,7 +21,7 @@ def get_most_recent_file(directory, pattern='*'):
     return files[0]
 
 class MyCustomApp(objectGuiJsPy.FlaskApp):
-    def __init__(self, mongo_client_, *args, **kwargs):
+    def __init__(self, mongo_client_,  *args, **kwargs):
         super().__init__(*args, **kwargs)  
         self.mongo_client : mongo_client = mongo_client_
         
@@ -142,11 +142,10 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
 
     
 if __name__ == "__main__" or 1:
-    import settingsManager
-
+    #import settingsManager
     # parser = settingsManager.ArgParser( ("debug", bool, False), ("port", int, None), ("simple_gui:app", str, "None", False))
     # parser.parser.add_argument("simple_gui:app")
-    
+    print("getwd", os.getcwd())
     port = int(os.getenv("WAITRESS_PORT") or 8912)
     debug = int(os.getenv("WAITRESS_DEBUG") or True)
 
@@ -162,7 +161,8 @@ if __name__ == "__main__" or 1:
 
     database = mongo_utils.get_track_entries_(client)
 
-    gui_app = MyCustomApp(mongo_client_=client, database=database["track_entries"], html_path= os.path.dirname(os.path.abspath(__file__)), port=port)
+    gui_app = MyCustomApp(mongo_client_=client, database=database["track_entries"],
+                          html_path= os.path.dirname(os.path.abspath(__file__)),debug_mode=debug, port=port)
     if debug:
         gui_app.setup_browser_sync()
         gui_app.run()
