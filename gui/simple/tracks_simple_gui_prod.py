@@ -19,9 +19,7 @@ if __name__ == "__main__":
     br_sync_port = get_free_port()
     os.environ["PROD_PORT"] =str(port) 
     os.environ["BROWSER_SYNC_PORT"] =str(br_sync_port) 
-
     os.environ["PROD_DEBUG"] = "0"
-    
     os.environ["USE_BROWSER_SYNC"] = str(parser.get("br_sync")) 
     os.environ["CLOSE_ON_CLIENT_DISCONNECT"] = str(parser.get("cl_cl_disc")) 
     

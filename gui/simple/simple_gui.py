@@ -161,7 +161,8 @@ if __name__ == "__main__" or 1:
 
     port = int(os.getenv("PROD_PORT") or 8912)
     debug = int(os.getenv("PROD_DEBUG") or True)
-
+    os.environ["CLOSE_ON_CLIENT_DISCONNECT"]  = "0"
+    
     load_dotenv(r"F:\all\GitHub\aws-python\.env")
     uri = os.getenv("MONGODB_URI")
     global client
