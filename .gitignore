@@ -67,3 +67,4 @@ gui/simple/logs/track_monitor.log
 track_monitor.log
 gui/simple/aux_.js
 gui/simple/aux_.js
+.vscode/launch.json

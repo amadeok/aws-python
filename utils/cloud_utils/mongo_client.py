@@ -16,11 +16,11 @@ load_dotenv()
 
 
 class MongoDBClient:
-    def __init__(self, connection_string, database_name, collection_schemas, client=None):
+    def __init__(self, connection_string, database_name, collection_schemas, client=None, local=False):
         ca = certifi.where()
 
         logging.info(f"initailizing monbodb client with string")
-        if False:
+        if local:
             self.client = MongoClient('localhost', 27017, tlsCAFile=ca) 
         else:
             self.client = client if client else MongoClient(connection_string,  tlsCAFile=ca) #changing dns to 8.8.4.4 fixed it once

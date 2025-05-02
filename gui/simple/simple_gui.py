@@ -159,10 +159,8 @@ if __name__ == "__main__" or 1:
     # parser = settingsManager.ArgParser( ("debug", bool, False), ("port", int, None), ("simple_gui:app", str, "None", False))
     # parser.parser.add_argument("simple_gui:app")
 
-
-
-    port = int(os.getenv("WAITRESS_PORT") or 8912)
-    debug = int(os.getenv("WAITRESS_DEBUG") or True)
+    port = int(os.getenv("PROD_PORT") or 8912)
+    debug = int(os.getenv("PROD_DEBUG") or True)
 
     load_dotenv(r"F:\all\GitHub\aws-python\.env")
     uri = os.getenv("MONGODB_URI")
@@ -183,6 +181,9 @@ if __name__ == "__main__" or 1:
     if debug:
         gui_app.setup_browser_sync()
         gui_app.run()
+    elif gui_app.use_browser_sync:
+        gui_app.setup_browser_sync()
+
     app = gui_app.app
 
 

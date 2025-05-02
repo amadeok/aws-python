@@ -32,7 +32,8 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["--debug", "true"],
+            "args": ["--br_sync", "1", "--cl_cl_disc", "0"],
+            //  "args": ["--debug", "true"],
             "env": {
                 // "RESOLVE_SCRIPT_API": "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting",
                 //"RESOLVE_SCRIPT_LIB": "C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\fusionscript.dll",

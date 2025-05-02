@@ -1,9 +1,10 @@
-
+import os, sys
+sys.path.insert(0, r"F:\all\GitHub\aws-python")
 from bson import ObjectId
-import eel_utils
-import mongo_utils
-import cloud_utils.mongo_schema as mongo_schema
-import cloud_utils.mongo_client as mongo_client, os, sys
+
+import utils.mongo_utils as mongo_utils
+import utils.cloud_utils.mongo_schema as mongo_schema
+import utils.cloud_utils.mongo_client as mongo_client, os, sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -24,11 +25,16 @@ if __name__ == "__main__":
     entries_to_change = []
     for entry in entries:
         try:
-            if not "links" in entry:
+            if not "album_number" in entry:
                 query = {"_id": ObjectId(entry["_id"])}
-                data = {"links": obj}
+                data = {"album_number": -1}
                 ret = client.update_entry(query, data, "track_entries")
                 print("updated ", entry["op_number"], ret.modified_count)
+            # if not "links" in entry:
+            #     query = {"_id": ObjectId(entry["_id"])}
+            #     data = {"links": obj}
+            #     ret = client.update_entry(query, data, "track_entries")
+            #     print("updated ", entry["op_number"], ret.modified_count)
                 #print(entry["links"])
             # if not "Op. " in entry["track_title"]:
             #     entry["track_title"] = f"""Op. {entry["track_title"]}"""
