@@ -1,4 +1,7 @@
-import subprocess, subprocessHelper, os, socket,browserStarter, settingsManager
+import logging, os
+import loggingHelper, flask, threading
+loggingHelper.Logger("track_monitor", level=logging.INFO,ignore_strings=["GET /health"])
+import subprocess, subprocessHelper,  socket,browserStarter, settingsManager
 
 def get_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -10,7 +13,6 @@ def get_free_port():
 if __name__ == "__main__":
     manager = browserStarter.BrowserManager()
     parser = settingsManager.ArgParser(("br_sync", int, 1), ("cl_cl_disc", int, 0), ("new_win", int, 0))#,("debug", bool, False))
-    
 
     os.chdir(r"F:\all\GitHub\aws-python\gui\simple")
     port =   get_free_port()
@@ -27,6 +29,7 @@ if __name__ == "__main__":
     print(" ".join(cmd))
     #cmd = ["py", "-3.10", "simple_gui.py", "--port", "8123", "&", "waitress-serve", "--call", "simple_gui:app"]
     p = subprocess.Popen(cmd)
+    
     manager.start_chromium( f'http://localhost:{br_sync_port if parser.get("br_sync") else port}', parser.get("new_win"))    
     p.wait()
     

@@ -1,7 +1,7 @@
 import logging, os
 import loggingHelper, flask
 APP_NAME = "track_monitor"
-loggingHelper.Logger(APP_NAME, level=logging.WARNING,ignore_strings=["GET /health"])
+loggingHelper.Logger(APP_NAME, level=logging.INFO,ignore_strings=["GET /health"])
 #, log_file=F"{os.path.dirname(os.path.abspath(__file__))}/logs/{APP_NAME}.log",
         # level=logging.INFO, max_bytes=1000*1000, backup_count=3,
         # format_ =  logging.Formatter(
