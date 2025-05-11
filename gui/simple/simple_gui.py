@@ -1,3 +1,4 @@
+import json
 import logging, os
 import loggingHelper, flask
 APP_NAME = "track_monitor"
@@ -38,16 +39,20 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
                     
         @self.app.route('/get_audio')
         def get_audio():
-            folder_path = get_it_path()
+            folder_path, it = get_it_path()
             file_path = get_most_recent_file(folder_path)
             if file_path == None or not os.path.exists(file_path):
                 flask.abort(404, description="Audio file not found")
-        
-            return flask.send_file(file_path, mimetype='audio/wav')
+            
+            response = flask.send_file(file_path, mimetype='audio/wav')
+            
+            response.headers['X-Custom-Data'] = json.dumps({"file_path":  file_path.split(os.getenv("PLAY_WAV_FOLDER"))[1], "iteration_found": it })
+            
+            return response
 
         @self.app.route('/open_folder')
         def open_folder():
-            folder_path = get_it_path()
+            folder_path, it = get_it_path()
             if  not os.path.exists(folder_path):
                 flask.abort(404, description="folder not found")
             os.startfile(folder_path)
@@ -63,6 +68,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
             iteration = flask.request.args.get('it', type=int)
             folder = os.getenv("PLAY_WAV_FOLDER")
             op_dir = f"{op_number:05d}" 
+            highest_it= None
             if iteration == -1:
                 highest_it = 1
                 for x in range(1, 10):
@@ -79,7 +85,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
                 if op_number is None:  flask.abort(400, description="Missing required parameters: 'op'")
                 folder_path = os.path.join(folder, op_dir)
                 
-            return folder_path
+            return folder_path, highest_it or iteration
 
         @self.app.route('/create_entry')
         def create_entry():
