@@ -24,6 +24,48 @@ from bson.objectid import ObjectId
 
 # from dotenv import load_dotenv
 import utils.eel_utils as eel_utils
+import util
+
+def get_it_path():
+    op_number = flask.request.args.get('op', type=int)
+    iteration = flask.request.args.get('it', type=int)
+    return util.get_it_path(op_number, iteration, abort_func=lambda s: flask.abort(400, description=s)    )
+
+def try_convert_value(value):
+    if value is None:
+        return None
+
+    if isinstance(value, str):
+        value = value.strip()
+
+        try:   return int(value)
+        except ValueError:  pass
+
+        try:  return float(value)
+        except ValueError:  pass
+
+        value_lower = value.lower()
+        if value_lower in ('true', '1'): return True
+        elif value_lower in ('false', '0'): return False
+
+        if value_lower in ('null', 'none', ''):  return None
+
+        try:  return datetime.datetime.fromisoformat(value)
+        except ValueError:  pass
+
+        # if ',' in value:
+        #     try:
+        #         return [try_convert_value(v.strip()) for v in value.split(',')]
+        #     except Exception:
+        #         pass
+
+        try:
+            parsed = json.loads(value)
+            if isinstance(parsed, (list, dict)):
+                return parsed
+        except json.JSONDecodeError:  pass
+
+    return value
 
 def get_most_recent_file(directory, pattern='*'):
     files = glob.glob(os.path.join(directory, pattern))
@@ -62,30 +104,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
             }
             return flask.jsonify(response)
         
-        def get_it_path():
 
-            op_number = flask.request.args.get('op', type=int)
-            iteration = flask.request.args.get('it', type=int)
-            folder = os.getenv("PLAY_WAV_FOLDER")
-            op_dir = f"{op_number:05d}" 
-            highest_it= None
-            if iteration == -1:
-                highest_it = 1
-                for x in range(1, 10):
-                    folder_path = os.path.join(folder, op_dir, 'Mixdown', f"it{x}")
-                    if os.path.isdir(folder_path) and os.listdir(folder_path).__len__()  > 0:
-                        highest_it = x
-                logging.info(f"Highest iteration for for op. {op_number}: {highest_it}")
-                folder_path = os.path.join(folder, op_dir, 'Mixdown', f"it{highest_it}")
-                
-            elif iteration:            
-                if op_number is None or iteration is None:   flask.abort(400, description="Missing required parameters: 'op' and 'it'")
-                folder_path = os.path.join(folder, op_dir, 'Mixdown', f"it{iteration}")
-            else:
-                if op_number is None:  flask.abort(400, description="Missing required parameters: 'op'")
-                folder_path = os.path.join(folder, op_dir)
-                
-            return folder_path, highest_it or iteration
 
         @self.app.route('/create_entry')
         def create_entry():
@@ -141,10 +160,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
             if "key_to_update" in data:
                 key = data["key_to_update"]
                 new_val = data["elem"][key]
-                try:
-                    new_val
-                except Exception as e:
-                    pass
+                new_val = try_convert_value(new_val)
                 # end try
                 _id = ObjectId(data["elem"]["_id"])
                 update_data = {key: new_val}

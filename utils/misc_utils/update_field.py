@@ -8,6 +8,10 @@ import utils.cloud_utils.mongo_client as mongo_client, os, sys
 from dotenv import load_dotenv
 load_dotenv()
 
+from pymongo import MongoClient
+
+
+   
 
 if __name__ == "__main__":
 
@@ -19,7 +23,10 @@ if __name__ == "__main__":
                             "upload_attempts": mongo_schema.uploadAttempt.schema,
                             "upload_sessions": mongo_schema.uploadSession.schema, 
                             "settings": None} )
+    client.update_field_value_or_range("album_number", new_value=1, exact_value=8 , collection_name="track_entries",  )#min_value=3, max_value=7)
     
+
+    exit()
     database = mongo_utils.get_track_entries_(client)
     entries = database["track_entries"]
     entries_to_change = []

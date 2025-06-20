@@ -105,8 +105,33 @@ class MongoDBClient:
             # for k, val in document.items():
             #     if not schema_["properties"][k] == 
 
+    def update_field_value_or_range(self, field_name, new_value, collection_name, exact_value=None, min_value=None, max_value=None):
+        try:
 
-
+            collection = self.col(collection_name)
+            
+            query = {}
+            if exact_value is not None:
+                query = {field_name: exact_value}  # Match exact value
+            elif min_value is not None and max_value is not None:
+                query = {field_name: {'$gte': min_value, '$lte': max_value}}  # Match range
+            else:
+                raise ValueError("Must provide either exact_value or both min_value and max_value")
+            
+            # Update all matching documents
+            result = collection.update_many(
+                query,
+                {'$set': {field_name: new_value}}
+            )
+            
+            print(f"Matched {result.matched_count} documents and modified {result.modified_count} documents")
+            
+            return result.modified_count
+        
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return 0
+            
 # Example usage:
 if __name__ == "__main__":
     uri = os.getenv("MONGODB_URI")
