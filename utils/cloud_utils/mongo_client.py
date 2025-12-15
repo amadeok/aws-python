@@ -52,12 +52,15 @@ class MongoDBClient:
     # def update_entry(self, query, update_data):
     #     return collection.update_one(query, {"$set": update_data})
 
-    def update_entry(self, query, update_data, collection, schema=None, soft_validate=False):
+    def update_entry(self, query, update_data, collection, schema=None, soft_validate=False, overwrite_doc=False):
         if not schema or  self.validate_document(update_data, schema, soft_validate):
             update_data_ = update_data.copy()
             if "_id" in update_data_:
                 del update_data_["_id"]
-            return self.col(collection).update_one(query, {"$set": update_data_})
+            if overwrite_doc:
+                return self.col(collection).replace_one(query, update_data_)
+            else:
+                return self.col(collection).update_one(query, {"$set": update_data_})
             logging.info("Document updated successfully.")
         else:
             logging.info("Document validation failed. Not inserted.")

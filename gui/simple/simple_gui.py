@@ -1,6 +1,10 @@
 import json
 import logging, os
 import loggingHelper, flask
+
+import PyInterProcCom, my_utils.util_ as ut
+
+
 APP_NAME = "track_monitor"
 loggingHelper.Logger(APP_NAME, level=logging.INFO,ignore_strings=["GET /health"])
 #, log_file=F"{os.path.dirname(os.path.abspath(__file__))}/logs/{APP_NAME}.log",
@@ -31,47 +35,9 @@ def get_it_path():
     iteration = flask.request.args.get('it', type=int)
     return util.get_it_path(op_number, iteration, abort_func=lambda s: flask.abort(400, description=s)    )
 
-def try_convert_value(value):
-    if value is None:
-        return None
 
-    if isinstance(value, str):
-        value = value.strip()
 
-        try:   return int(value)
-        except ValueError:  pass
 
-        try:  return float(value)
-        except ValueError:  pass
-
-        value_lower = value.lower()
-        if value_lower in ('true', '1'): return True
-        elif value_lower in ('false', '0'): return False
-
-        if value_lower in ('null', 'none', ''):  return None
-
-        try:  return datetime.datetime.fromisoformat(value)
-        except ValueError:  pass
-
-        # if ',' in value:
-        #     try:
-        #         return [try_convert_value(v.strip()) for v in value.split(',')]
-        #     except Exception:
-        #         pass
-
-        try:
-            parsed = json.loads(value)
-            if isinstance(parsed, (list, dict)):
-                return parsed
-        except json.JSONDecodeError:  pass
-
-    return value
-
-def get_most_recent_file(directory, pattern='*'):
-    files = glob.glob(os.path.join(directory, pattern))
-    if not files:  return None
-    files.sort(key=os.path.getmtime, reverse=True)
-    return files[0]
 
 class MyCustomApp(objectGuiJsPy.FlaskApp):
     def __init__(self, mongo_client_,  *args, **kwargs):
@@ -82,10 +48,15 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
         @self.app.route('/get_audio')
         def get_audio():
             folder_path, it = get_it_path()
-            file_path = get_most_recent_file(folder_path)
-            if file_path == None or not os.path.exists(file_path):
-                flask.abort(404, description="Audio file not found")
-            
+            if it == -2: #play with midi player:
+                logging.info("Playing with midi player")
+                PyInterProcCom.send_json_to_pipe("midi_player_pipe",  {"operation":"play_track", "data":  flask.request.args.get('op', type=str)})
+                flask.abort(400, description="Playing with midi player")
+            else:
+                file_path = ut.get_most_recent_file(folder_path)
+                if file_path == None or not os.path.exists(file_path):
+                    flask.abort(404, description="Audio file not found")
+                
             response = flask.send_file(file_path, mimetype='audio/wav')
             
             response.headers['X-Custom-Data'] = json.dumps({"file_path":  file_path.split(os.getenv("PLAY_WAV_FOLDER"))[1], "iteration_found": it })
@@ -160,7 +131,7 @@ class MyCustomApp(objectGuiJsPy.FlaskApp):
             if "key_to_update" in data:
                 key = data["key_to_update"]
                 new_val = data["elem"][key]
-                new_val = try_convert_value(new_val)
+                new_val = objectGuiJsPy.try_convert_value(new_val)
                 # end try
                 _id = ObjectId(data["elem"]["_id"])
                 update_data = {key: new_val}

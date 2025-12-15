@@ -1,9 +1,12 @@
 #include <Keyboard.h>
 #include <AbsMouse.h>
 #include "utils.h"
+#include <avr/wdt.h>
 
-void (*resetFunc)(void) = 0;  // declare reset fuction at address 0
-
+void softwareReset() {
+  wdt_enable(WDTO_15MS);  // Enable watchdog with a 15ms timeout
+  while (1);              // Wait for watchdog to trigger reset
+}
 
 enum serialStatusEnum { settingX,
                         settingY,
@@ -21,10 +24,11 @@ unsigned long blinkRemTimeIntervalMs = 5 * 1000;
 bool bPrintInfo = 0;
 bool bBeepRemainerTime = 0;
 bool bPressEnter = false;
-int16_t boardMode = standard;
+int16_t boardMode = mouseKeyboard;
 unsigned long long start = millis();
 unsigned long long start2 = start;
 unsigned long long startPress = start;
+bool queueReset  = false;
 
 const int PIN_BEEP_REM = 3;
 char buffer[120];
@@ -34,7 +38,7 @@ char buffer[120];
 void setup() {
   pinMode(PIN_BEEP_REM, INPUT_PULLUP);
 
-  blink(2, 100, 100, 1200);
+  blink(2, 30, 30, 1200);
 
   pinMode(PC_POWER_PIN, OUTPUT);
   digitalWrite(PC_POWER_PIN, HIGH);
@@ -49,8 +53,8 @@ void setup() {
   }
   if (1)
     for (int n = 0; n < 2; n++) {
-      blink(1, 300, 100, 700);
-      blink(1, 300, 100, 1000);
+      blink(1, 100, 30, 700);
+      blink(1, 100, 30, 1000);
     }
   delay(200);
 
@@ -166,6 +170,11 @@ void loop() {
   String s;
   // if (Serial.availableForWrite() < 1)
   //   blink(10, 250, 50, 500);
+  if (queueReset){
+   // blink(3, 250, 50, 1300);
+    softwareReset();
+    queueReset = false;
+  }
 
   if (Serial.available()) {
     switch (serialStatus) {
@@ -218,9 +227,13 @@ void loop() {
 
               break;
             case 30006:
-              // delay(10);
+                  blink(2, 10, 10, 1100);
+
+               delay(10);
+                queueReset = true;
+
               // digitalWrite(resetPin, LOW); //reset can be done opening and closing serial with baud 1200
-              // delay(10);
+               delay(10);
               break;
             case 30007:  // right click
               x = serial_read_2bytes();
@@ -314,7 +327,10 @@ void loop() {
               release_key_only(y);
               break;
             default:
-                          blink(4);
+                        //  blink(4);
+                          blink(1, 250, 250, 1600);
+                          blink(1, 250, 250, 1400);
+                          blink(1, 250, 250, 1200);
 
               move_click(x, y);
           }

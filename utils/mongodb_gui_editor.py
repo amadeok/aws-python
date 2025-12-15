@@ -209,7 +209,7 @@ class JsonEditorApp:
             print("-->", e)
         finally:
             return "break"
-
+#website_settings[{"_id":"67b94505da721aa2844cd02b"}]
     def get_json_part(self, json_obj, path):
         """Navigate JSON object based on a key/index/query path."""
         try:
@@ -230,7 +230,8 @@ class JsonEditorApp:
                     json_obj = json_obj[part]
                 if type(json_obj) == dict and "_id" in json_obj:
                     _id = json_obj["_id"]
-
+            # if not len(key):
+            #     key = [path_parts[0]]
             return json_obj, key, _id
         except (KeyError, IndexError, ValueError) as e:
             return {"error": "Invalid path"}, None, None
@@ -256,7 +257,7 @@ class JsonEditorApp:
             self.set_json_part(self.data, path, updated_data)
             
 
-            client = self.get_client()
+            client :mongo_client.MongoDBClient= self.get_client()
             target_string = path
             string_list = client.collection_names
 
@@ -265,12 +266,15 @@ class JsonEditorApp:
             if result:
 
                 selected_data, key,  _id = self.get_json_part(self.data, path)
-                update_data_ = list_to_flat_dict(key, updated_data)
+                if not len(key):
+                    update_data_ = updated_data
+                else:
+                    update_data_ = list_to_flat_dict(key, updated_data)
                 # ori_database = self.get_database()
                 # ori_database.update(update_data_)
                 query = {"_id": ObjectId(_id)}
 
-                ret = client.update_entry(query, update_data_, result, None, False )
+                ret = client.update_entry(query, update_data_, result, None, False, overwrite_doc= not len(key) )
                 if not ret: raise Exception("Error updating database")
                 print("mongo update res", ret, query)
 
@@ -278,6 +282,8 @@ class JsonEditorApp:
         except json.JSONDecodeError:
             self.status_label.config(text="Invalid JSON format!", fg="red")
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             self.status_label.config(text=f"Error: {str(e)}", fg="red")
         finally: 
             return 'break'

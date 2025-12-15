@@ -32,7 +32,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["--br_sync", "1", "--cl_cl_disc", "0"],
+            // "args": ["--br_sync", "1", "--cl_cl_disc", "0"],
             //  "args": ["--debug", "true"],
             "env": {
                 // "RESOLVE_SCRIPT_API": "%PROGRAMDATA%\\Blackmagic Design\\DaVinci Resolve\\Support\\Developer\\Scripting",
