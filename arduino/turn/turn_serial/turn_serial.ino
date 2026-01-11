@@ -326,6 +326,16 @@ void loop() {
               y = serial_read_2bytes();
               release_key_only(y);
               break;
+              case 40019:// panic, beep repeteadly 
+              Serial.println("panic");
+              while (true){
+                blink(3, 50, 50, 1300);
+                delay(20);
+                blink(3, 10, 50, 2000);
+                delay(10);
+              }
+              break;
+
             default:
                         //  blink(4);
                           blink(1, 250, 250, 1600);
