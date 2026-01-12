@@ -5,7 +5,8 @@
 
 void softwareReset() {
   wdt_enable(WDTO_15MS);  // Enable watchdog with a 15ms timeout
-  while (1);              // Wait for watchdog to trigger reset
+  while (1)
+    ;  // Wait for watchdog to trigger reset
 }
 
 enum serialStatusEnum { settingX,
@@ -28,8 +29,8 @@ int16_t boardMode = mouseKeyboard;
 unsigned long long start = millis();
 unsigned long long start2 = start;
 unsigned long long startPress = start;
-bool queueReset  = false;
-
+bool queueReset = false;
+int bPanic = 0;
 const int PIN_BEEP_REM = 3;
 char buffer[120];
 
@@ -170,8 +171,8 @@ void loop() {
   String s;
   // if (Serial.availableForWrite() < 1)
   //   blink(10, 250, 50, 500);
-  if (queueReset){
-   // blink(3, 250, 50, 1300);
+  if (queueReset) {
+    // blink(3, 250, 50, 1300);
     softwareReset();
     queueReset = false;
   }
@@ -187,166 +188,182 @@ void loop() {
         y = serial_read_2bytes();
         serialStatus = ready;
         break;
-      case ready:
-        {
-          key = y;
-          switch (x) {
-            case 30000:
-              press_key(y);
-              break;
-            case 30001:
-              s = serial_read_string(y);
-              Keyboard.print(s);
-              break;
-            case 30002:
-              write_pass();
-              break;
-            case 30003:
-              write_string2();
-              break;
-            case 30004:
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              AbsMouse.move(x, y);
-              break;
-            case 30005:
-
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              AbsMouse.init(x, y);
-              bPressEnter = false;
-              for (int n_counter = 0; n_counter < 10; n_counter++) {
-                digitalWrite(LED_PIN, HIGH);
-                if (n_counter % 2 == 0)
-                  delay(50);
-                else
-                  delay(10);
-                digitalWrite(LED_PIN, LOW);
-                delay(50);
-              }
-
-              break;
-            case 30006:
-                  blink(2, 10, 10, 1100);
-
-               delay(10);
-                queueReset = true;
-
-              // digitalWrite(resetPin, LOW); //reset can be done opening and closing serial with baud 1200
-               delay(10);
-              break;
-            case 30007:  // right click
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              move_click_right(x, y);
-              break;
-            case 30009:  // left click
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              move_click(x, y);
-              break;
-            case 30008:  //change delay
-              delay_between = y;
-              break;
-            case 40010:
-              intervalMins = serial_read_2bytes();
-              waitMs = intervalMins * 60;
-              waitMs *= 1000;
-              start = millis();
-              break;
-            case 40011:
-              // blink(4, 100, 200, 700);
-              bBeepRemainerTime = serial_read_2bytes();
-              break;
-            case 40009:
-              boardMode = serial_read_2bytes();
-              if (bBeepRemainerTime)
-                blink(boardMode + 1, 500, 300, 600);
-              break;
-            case 40012:
-            {
-              y = serial_read_2bytes();
-              unsigned long intervalMins_ = intervalMins;
-              unsigned long ct_ = millis() / 1000;
-              unsigned long *ptrArray[] = {
-                &intervalMins_,
-                &targetMs,
-                &elapsedMs,
-                &remMs,
-                &hours,
-                &minutes,
-                &tensOfMinutes,
-                &ct_
-              };
-              //blink(13, 150, 50, 0);
-              int s = 4;  // sizeof(ptrArray[0])
-              for (int n = 0; n < sizeof(ptrArray); n++)
-                memcpy(buffer + s * n, ptrArray[n], s);
-              // for (int n = 0; n < 1; n++){
-              //   unsigned char cc = buffer[n];
-              Serial.write(buffer, 120);
-              // }
-
-              break;
-            // case 40009: cannot go in here lol
-            //   // boardMode = serial_read_2bytes();
-            //   // if (bBeepRemainerTime)
-            //   //   blink(boardMode + 1, 500, 300, 600);
-            //   break;
-            }
-            case 40013:
-              //press left click 
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              move_click_2(x, y, false, true);
-              break;
-            case 40014:
-              //release left click 
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              move_click_2(x, y, false, false);
-              break;
-            case 40015:
-              //press right click 
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              move_click_2(x, y, true, true);
-              break;
-            case 40016:
-              //release right click 
-              x = serial_read_2bytes();
-              y = serial_read_2bytes();
-              move_click_2(x, y, true, false);
-              break;
-            case 40017:
-              y = serial_read_2bytes();
-              press_key_only(y);
-              break;
-            case 40018:
-              y = serial_read_2bytes();
-              release_key_only(y);
-              break;
-              case 40019:// panic, beep repeteadly 
-              Serial.println("panic");
-              while (true){
-                blink(3, 50, 50, 1300);
-                delay(20);
-                blink(3, 10, 50, 2000);
-                delay(10);
-              }
-              break;
-
-            default:
-                        //  blink(4);
-                          blink(1, 250, 250, 1600);
-                          blink(1, 250, 250, 1400);
-                          blink(1, 250, 250, 1200);
-
-              move_click(x, y);
-          }
-          serialStatus = settingX;
-          break;
-        }
     }
+  }
+  if (serialStatus == ready) {
+
+    key = y;
+    switch (x) {
+      case 30000:
+        press_key(y);
+        break;
+      case 30001:
+        s = serial_read_string(y);
+        Keyboard.print(s);
+        break;
+      case 30002:
+        write_pass();
+        break;
+      case 30003:
+        write_string2();
+        break;
+      case 30004:
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        AbsMouse.move(x, y);
+        break;
+      case 30005:
+
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        AbsMouse.init(x, y);
+        bPressEnter = false;
+        for (int n_counter = 0; n_counter < 10; n_counter++) {
+          digitalWrite(LED_PIN, HIGH);
+          if (n_counter % 2 == 0)
+            delay(50);
+          else
+            delay(10);
+          digitalWrite(LED_PIN, LOW);
+          delay(50);
+        }
+
+        break;
+      case 30006:
+        blink(2, 10, 10, 1100);
+
+        delay(10);
+        queueReset = true;
+
+        // digitalWrite(resetPin, LOW); //reset can be done opening and closing serial with baud 1200
+        delay(10);
+        break;
+      case 30007:  // right click
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        move_click_right(x, y);
+        break;
+      case 30009:  // left click
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        move_click(x, y);
+        break;
+      case 30008:  //change delay
+        delay_between = y;
+        break;
+      case 40010:
+        intervalMins = serial_read_2bytes();
+        waitMs = intervalMins * 60;
+        waitMs *= 1000;
+        start = millis();
+        break;
+      case 40011:
+        // blink(4, 100, 200, 700);
+        bBeepRemainerTime = serial_read_2bytes();
+        break;
+      case 40009:
+        boardMode = serial_read_2bytes();
+        if (bBeepRemainerTime)
+          blink(boardMode + 1, 500, 300, 600);
+        break;
+      case 40012:
+        {
+          y = serial_read_2bytes();
+          unsigned long intervalMins_ = intervalMins;
+          unsigned long ct_ = millis() / 1000;
+          unsigned long *ptrArray[] = {
+            &intervalMins_,
+            &targetMs,
+            &elapsedMs,
+            &remMs,
+            &hours,
+            &minutes,
+            &tensOfMinutes,
+            &ct_
+          };
+          //blink(13, 150, 50, 0);
+          int s = 4;  // sizeof(ptrArray[0])
+          for (int n = 0; n < sizeof(ptrArray); n++)
+            memcpy(buffer + s * n, ptrArray[n], s);
+          // for (int n = 0; n < 1; n++){
+          //   unsigned char cc = buffer[n];
+          Serial.write(buffer, 120);
+          // }
+
+          break;
+          // case 40009: cannot go in here lol
+          //   // boardMode = serial_read_2bytes();
+          //   // if (bBeepRemainerTime)
+          //   //   blink(boardMode + 1, 500, 300, 600);
+          //   break;
+        }
+      case 40013:
+        //press left click
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        move_click_2(x, y, false, true);
+        break;
+      case 40014:
+        //release left click
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        move_click_2(x, y, false, false);
+        break;
+      case 40015:
+        //press right click
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        move_click_2(x, y, true, true);
+        break;
+      case 40016:
+        //release right click
+        x = serial_read_2bytes();
+        y = serial_read_2bytes();
+        move_click_2(x, y, true, false);
+        break;
+      case 40017:
+        y = serial_read_2bytes();
+        press_key_only(y);
+        break;
+      case 40018:
+        y = serial_read_2bytes();
+        release_key_only(y);
+        break;
+      case 40019:  // panic, beep repeteadly
+        // Serial.println("panic");
+        bPanic = 1;
+        // while (bPanic) {
+        //   blink(3, 50, 50, 1300);
+        //   delay(20);
+        //   blink(3, 10, 50, 2000);
+        //   delay(10);
+        // }
+        break;
+      case 40020:
+        // Serial.println("unpanic");
+        bPanic = 0;
+        break;
+
+      default:
+        //  blink(4);
+        blink(1, 250, 250, 1600);
+        blink(1, 250, 250, 1400);
+        blink(1, 250, 250, 1200);
+        move_click(x, y);
+        break;
+    }
+    serialStatus = settingX;
+  }
+  if (bPanic == 1){
+    for (int i = 0; i < 1; i++){
+          blink(3, 50, 50, 1300);
+          delay(20);
+
+    }
+    bPanic++;
+  }else if (bPanic == 2){
+      blink(3, 10, 50, 2000);
+      delay(10);
+      bPanic = 1;
   }
 }
