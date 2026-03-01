@@ -1,0 +1,31 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Dictionary Grid</title>
+        <style>
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1px;
+                background-color: #ddd;
+                padding: 1px;
+            }
+            .grid > div {
+                background-color: white;
+                padding: 10px;
+                text-align: center;
+            }
+            .header {
+                font-weight: bold;
+                background-color: #f2f2f2 !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="grid">
+    <div class="header">id</div><div class="header">name</div><div class="header">age</div><div class="header">city</div><div>1</div><div>Alice</div><div>28</div><div>New York</div><div>2</div><div>Bob</div><div>34</div><div>Chicago</div><div>3</div><div>Charlie</div><div>22</div><div>Los Angeles</div><div>4</div><div>Diana</div><div>29</div><div>Miami</div>
+        </div>
+    </body>
+    </html>
+    

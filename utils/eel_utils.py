@@ -6,6 +6,7 @@ import utils.cloud_utils.mongo_client as mongo_client
 import utils.cloud_utils.gdrive as gdrive
 import utils.cloud_utils.mongo_schema as mongo_schema
 import utils.mongo_utils as mu
+import json
 
 def get_field_current(obj, path):
     keys = path.split('.')
@@ -93,6 +94,24 @@ def check_field_presence(dict1, dict2, field1, field2):
             return True
     return False
 
+import glob
+
+def get_most_recent_audio_file_with_string(folder_path, search_string=None):
+    # Search for MP3 and WAV files in the specified folder
+    audio_files = glob.glob(os.path.join(folder_path, "*.mp3")) + \
+                  glob.glob(os.path.join(folder_path, "*.wav"))
+    
+    # Filter files that contain the given string in their name
+    matching_files = [file for file in audio_files if search_string in os.path.basename(file)] if search_string else audio_files
+    
+    if not matching_files:
+        return None  # Return None if no matching audio files are found
+    
+    # Sort files by modification time, newest first
+    most_recent_file = max(matching_files, key=os.path.getmtime)
+    return most_recent_file
+
+
 # class eelHandler():
 #     def __init__(self) -> None:
 #         pass
@@ -123,14 +142,78 @@ def delete_field(payload):
     update_task(payload, lambda: delete_field_(find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["field"], payload["index"]))
 
 @eel.expose
-def delete_entry(payload):
+def play_track(payload):
+    track_n = payload["track_n"]
+    file_name = str(track_n).zfill(5)
+    base_folder1 = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\newstart\\"), file_name)
+    base_folder2 = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\dawd\Exported"), file_name)
+    
+    folder = base_folder1 if os.path.isdir(base_folder1) else base_folder2
+    mixdown_fld = os.path.join(folder, "Mixdown")
+    file = get_most_recent_audio_file_with_string(mixdown_fld)
+    cmd = f'"{file}"'
+    logging.info(f"Playing track: {cmd}" )
+    os.system(cmd)
+    
+    
+@eel.expose
+def update_links(payload):
+    logging.info(f"Updating links {payload['track_n']}" )
+    links_file = get_links_file(payload)
+    assert os.path.isfile(links_file)
+    with open(links_file, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    payload["value"] = data.get("links", {})
+    update_task(payload, lambda: update_nested_field(find_element_by_id(mongo.cd[payload["collection"]], payload["_id"]), payload["path"], payload["index"], payload["field"], payload["value"]))
+
+def get_links_file(payload):
+    track_n = payload["track_n"]
+    file_name = str(track_n).zfill(5)
+    links_file = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\newstart\\"), file_name, file_name) +  ".json"
+    return links_file
+                              
+@eel.expose
+def open_links_file(payload):
+    logging.info(f"Opening links file {payload['track_n']}" )
+    links_file = get_links_file(payload)
+    if not os.path.isfile(links_file):
+        logging.info("File doesn't exist, creating with defaults")
+        with open(links_file, 'w') as f:
+            json.dump({"links": {site: "" for site in mongo_schema.default_links_sites}}, f, indent=4)
+    else:
+        with open(links_file, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        if not data.get("links"):
+            data.update({"links": {site: "" for site in mongo_schema.default_links_sites}})
+        with open(links_file, 'w') as f:
+            json.dump(data, f, indent=4)
+            
+    os.startfile(links_file)
+
+
+@eel.expose
+def explorer(payload):
+    track_n = payload["track_n"]
+    file_name = str(track_n).zfill(5)
+    folder = os.path.join( os.path.expandvars( r"C:\Users\%username%\Documents\Studio One\Songs\newstart"), file_name) 
+    os.startfile(folder)
+    # cmd = ["xyplorer", folder]
+    # print("Explorer command", cmd)
+    # subprocess.Popen(cmd, shell=True)
+
+    
+
+    
+    
+def base_delete_entry(payload, mon=None):
+    mongo_ = mongo or mon
     if payload["collection"] == "track_entries":
-        entry = find_element_by_id(mongo.cd[payload["collection"]], payload["_id"])
-        if len(entry["file_details"]["drive_id"]):
+        entry = find_element_by_id(mongo_.cd[payload["collection"]], payload["_id"])
+        if "file_details" in entry and "drive_id" in  entry["file_details"] and len(entry["file_details"]["drive_id"]):
             gdrive.delete_file(entry["file_details"]["drive_id"])
         
     delete_query = {"_id": ObjectId(payload["_id"])}
-    ret = mongo.delete_entry(delete_query, payload["collection"])
+    ret = mongo_.delete_entry(delete_query, payload["collection"])
     if ret and ret.deleted_count:
         logging.info(f"""Deleted entry with id: {payload["_id"]} , {ret.deleted_count  if ret else 0}""")
     else:
@@ -147,22 +230,24 @@ def delete_entry(payload):
         collection_entry_name = "session_entry_id"
 
     if len(other_collection):    
-        attempts_filtered = [item for item in mongo.cd["upload_attempts"] if item.get(collection_entry_name) == payload["_id"]]
+        attempts_filtered = [item for item in mongo_.cd["upload_attempts"] if item.get(collection_entry_name) == payload["_id"]]
         def check(attempt):
 #            for attempt in attempts_:
-            for item in mongo.cd[other_collection]:
+            for item in mongo_.cd[other_collection]:
                 if attempt[other_collection_entry_name] == item["_id"]:
                     return True
             return False
         for attempt in attempts_filtered:
             ret = check(attempt)
             if not ret:
-                deleted = mongo.delete_entry({"_id": ObjectId(attempt["_id"])}, "upload_attempts")
+                deleted = mongo_.delete_entry({"_id": ObjectId(attempt["_id"])}, "upload_attempts")
                 logging.info(f"--->deleting unreferenced upload attempt with id  {attempt['_id']} {deleted.deleted_count if deleted else 'delete fail'}")
         
         #utils.check_field_presence(mongo.cd["track_entries"], mongo.cd["upload_attempts"], "upload_attempts", "track_ids")
 
-
+@eel.expose
+def delete_entry(payload):
+    base_delete_entry(payload)
     eel.setCompState(get_track_entries())
 
 @eel.expose

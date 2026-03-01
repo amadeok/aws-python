@@ -7,16 +7,21 @@ import logging, io
 # Set up logging
 #logging.basicConfig(level=logging.INFO)
 
-# Load the service account's credentials from the JSON file
-credentials = service_account.Credentials.from_service_account_file(
-    'social-media-helper-417814-22917349ca42.json',
-    scopes=['https://www.googleapis.com/auth/drive']
-)
+_service = None
 
-# Create a Google Drive API client
-drive_service = build('drive', 'v3', credentials=credentials)
+def get_service():
+    global _service
+    if _service is None:
+        credentials = service_account.Credentials.from_service_account_file(
+            'social-media-helper-417814-22917349ca42.json',
+            scopes=['https://www.googleapis.com/auth/drive']
+        )
+        _service = build('drive', 'v3', credentials=credentials)
+    return _service
 
 def create_file( file_to_upload, file_name):
+    drive_service = get_service()
+
     try:
     # File metadata
         file_metadata = {
@@ -39,9 +44,13 @@ def create_file( file_to_upload, file_name):
 
 
 if __name__ == "__main__":
+    drive_service = get_service()
+
     create_file(drive_service)
     
 def delete_file( id):
+    drive_service = get_service()
+
     try:
         drive_service.files().delete(fileId=id).execute()
         logging.info(f'Item with ID {id} deleted successfully.')
@@ -50,6 +59,8 @@ def delete_file( id):
 
 
 def download_file( file_id, file_name):
+    drive_service = get_service()
+
     try:
         # Request the file content
         request = drive_service.files().get_media(fileId=file_id)

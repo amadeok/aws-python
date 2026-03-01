@@ -186,3 +186,20 @@ adb shell am broadcast    -a android.intent.action.MEDIA_SCANNER_SCAN_FILE   -d 
 adb -s emulator-5554 push "C:\Users\amade\Videos\20240318_170455.mp4" /mnt/shared/Pictures/1234.mp4
 adb shell am start -n com.android.gallery3d/.app.GalleryActivity
 adb shell am start -a android.intent.action.VIEW -n com.instagram.android/.activity.MainTabActivity
+
+
+adb shell mv mnt/shared/Pictures/0ainsta mnt/shared/Pictures/__0ainsta
+adb shell mv  mnt/shared/Pictures/__0ainsta mnt/shared/Pictures/0ainsta
+
+
+ffmpeg -i 00024v2_s_00.mp4 -i 00024v2_s_01.mp4 -filter_complex "[0:v]trim=start_frame=0:end_frame=200[v0];[1:v]trim=start_frame=200:end_frame=400[v1];[v0][v1]concat=n=2:v=1:a=0[outv]" -map "[outv]" output.mp4
+
+33177600
+2181600
+
+
+"F:\\LDPlayer\\LDPlayer9\\adb.exe  -s emulator-5554 shell input text '#shorts #music #piano'"
+
+adb shell input swipe 200 20 220 500
+
+3.293

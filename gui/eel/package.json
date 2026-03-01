@@ -10,7 +10,7 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start:js": "set PORT=3560 && react-scripts start",
+    "start:js": "set PORT=3560 && set BROWSER=none && react-scripts start",
     "build:js": "react-scripts build",
     "start:eel": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310\\python index.py --develop",
     "build:eel": "C:\\Users\\amade\\AppData\\Local\\Programs\\Python\\Python310\\python -m eel index.py build  --onefile --name react-eel-app -w --exclude-module=torch --exclude-module=cv2  ",

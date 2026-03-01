@@ -1,4 +1,5 @@
 
+import datetime
 import json
 import  os
 import time
@@ -10,6 +11,7 @@ from typing import List, Dict
 
 
 
+default_links_sites = ["youtube", "spotify", "apple_music", "soundcloud", "tidal", "amazon_music", "deezer", "pandora", "google_play_music"]
 upload_sites = ["youtube", "tiktok", "instagram", "threads", "twitter", "facebook", "tumblr" ]
 
 base_schema = {
@@ -92,27 +94,44 @@ class uploadSites():
     
     
 class trackSchema():
+    links_obj_default = {
+        "youtube": "",
+        "spotify":"",
+        "apple_music" :"",
+        "soundcloud" :"",
+        "tidal" :"",
+        "amazon_music" :"",
+        "deezer" :"",
+        "pandora" :"",
+        "google_play_music" :""
+        }
     schema = {
         "type": "object",
         "properties": {
             "track_title": {"type": "string"},
             "op_number": {"type": "number"},
-            "grade": {"type": "string"},
+            "grade": {"type": "number"},
             "for_distrokid": {"type": "boolean"},
             # "file_name": {"type": "string"},
             "entry_status": {"type": "string"},
              "upload_attempts": {"type": "array", "default": []},   #{ "type": "array", "items": uploadSite.schema}
-             "file_details": fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
+             "file_details": {"type": "object"},# fileDetailsSchema.schema,#{ "type": fileDetailsSchema.schema},
              "insertion_date": {"type": "string"},
              "secondary_text": {"type": "string"},
+             "album_number": {"type": "number", "default": -1},
             # "uploads": uploadSites.schema,   #{ "type": "array", "items": uploadSite.schema}
             "_id": {"type": "string"},
+            "links": {"type" : "object"}
         },
-        "required": ["track_title", "op_number", "grade", "for_distrokid", "entry_status", "upload_attempts", "file_details", "insertion_date", "secondary_text"], "additionalProperties": False 
+        "required": ["track_title", "op_number", "grade", "for_distrokid", "links",
+                     "entry_status", "upload_attempts", "file_details", "insertion_date", "secondary_text",  "album_number"], "additionalProperties": False 
     }
-    def create(track_title, op_number, grade, for_distrokid, file_details, entry_status, upload_attempts, insertion_date, secondary_text ):  
+    def create(track_title, op_number, grade=1, for_distrokid=False, file_details={}, entry_status="pending", upload_attempts=[], insertion_date=None, secondary_text="", album_number=-1, links=links_obj_default ):  
+        
         obj =  { "track_title": track_title, "op_number":op_number,  "grade":grade, "for_distrokid": for_distrokid, 
-                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts, "insertion_date": insertion_date, "secondary_text": secondary_text}#,  "uploads": uploads  } 
+                "file_details": file_details, "entry_status": entry_status, "upload_attempts":upload_attempts, 
+                "insertion_date": insertion_date or datetime.datetime.utcnow().isoformat(), 
+                "secondary_text": secondary_text, "album_number": album_number, "links":links}#,  "uploads": uploads  } 
         validate(obj, trackSchema.schema)
         return obj
 
@@ -139,7 +158,7 @@ if __name__ == "__main__":
     #print(o)
     example_track = {
         "track_title": "My Track",
-        "grade": "A",
+        "grade": 1,
         "for_distrokid": True,
         "uploads": [
             {
@@ -161,23 +180,37 @@ if __name__ == "__main__":
     
     uri = os.getenv("MONGODB_URI")
     
+    mongo_client = MongoDBClient(uri, 'cristiank_website', {"newsletter_emails":None}  )
     
-    mongo_client = MongoDBClient(uri, 'social-media-helper',
-                             {'track_entries': trackSchema.schema, 
-                              "upload_attempts": uploadAttempt.schema,
-                              "upload_sessions": uploadSession.schema} )
+    # mongo_client = MongoDBClient(uri, 'social-media-helper',
+    #                          {'track_entries': trackSchema.schema, 
+    #                           "upload_attempts": uploadAttempt.schema,
+    #                           "upload_sessions": uploadSession.schema} )
     
-    time.sleep(20)
+    time.sleep(1)
     #obj = trackSchema.create("op 32", "b", False,   {"youtube":uploadSite.create("tt", [uploadAttemp.create("2023" , "fail")])})
-    example_track = trackSchema.create("op 32", "b", False,  uploadSites.create())
+    # example_track = trackSchema.create("op 32", "b", False,  uploadSites.create())
     
-    print(json.dumps(example_track, indent=4))
+    # print(json.dumps(example_track, indent=4))
 
-    mongo_client.validate_document(example_track, trackSchema.schema )
+    # mongo_client.validate_document(example_track, trackSchema.schema )
 
-    mongo_client.delete_all_in_collection()
+    # mongo_client.delete_all_in_collection()
+    # entries = list(mongo_client.client["newsletter_emails"].find({}))
+        
+    # Step 2: Access the database
+    db = mongo_client.client["cristiank_website"]
 
-    entries = mongo_client.fetch_entries()
+    # Step 3: Access the collection
+    collection = db["newsletter_emails"]
+
+    # Step 4: Retrieve all documents
+    documents = collection.find({})
+
+    # Step 5: Print or process the documents
+    for doc in documents:
+        print(doc)
+    # entries = mongo_client.fetch_entries("newsletter_emails")
     print("Existing entries:", entries)
 
     new_entry_id = mongo_client.create_entry(example_track)

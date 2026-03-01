@@ -16,14 +16,14 @@ load_dotenv()
 
 
 class MongoDBClient:
-    def __init__(self, connection_string, database_name, collection_schemas):
+    def __init__(self, connection_string, database_name, collection_schemas, client=None, local=False):
         ca = certifi.where()
 
-        logging.info(f"initailizing monbodb client with string {connection_string}")
-        if False:
+        logging.info(f"initailizing monbodb client with string")
+        if local:
             self.client = MongoClient('localhost', 27017, tlsCAFile=ca) 
         else:
-            self.client = MongoClient(connection_string,  tlsCAFile=ca) #changing dns to 8.8.4.4 fixed it once
+            self.client = client if client else MongoClient(connection_string,  tlsCAFile=ca) #changing dns to 8.8.4.4 fixed it once
         
         self.db = self.client[database_name]
         self.collection_names = {key for key, value in collection_schemas.items() }
@@ -52,11 +52,15 @@ class MongoDBClient:
     # def update_entry(self, query, update_data):
     #     return collection.update_one(query, {"$set": update_data})
 
-    def update_entry(self, query, update_data, collection, schema=None):
-        if not schema or  self.validate_document(update_data, schema):
+    def update_entry(self, query, update_data, collection, schema=None, soft_validate=False, overwrite_doc=False):
+        if not schema or  self.validate_document(update_data, schema, soft_validate):
             update_data_ = update_data.copy()
-            del update_data_["_id"]
-            return self.col(collection).update_one(query, {"$set": update_data_})
+            if "_id" in update_data_:
+                del update_data_["_id"]
+            if overwrite_doc:
+                return self.col(collection).replace_one(query, update_data_)
+            else:
+                return self.col(collection).update_one(query, {"$set": update_data_})
             logging.info("Document updated successfully.")
         else:
             logging.info("Document validation failed. Not inserted.")
@@ -89,15 +93,48 @@ class MongoDBClient:
                 return False
         return True
 
-    def validate_document(self, document, schema_  ):
+    def validate_document(self, document: dict, schema_, soft_validate=False  ):
+        if not soft_validate:
+            try:
+                validate(instance=document, schema=schema_)
+                return True
+            except Exception as e:
+                logging.error(f"Validation Error: {e}")
+                return False
+        else:
+            all_keys_present = document.keys() <= schema_["properties"].keys()
+            return all_keys_present
+            # if not all_keys_present: return False
+            # for k, val in document.items():
+            #     if not schema_["properties"][k] == 
+
+    def update_field_value_or_range(self, field_name, new_value, collection_name, exact_value=None, min_value=None, max_value=None):
         try:
-            validate(instance=document, schema=schema_)
-            return True
+
+            collection = self.col(collection_name)
+            
+            query = {}
+            if exact_value is not None:
+                query = {field_name: exact_value}  # Match exact value
+            elif min_value is not None and max_value is not None:
+                query = {field_name: {'$gte': min_value, '$lte': max_value}}  # Match range
+            else:
+                raise ValueError("Must provide either exact_value or both min_value and max_value")
+            
+            # Update all matching documents
+            result = collection.update_many(
+                query,
+                {'$set': {field_name: new_value}}
+            )
+            
+            print(f"Matched {result.matched_count} documents and modified {result.modified_count} documents")
+            
+            return result.modified_count
+        
         except Exception as e:
-            logging.info(f"Validation Error: {e}")
-            return False
-
-
+            print(f"An error occurred: {e}")
+            return 0
+            
 # Example usage:
 if __name__ == "__main__":
     uri = os.getenv("MONGODB_URI")

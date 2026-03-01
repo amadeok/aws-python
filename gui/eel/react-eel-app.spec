@@ -3,7 +3,7 @@
 
 a = Analysis(
     ['index.py'],
-    pathex=[],
+    pathex=['F:\\all\\GitHub\\aws-python'],
     binaries=[],
     datas=[('F:\\all\\GitHub\\aws-python\\gui\\eel\\env_eel\\lib\\site-packages\\eel\\eel.js', 'eel'), ('build', 'build')],
     hiddenimports=['bottle_websocket'],
